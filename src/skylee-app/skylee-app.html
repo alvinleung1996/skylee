@@ -1,0 +1,86 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+
+<link rel="import" href="../../bower_components/curium-animated-pages/curium-animated-pages.html">
+<link rel="import" href="../../bower_components/curium-animated-pages/animations/curium-scene-animation-manager.html">
+
+<link rel="import" href="../skylee-styles/skylee-styles.html">
+
+<dom-module id="skylee-app">
+  <template strip-whitespace>
+    <style include="skylee-styles">
+      :host {
+        display: block;
+        overflow: hidden;
+      }
+      #scenes {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+
+    <app-location route="{{_route}}" use-hash-as-path></app-location>
+    <app-route
+      route="{{_route}}"
+      pattern="/:sceneID"
+      data="{{_routeData}}"
+      tail="{{_subroute}}">
+    </app-route>
+
+    <curium-scene-animation-manager id="scene-animation-manager"></curium-scene-animation-manager>
+    <curium-animated-pages id="scenes" selected-attribute="selected-scene" attr-for-selected="scene-id" selected="{{_routeData.sceneID}}" animation-manager="#scene-animation-manager">
+      <skylee-main scene-id="main" element-path="../skylee-main/skylee-main.html" route="{{_subroute}}"></skylee-main>
+    </curium-animated-pages>
+
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class SkyleeApp extends Polymer.Element {
+
+      static get is() { return 'skylee-app'; }
+      
+      static get properties() {
+        return {};
+      }
+
+      static get observers() {
+        return [
+          '_onSceneIDChanged(_routeData.sceneID)'
+        ];
+      }
+
+      ready() {
+        super.ready();
+
+        this.$.scenes.addEventListener('iron-select', e => this._onSceneSelected(e));
+      }
+
+      _onSceneSelected(evt) {
+        let selectedPage = evt.detail.item;
+        if (selectedPage) {
+          if (selectedPage.hasAttribute('element-path') && !selectedPage.hasAttribute('element-loaded')) {
+            let path = selectedPage.getAttribute('element-path');
+            Polymer.importHref(this.resolveUrl(path), null, null, true);
+            selectedPage.setAttribute('element-loaded', '');
+          }
+        }
+      }
+
+      _onSceneIDChanged(sceneID) {
+        if (!sceneID) {
+          console.info(`Redirecting to default page: ${Skylee.defaultPath}`);
+          window.location.href = Skylee.defaultPath;
+        }
+      }
+
+    }
+
+    window.customElements.define(SkyleeApp.is, SkyleeApp);
+  </script>
+</dom-module>

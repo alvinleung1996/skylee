@@ -1,0 +1,338 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../../bower_components/curium-responsive-layout/curium-responsive-layout.html">
+<link rel="import" href="../../bower_components/curium-proportional/curium-proportional.html">
+
+<link rel="import" href="../skylee-icons/skylee-icons.html">
+
+<dom-module id="skylee-about">
+  <template strip-whitespace>
+    <style>
+      :host {
+        display: block;
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-top: var(--skylee-toolbar-height, 0px);
+        background-color: #fafafa;
+      }
+
+      .section {
+        min-height: 300px;
+        display: flex;
+        justify-content: center;
+      }
+      .section:not(:first-of-type) {
+        border-top: 1px solid rgba(0, 0, 0, 0.12);
+      }
+      .section:nth-of-type(odd) {
+        background-color: white;
+      }
+      .section > * {
+        flex: 0 1 var(--skylee-content-max-width);
+        box-sizing: border-box;
+      }
+
+      [layout="horizontal-2"] {
+        display: flex;
+      }
+      [layout="horizontal-2"] > * {
+        flex: 1 1 50%;
+        box-sizing: border-box;
+      }
+
+      [layout="horizontal-2-reverse"] {
+        display: flex;
+        flex-direction: row-reverse;
+      }
+      [layout="horizontal-2-reverse"] > * {
+        flex: 1 1 50%;
+        box-sizing: border-box;
+      }
+      
+      [layout="vertical"] {
+        display: flex;
+        flex-direction: column;
+      }
+      [layout="vertical"] > * {
+        flex: 1 0 auto;
+      }
+
+      .padding-block {
+        padding: 20px;
+      }
+
+      .text-block {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+      }
+      .text-block > :not(:first-child) {
+        margin-top: 16px;
+      }
+      .text-block > h2 {
+        margin: 0;
+        font-family: var(--skylee-font-family);
+        font-size: var(--skylee-header-font-size);
+        font-weight: var(--skylee-header-font-weight);
+        color: var(--skylee-header-font-color);
+      }
+      .text-block > p {
+        margin: 0;
+        font-family: var(--skylee-font-family);
+        font-size: var(--skylee-font-size);
+        font-weight: var(--skylee-font-weight);
+        color: var(--skylee-font-color);
+        text-align: justify;
+      }
+
+      .image-block {
+        display: flex;
+      }
+      .image-block > * {
+        flex: 1;
+      }
+
+      .table-block {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .table-block table {
+        border-collapse: collapse;
+      }
+      .table-block td {
+        padding: 5px;
+      }
+      .table-block td:not(:first-of-type) {
+        border-left: 1px dashed rgba(0, 0, 0, 0.12);
+      }
+      .table-block thead td {
+        font-family: var(--skylee-font-family);
+        font-size: var(--skylee-font-size);
+        font-weight: var(--skylee-font-weight);
+        color: var(--skylee-font-color);
+      }
+      .table-block tbody td {
+        border-top: 1px solid rgba(0, 0, 0, 0.12);
+        font-family: var(--skylee-font-family);
+        font-size: var(--skylee-font-size);
+        font-weight: var(--skylee-font-weight);
+        color: var(--skylee-font-color);
+      }
+
+      .lyrics-block {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      .lyrics-block > h2 {
+        margin: 0;
+        font-family: var(--skylee-font-family);
+        font-size: var(--skylee-header-font-size);
+        font-weight: var(--skylee-header-font-weight);
+        color: var(--skylee-header-font-color);
+      }
+      .lyrics-block > p {
+        margin: 8px 0 0 0;
+        font-family: var(--skylee-font-family);
+        font-size: var(--skylee-font-size);
+        font-weight: var(--skylee-font-weight);
+        color: var(--skylee-font-color);
+      }
+      .lyrics-block > p:first-of-type {
+        margin-top: 16px;
+      }
+
+      .download-block {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+      }
+      .download-block > h2 {
+        margin: 0;
+        font-family: var(--skylee-font-family);
+        font-size: var(--skylee-header-font-size);
+        font-weight: var(--skylee-header-font-weight);
+        color: var(--skylee-header-font-color);
+      }
+      .download-block > a {
+        margin-top: 10px;
+        text-decoration: none;
+        font-family: var(--skylee-font-family);
+        font-size: var(--skylee-font-size);
+        font-weight: var(--skylee-button-font-weight);
+        color: var(--skylee-font-color);
+      }
+      .download-block > a > paper-button {
+        margin: 0;
+      }
+
+      .map-iframe-block {
+        display: flex;
+      }
+      .map-iframe-block > * {
+        min-height: 300px;
+        flex: 1;
+        border-radius: 5px;
+      }
+
+
+    </style>
+
+    <div class="section">
+      <curium-responsive-layout layout-map='{"0":"vertical","600":"horizontal-2-reverse"}'>
+
+        <div class="padding-block text-block">
+          <h2>Location</h2>
+          <p>Located inside the main campus, it is extremely convenient to travel from Lee Hall to any parts of HKU. Since Lee Hall is located at the Composite Building, next to Hsu Long Sing Amenities Centre, it takes less than 2 minutes to reach the Union Restaurant, the Students’ Union Office, the photocopying centre and the co-op.</p>
+        </div>
+
+        <div class="padding-block map-iframe-block"><iframe style="border: 0px;" src="https://www.google.com/maps/embed/v1/place?q=place_id:ChIJy_g-sIX_AzQRQKVMfR8BxAk&key=AIzaSyBCeLWP6ls4Xl-lvQEpw7tYlK2msDviuLc" allowfullscreen></iframe></div>
+
+      </curium-responsive-layout>
+    </div>
+
+    <div class="section">
+      <curium-responsive-layout layout-map='{"0":"vertical","600":"horizontal-2"}'>
+
+        <div class="padding-block text-block">
+          <h2>Transportation</h2>
+          <p>Lee Hall is easily accessible. MTR, all buses and mini-buses getting to the HKU, also get to Lee Hall.</p>
+        </div>
+
+        <div class="padding-block table-block">
+          <table>
+            <thead>
+              <tr>
+                <td>Starting Point</td>
+                <td>Bus Routes</td>
+                <td>Green Minibus Routes</td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Admiralty</td>
+                <td>23, 37A, 40, 40M, 90B</td>
+                <td>10, 11, 31</td>
+              </tr>
+              <tr>
+                <td>Central</td>
+                <td>3B, 4, 40M, 7, 71, 90B, 91</td>
+                <td>8, 10A, 22</td>
+              </tr>
+              <tr>
+                <td>Causeway Bay</td>
+                <td>23, 103</td>
+                <td>10, 11, 28, 31</td>
+              </tr>
+              <tr>
+                <td>Kowloon</td>
+                <td>970, 970X, 103, 973</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </curium-responsive-layout>
+    </div>
+
+    <div class="section">
+      <curium-responsive-layout layout-map='{"0":"vertical","600":"horizontal-2-reverse"}'>
+
+        <div class="padding-block lyrics-block">
+          <h2>Hall Song</h2>
+          <p>O Simon K. Y. Lee Hall,</p>
+          <p>in our hearts you’ll forever stay.</p>
+          <p>O Simon K. Y. Lee Hall,</p>
+          <p>for lighting up our way.</p>
+          <p>Never fall, never fail,</p>
+          <p>never pale before each heavy hail.</p>
+          <p>We will fight the ones who dare</p>
+          <p>with all our might for our rights.</p>
+          <p>In love and trust we grow here</p>
+          <p>as brothers and sisters do.</p>
+          <p>The life we’ve learnt to cherish,</p>
+          <p>the friendship we hold true.</p>
+          <p>Our spirit shall not perish,</p>
+          <p>Lee Hallites ever true, ever true.</p>
+        </div>
+
+        <div class="padding-block image-block">
+          <curium-proportional src="[[rootPath]]/images/hall-song.jpg">
+            <iron-image src="[[rootPath]]/images/hall-song.jpg" sizing="contain" preload fade></iron-image>
+          </curium-proportional>
+        </div>
+
+      </curium-responsive-layout>
+    </div>
+
+    <div class="section">
+      <curium-responsive-layout layout-map='{"0":"vertical","600":"horizontal-2"}'>
+
+        <div class="padding-block text-block">
+          <h2>Hall Logo</h2>
+          <p>The current hall logo was adopted in 1997. It incorporates clouds, a flying pigeon and the sea.</p>
+          <p>The flying pigeon exhibits the characteristics of Skyers – the flying bird shows activeness while the pigeon shows sincerity and friendliness. The curved lines at the bottom represent sea waves and they act as a foil for the boundless sky.</p>
+        </div>
+
+        <div class="padding-block image-block">
+          <curium-proportional src="[[rootPath]]/images/hall-logo.jpg">
+            <iron-image src="[[rootPath]]/images/hall-logo.jpg" sizing="contain" preload fade></iron-image>
+          </curium-proportional>
+        </div>
+
+      </curium-responsive-layout>
+    </div>
+
+    <div class="section">
+      <curium-responsive-layout layout-map='{"0":"vertical","600":"horizontal-2"}'>
+
+        <div class="padding-block download-block">
+          <h2>Hall Regulations</h2>
+          <a href$="[[rootPath]]/data/regulations-governing-halls-and-flats.pdf" tabindex="-1" target="_blank">
+            <paper-button>
+              <iron-icon icon="skylee:file-download"></iron-icon>Download
+            </paper-button>
+          </a>
+        </div>
+
+        <div class="padding-block download-block">
+          <h2>Hall Charges</h2>
+          <a href$="[[rootPath]]/data/hall-charges-2016-2017.pdf" tabindex="-1" target="_blank">
+            <paper-button>
+              <iron-icon icon="skylee:file-download"></iron-icon>Download
+            </paper-button>
+          </a>
+        </div>
+
+      </curium-responsive-layout>
+    </div>
+
+    <div class="section">
+      <div class="padding-block text-block">
+        <h2>Our History</h2>
+        <p>Found in 1985, the development of Lee Hall was funded by a generous donation from the late Dr. Simon K. Y. Lee and therefore the hall was named after him. In 1986, the Students’ Association was formed.</p>
+        <p>Through its over 20-year history, Lee Hall has developed into a vital and diversified hall. All hall mates participate in and contribute to the hall. “We are Skyers, Active and Sincere” has long been our slogan.</p>
+      </div>
+    </div>
+
+  </template>
+  <script>
+    class SkyleeAbout extends Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element) {
+
+      static get is() { return 'skylee-about'; }
+
+    }
+    window.customElements.define(SkyleeAbout.is, SkyleeAbout);
+  </script>
+</dom-module>

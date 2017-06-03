@@ -1,0 +1,37 @@
+{
+  "entrypoint": "index.html",
+  "shell": "src/skylee-app/skylee-app.html",
+  "fragments": [
+    "src/skylee-main/skylee-main.html",
+	  "src/skylee-home/skylee-home.html",
+	  "src/skylee-about/skylee-about.html"
+  ],
+  "sources": [
+    "src/**/*",
+    "images/**/*",
+    "data/**/*"
+  ],
+  "builds": [
+    {
+      "name": "publish",
+      "addServiceWorker": false,
+      "addPushManifest": false,
+      "insertPrefetchLinks": false,
+      "bundle": true,
+      "html": {
+        "minify": true
+      },
+      "css": {
+        "minify": true
+      },
+      "js": {
+        "minify": true,
+        "compile": false
+      }
+    }
+  ],
+  "lint": {
+    "rules": [ "polymer-2" ],
+    "ignoreWarnings": []
+  }
+}

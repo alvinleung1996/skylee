@@ -1,0 +1,294 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/polymer/lib/utils/debounce.html">
+
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
+
+<link rel="import" href="../../bower_components/curium-animated-pages/curium-animated-pages.html">
+<link rel="import" href="../../bower_components/curium-animated-pages/animations/curium-tab-page-animation-manager.html">
+<link rel="import" href="../../bower_components/curium-responsive-layout/curium-responsive-layout.html">
+
+<dom-module id="skylee-main">
+  <template strip-whitespace>
+    <style>
+      :host {
+        display: block;
+        position: relative;
+        overflow: hidden;
+
+        --skylee-toolbar-height: 64px;
+      }
+      :host([_toolbar-layout="small"]) {
+        --skylee-toolbar-height: 96px;
+      }
+
+      #toolbar {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        height: var(--skylee-toolbar-height);
+        z-index: 100;
+        background-color: var(--skylee-toolbar-background-color, white);
+        transform: translateY(0%);
+        transition: transform 330ms ease-out 0ms,
+                    background-color 330ms linear 0ms;
+      }
+      #toolbar[transparent] {
+        background-color: rgba(0, 0, 0, 0);
+      }
+      #toolbar[hide] {
+        transform: translateY(-100%);
+      }
+      #toolbar > paper-material {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+      }
+
+      #toolbar-content {
+        flex: 0 1 var(--skylee-content-max-width);
+        /* fix for Safari: flex-basis percentage only work
+           when all the parents have specific height,
+           just like the "height" proeprty */
+        height: 100%;
+        display: flex;
+        justify-content: space-between;
+      }
+      :host([_toolbar-layout="small"]) #toolbar-content {
+        flex-direction: column;
+        justify-content: flex-start;
+      }
+      :host([_toolbar-layout="small"]) #toolbar-content > * {
+        flex: 0 0 50%;
+      }
+
+      #title {
+        display: flex;
+      }
+      :host([_toolbar-layout="small"]) #title {
+        align-self: flex-start;
+      }
+
+      #home-button {
+        flex: 1;
+        text-decoration: none;
+        font-family: var(--skylee-font-family);
+        font-size: var(--skylee-title-font-size);
+        font-weight: var(--skylee-title-font-weight);
+        color: var(--skylee-title-font-color);
+        display: flex;
+      }
+      #home-button > paper-button {
+        flex: 1;
+        margin: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        text-transform: none;
+      }
+
+      #tabs-container {
+        position: relative;
+      }
+      #tabs {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        bottom: 0px;
+        height: auto;
+        --paper-tabs-selection-bar-color: var(--skylee-nav-selection-bar-color);
+      }
+      :host([_toolbar-layout="small"]) #tabs {
+        left: 0px;
+      }
+      #tabs paper-tab {
+        --paper-tab-ink: var(--skylee-nav-selection-ink-color);
+      }
+      #tabs paper-tab[link] a {
+        /* cannot use paper-tab > a in shadydom */
+        padding-left: 7px;
+        padding-right: 7px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-decoration: none;
+        font-family: var(--skylee-font-family);
+        font-size: var(--skylee-nav-font-size);
+        font-weight: var(--skylee-nav-font-weight);
+        color: var(--skylee-nav-font-color);
+      }
+
+      #tab-pages {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+
+    <app-route
+      route="{{route}}"
+      pattern="/:tabPageID"
+      data="{{_routeData}}"
+      tail="{{_subroute}}">
+    </app-route>
+
+    <curium-responsive-layout id="toolbar" hide$="[[_hideToolbar]]" transparent$="[[_transparentToolbar]]" layout-map='{"0":"small","600":"wide"}' layout="{{_toolbarLayout}}">
+      <paper-material animated elevation="[[_enableIf(_toolbarShadow, 2, 0)]]">
+        <div id="toolbar-content">
+
+          <div id="title">
+            <a id="home-button" href$="[[defaultPath]]" tabindex="-1">
+              <paper-button>Simon K. Y. Lee Hall</paper-button>
+            </a>
+          </div>
+
+          <div id="tabs-container"><!-- provide absolute positioned element so that height 100% can work -->
+            <paper-tabs id="tabs" activate-event="" attr-for-selected="tab-id" selected="[[_routeData.tabPageID]]" scrollable="[[_isStringEqual(_toolbarLayout, 'small')]]" fit-container hide-scroll-buttons>
+              <paper-tab tab-id="home" link><a href="[[rootPath]]/#/main/home" tabindex="-1">Home</a></paper-tab>
+              <paper-tab tab-id="about" link><a href="[[rootPath]]/#/main/about" tabindex="-1">About</a></paper-tab>
+              <paper-tab link><a href="https://www.facebook.com/skylee.hku" tabindex="-1" target="_blank">Facebook</a></paper-tab>
+            </paper-tabs>
+          </div>
+
+        </div>
+      </paper-material>
+    </curium-responsive-layout>
+
+    <curium-tab-page-animation-manager id="tab-page-animation-manager" duration="330"></curium-tab-page-animation-manager>
+    <curium-animated-pages
+      id="tab-pages"
+      attr-for-selected="tab-page-id"
+      selected="[[_routeData.tabPageID]]"
+      selected-attribute="selected-tab-page"
+      animation-manager="#tab-page-animation-manager">
+
+      <skylee-home tab-page-id="home" element-path="../skylee-home/skylee-home.html" selected-scene="[[selectedScene]]"></skylee-home>
+      <skylee-about tab-page-id="about" element-path="../skylee-about/skylee-about.html"></skylee-about>
+
+    </curium-animated-pages>
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class SkyleeMain extends Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element) {
+
+      static get is() { return 'skylee-main'; }
+
+      static get properties() {
+        return {
+          route: {
+            type: Object,
+            notify: true
+          },
+          selectedScene: {
+            type: Boolean,
+            value: false
+          },
+
+          defaultPath: {
+            value: Skylee.defaultPath,
+            readOnly: true
+          },
+
+          _toolbarLayout: {
+            type: String,
+            reflectToAttribute: true
+          },
+          _hideToolbar: {
+            type: Boolean,
+            value: false
+          },
+          _toolbarShadow: {
+            type: Boolean,
+            value: false
+          },
+          _transparentToolbar: {
+            type: Boolean,
+            value: false
+          }
+        };
+      }
+
+      constructor() {
+        super();
+
+        this._bindedOnTabPageScroll = e => this._setToolbarStyles(e.target, false);
+        this._bindedOnTransparentToolbarChanged = e => this._setToolbarStyles(e.target, false);
+      }
+
+      ready() {
+        super.ready();
+
+        this.$['tab-pages'].addEventListener('iron-select', e => this._onTabPageSelectionChanged());
+        this.$['tab-pages'].addEventListener('iron-deselect', e => this._onTabPageSelectionChanged());
+      }
+
+      _onTabPageSelectionChanged(evt) {
+        this._tabPageSelectionDebouncer = Polymer.Debouncer.debounce(this._tabPageSelectionDebouncer, Polymer.Async.microTask, () => {
+
+          let selectedPage = this.$['tab-pages'].selectedItem;
+          let deselectedPage = this._prevSelectedTabPage;
+
+          this._prevSelectedTabPage = selectedPage;
+
+          this._loadTabPage(selectedPage);
+          this._observeTabPage(deselectedPage, selectedPage);
+          this._setToolbarStyles(selectedPage, true);
+        });
+      }
+
+      _loadTabPage(selectedPage) {
+        if (selectedPage) {
+          if (selectedPage.hasAttribute('element-path') && !selectedPage.hasAttribute('element-loaded')) {
+            let path = selectedPage.getAttribute('element-path');
+            Polymer.importHref(this.resolveUrl(path), null, null, true);
+            selectedPage.setAttribute('element-loaded', '');
+          }
+        }
+      }
+
+      _observeTabPage(deselectedPage, selectedPage) {
+        if (deselectedPage) {
+          deselectedPage.removeEventListener('scroll', this._bindedOnTabPageScroll);
+          deselectedPage.removeEventListener('transparent-toolbar-changed', this._bindedOnTransparentToolbarChanged);
+        }
+        if (selectedPage) {
+          selectedPage.addEventListener('scroll', this._bindedOnTabPageScroll);
+          selectedPage.addEventListener('transparent-toolbar-changed', this._bindedOnTransparentToolbarChanged);
+        }
+      }
+
+      _setToolbarStyles(selectedPage, forceShowToolbar) {
+
+        let newScrollTop = selectedPage ? selectedPage.scrollTop : 0;
+        let oldScrollTop = this._prevTabPageScrollTop || 0;
+
+        this._prevTabPageScrollTop = newScrollTop;
+
+        let toolbarHeight = this._toolbarLayout === 'small' ? 96 : 64;
+
+        this._transparentToolbar = selectedPage.hasAttribute('transparent-toolbar') || selectedPage.transparentToolbar;
+        this._hideToolbar = !this._transparentToolbar && !forceShowToolbar && newScrollTop >= toolbarHeight && newScrollTop > oldScrollTop;
+        this._toolbarShadow = !this._transparentToolbar && newScrollTop > 0;
+      }
+
+      _isStringEqual(a, b) {
+        return a === b;
+      }
+
+      _enableIf(condition, a, b) {
+        return condition ? a : b;
+      }
+
+    }
+
+    window.customElements.define(SkyleeMain.is, SkyleeMain);
+  </script>
+</dom-module>

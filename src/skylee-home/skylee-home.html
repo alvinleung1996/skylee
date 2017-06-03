@@ -1,0 +1,163 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+
+<link rel="import" href="../../bower_components/curium-animated-pages/curium-animated-pages.html">
+<link rel="import" href="../../bower_components/curium-animated-pages/animations/curium-slideshow-animation-manager.html">
+
+<!-- TODO: Image mipmap, only load the next photo but not all , screen flash when switching tab pages, test z-index -->
+
+<dom-module id="skylee-home">
+  <template strip-whitespace>
+    <style>
+      :host {
+        display: block;
+        /* position: absolute already applied by curium-animated-pages*/
+        overflow: hidden;
+      }
+
+      #toolbar-background {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        left: 0px;
+        height: calc(var(--skylee-toolbar-height) * 2);
+        z-index: 1;
+        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+      }
+
+      #slides {
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+      }
+      .slide {
+        /* position: absolute already applied by curium-animated-pages*/
+        overflow: hidden;
+        display: flex;
+        align-items: flex-end;
+      }
+      .slide > #image {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        bottom: 0px;
+        left: 0px;
+      }
+      #slides[play] > .slide.iron-selected > #image {
+        /* animation will be re-applied everytime the slide is selected by the class .iron-selected */
+        animation: slide-animation 3s ease-out 0s 1 normal forwards running;
+      }
+      @keyframes slide-animation {
+        from {
+          transform: scale(1.1, 1.1);
+        }
+        to {
+          transform: scale(1, 1);
+        }
+      }
+      .slide > #caption {
+        position: relative; /* position caption so caption will overlay image according to the document order */
+        flex: 1;
+        height: 200px;
+        background-image: linear-gradient(to top, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+        padding: 20px;
+        display: flex;
+        align-items: flex-end;
+        font-family: var(--skylee-font-family);
+        font-size: 32px;
+        font-weight: 300;
+        color: white;
+      }
+    </style>
+
+    <div id="toolbar-background"></div>
+
+    <curium-slideshow-animation-manager id="slideshow-animation-manager"></curium-slideshow-animation-manager>
+    <curium-animated-pages id="slides" selected="0" play$="[[_logicAnd(selectedScene, selectedTabPage)]]" animation-manager="#slideshow-animation-manager">
+      <div class="slide">
+        <iron-image id="image" src="[[rootPath]]/images/featured/our-hall.jpg" sizing="cover"></iron-image>
+        <div id="caption">Our Hall</div>
+      </div>
+      <div class="slide">
+        <iron-image id="image" src="[[rootPath]]/images/featured/hall-photo.jpg" sizing="cover"></iron-image>
+        <div id="caption">Our Family</div>
+      </div>
+      <div class="slide">
+        <iron-image id="image" src="[[rootPath]]/images/featured/inheritance.jpg" sizing="cover"></iron-image>
+        <div id="caption">Inheritance</div>
+      </div>
+      <div class="slide">
+        <iron-image id="image" src="[[rootPath]]/images/featured/our-pride.jpg" sizing="cover"></iron-image>
+        <div id="caption">Our Pride</div>
+      </div>
+      <div class="slide">
+        <iron-image id="image" src="[[rootPath]]/images/featured/champion-dream.jpg" sizing="cover"></iron-image>
+        <div id="caption">Our Champion Dream</div>
+      </div>
+      <div class="slide">
+        <iron-image id="image" src="[[rootPath]]/images/featured/share-joy.jpg" sizing="cover"></iron-image>
+        <div id="caption">Our Joy</div>
+      </div>
+      <div class="slide">
+        <iron-image id="image" src="[[rootPath]]/images/featured/graduation-photo.jpg" sizing="cover"></iron-image>
+        <div id="caption">Our Alumni</div>
+      </div>
+    </curium-animated-pages>
+
+  </template>
+  <script>
+    class SkyleeHome extends Polymer.Element {
+
+      static get is() { return 'skylee-home'; }
+
+      static get properties() {
+        return {
+          selectedScene: {
+            type: Boolean,
+            value: false
+          },
+          selectedTabPage: {
+            type: Boolean,
+            value: false
+          },
+
+          transparentToolbar: {
+            type: Boolean,
+            value: true,
+            notify: true
+          }
+        };
+      }
+
+      static get observers() {
+        return [
+          '_onSelectionStateChanged(selectedScene, selectedTabPage)'
+        ];
+      }
+
+      _onSelectionStateChanged(selectedScene, selectedTabPage) {
+        if (selectedScene && selectedTabPage) {
+          if (!Number.isInteger(this._slideshowTimerID)) {
+            this._slideshowTimerID = setInterval(() => {
+              this.$.slides.selectNext();
+            }, 5000);
+          }
+        } else {
+          if (Number.isInteger(this._slideshowTimerID)) {
+            clearInterval(this._slideshowTimerID);
+            this._slideshowTimerID = null;
+          }
+        }
+      }
+
+      _logicAnd(a, b) {
+        return a && b;
+      }
+
+    }
+    window.customElements.define(SkyleeHome.is, SkyleeHome);
+    window.Curium = window.Curium || {};
+    Curium.SkyleeHome = SkyleeHome;
+  </script>
+</dom-module>
