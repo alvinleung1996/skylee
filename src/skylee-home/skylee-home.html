@@ -79,7 +79,7 @@
     <div id="toolbar-background"></div>
 
     <curium-slideshow-animation-manager id="slideshow-animation-manager"></curium-slideshow-animation-manager>
-    <curium-animated-pages id="slides" selected="0" play$="[[_logicAnd(selectedScene, selectedTabPage)]]" animation-manager="#slideshow-animation-manager">
+    <curium-animated-pages id="slides" selected="0" play$="[[_logicAnd(visibleScene, visibleTabPage)]]" animation-manager="#slideshow-animation-manager">
       <div class="slide">
         <iron-image id="image" src="[[rootPath]]images/featured/our-hall.jpg" sizing="cover"></iron-image>
         <div id="caption-background"><div id="caption">Our Hall</div></div>
@@ -118,15 +118,19 @@
 
       static get properties() {
         return {
-          selectedScene: {
+          visibleScene: {
             type: Boolean,
             value: false
           },
-          selectedTabPage: {
+          visibleTabPage: {
             type: Boolean,
             value: false
           },
-
+          tabPageTitle: {
+            type: String,
+            value: 'Home',
+            notify: true
+          },
           transparentToolbar: {
             type: Boolean,
             value: true,
@@ -137,12 +141,12 @@
 
       static get observers() {
         return [
-          '_onSelectionStateChanged(selectedScene, selectedTabPage)'
+          '_onVisibleStateChanged(visibleScene, visibleTabPage)'
         ];
       }
 
-      _onSelectionStateChanged(selectedScene, selectedTabPage) {
-        if (selectedScene && selectedTabPage) {
+      _onVisibleStateChanged(visibleScene, visibleTabPage) {
+        if (visibleScene && visibleTabPage) {
           if (!Number.isInteger(this._slideshowTimerID)) {
             this._slideshowTimerID = setInterval(() => {
               this.$.slides.selectNext();

@@ -99,6 +99,16 @@
 
       static get is() { return 'skylee-rton'; }
 
+      static get properties() {
+        return {
+          tabPageTitle: {
+            type: String,
+            value: 'RTON',
+            notify: true
+          }
+        };
+      }
+
     }
     window.customElements.define(SkyleeRTON.is, SkyleeRTON);
   </script>

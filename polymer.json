@@ -2,8 +2,6 @@
   "entrypoint": "index.html",
   "shell": "src/skylee-app/skylee-app.html",
   "fragments": [
-    "src/skylee-main/skylee-main.html",
-    "src/skylee-home/skylee-home.html",
     "src/skylee-rton/skylee-rton.html",
     "src/skylee-team/skylee-team.html",
     "src/skylee-about/skylee-about.html"
@@ -21,13 +19,13 @@
       "insertPrefetchLinks": true,
       "bundle": true,
       "html": {
-        "minify": false
+        "minify": true
       },
       "css": {
-        "minify": false
+        "minify": true
       },
       "js": {
-        "minify": false,
+        "minify": true,
         "compile": false
       }
     },

@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/polymer/lib/utils/debounce.html">
 
 <link rel="import" href="../../bower_components/app-route/app-location.html">
 <link rel="import" href="../../bower_components/app-route/app-route.html">
@@ -6,6 +7,7 @@
 <link rel="import" href="../../bower_components/curium-animated-pages/curium-animated-pages.html">
 <link rel="import" href="../../bower_components/curium-animated-pages/animations/curium-scene-animation-manager.html">
 
+<link rel="import" href="../skylee-main/skylee-main.html">
 <link rel="import" href="../skylee-styles/skylee-styles.html">
 
 <dom-module id="skylee-app">
@@ -30,8 +32,10 @@
     </app-route>
 
     <curium-scene-animation-manager id="scene-animation-manager"></curium-scene-animation-manager>
-    <curium-animated-pages id="scenes" selected-attribute="selected-scene" attr-for-selected="scene-id" selected="{{_routeData.sceneID}}" animation-manager="#scene-animation-manager">
-      <skylee-main scene-id="main" element-path="../skylee-main/skylee-main.html" route="{{_subroute}}"></skylee-main>
+    <curium-animated-pages id="scenes" selected-attribute="visible-scene" attr-for-selected="scene-id" selected="[[_selectedSceneID]]" animation-manager="#scene-animation-manager">
+      
+      <skylee-main scene-id="main" route="{{_subroute}}"></skylee-main> <!-- element already imported -->
+
     </curium-animated-pages>
 
   </template>
@@ -46,41 +50,102 @@
       static get is() { return 'skylee-app'; }
       
       static get properties() {
-        return {};
+        return {
+          _appTitle: {
+            type: String,
+            computed: '_computeAppTitle(_sceneTitle)',
+            observer: '_onAppTitleChanged'
+          },
+          _sceneTitle: {
+            type: String,
+            value: ''
+          },
+
+          _selectedSceneID: {
+            type: String,
+            computed: '_computeSelectedSceneID(_routeData.sceneID)'
+          }
+        };
       }
 
-      static get observers() {
-        return [
-          '_onSceneIDChanged(_routeData.sceneID)'
-        ];
+      constructor() {
+        super();
+
+        this._bindedOnSceneTitleChanged = e => this._sceneTitle = e.detail.value;
       }
 
       ready() {
         super.ready();
 
-        this.$.scenes.addEventListener('iron-select', e => this._onSceneSelected(e));
+        this.$.scenes.addEventListener('iron-select', e => {
+          if (e.target === this.$.scenes) this._onSceneSelectionChanged();
+        });
+        this.$.scenes.addEventListener('iron-deselect', e => {
+          if (e.target === this.$.scenes) this._onSceneSelectionChanged();
+        });
       }
 
-      _onSceneSelected(evt) {
-        let selectedPage = evt.detail.item;
-        if (selectedPage) {
-          if (selectedPage.hasAttribute('element-path') && !selectedPage.hasAttribute('element-loaded')) {
-            let path = selectedPage.getAttribute('element-path');
+      _computeSelectedSceneID(id) {
+        return id ? id : 'main';
+      }
+
+      _onSceneSelectionChanged() {
+        this._sceneSelectionDebouncer = Polymer.Debouncer.debounce(this._sceneSelectionDebouncer, Polymer.Async.microTask, () => {
+
+          let selectedScene = this.$.scenes.selectedItem;
+          let deselectedScene = this._prevSelectedScene;
+
+          this._prevSelectedScene = selectedScene;
+
+          this._loadScene(selectedScene);
+          this._observeSceneProperties(deselectedScene, selectedScene);
+          this._syncSceneProperties(selectedScene);
+        });
+      }
+
+      _loadScene(selectedScene) {
+        if (selectedScene) {
+          if (selectedScene.hasAttribute('element-path') && !selectedScene.hasAttribute('element-loaded')) {
+            let path = selectedScene.getAttribute('element-path');
             Polymer.importHref(this.resolveUrl(path), null, null, true);
-            selectedPage.setAttribute('element-loaded', '');
+            selectedScene.setAttribute('element-loaded', '');
           }
         }
       }
 
-      _onSceneIDChanged(sceneID) {
-        if (!sceneID) {
-          console.info(`Redirecting to default page: ${Skylee.defaultPath}`);
-          window.location.href = Skylee.defaultPath;
+      _observeSceneProperties(deselectedScene, selectedScene) {
+        if (deselectedScene) {
+          deselectedScene.removeEventListener('scene-title-changed', this._bindedOnSceneTitleChanged);
         }
+        if (selectedScene) {
+          selectedScene.addEventListener('scene-title-changed', this._bindedOnSceneTitleChanged);
+        }
+      }
+
+      _syncSceneProperties(selectedScene) {
+        let sceneTitle = '';
+        if (selectedScene) {
+          if (selectedScene.sceneTitle) {
+            sceneTitle = selectedScene.sceneTitle;
+          } else if (selectedScene.hasAttribute('scene-title')) {
+            sceneTitle = selectedScene.getAttribute('scene-title');
+          }
+        }
+        this._sceneTitle = sceneTitle;
+      }
+
+      _computeAppTitle(sceneTitle) {
+        return (sceneTitle ? (sceneTitle + ' - ') : '') + 'Simon K. Y. Lee Hall';
+      }
+
+      _onAppTitleChanged(appTitle) {
+        document.title = appTitle;
       }
 
     }
 
     window.customElements.define(SkyleeApp.is, SkyleeApp);
+    window.Skylee = window.Skylee || {};
+    Skylee.SkyleeApp = SkyleeApp;
   </script>
 </dom-module>

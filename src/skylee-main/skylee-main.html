@@ -13,6 +13,8 @@
 <link rel="import" href="../../bower_components/curium-animated-pages/animations/curium-tab-page-animation-manager.html">
 <link rel="import" href="../../bower_components/curium-responsive-layout/curium-responsive-layout.html">
 
+<link rel="import" href="../skylee-home/skylee-home.html">
+
 <dom-module id="skylee-main">
   <template strip-whitespace>
     <style>
@@ -23,7 +25,7 @@
 
         --skylee-toolbar-height: var(--skylee-toolbar-normal-height);
       }
-      :host([_toolbar-layout="small"]) {
+      :host([_toolbar-layout="narrow"]) {
         --skylee-toolbar-height: var(--skylee-toolbar-narrow-height);
       }
 
@@ -66,18 +68,18 @@
       #toolbar[hide] #toolbar-content {
         opacity: 0;
       }
-      :host([_toolbar-layout="small"]) #toolbar-content {
+      :host([_toolbar-layout="narrow"]) #toolbar-content {
         flex-direction: column;
         justify-content: flex-start;
       }
-      :host([_toolbar-layout="small"]) #toolbar-content > * {
+      :host([_toolbar-layout="narrow"]) #toolbar-content > * {
         flex: 0 0 50%;
       }
 
       #title {
         display: flex;
       }
-      :host([_toolbar-layout="small"]) #title {
+      :host([_toolbar-layout="narrow"]) #title {
         align-self: flex-start;
       }
 
@@ -107,7 +109,7 @@
         height: auto;
         --paper-tabs-selection-bar-color: var(--skylee-themed-primary-text-color);
       }
-      :host([_toolbar-layout="small"]) #tabs {
+      :host([_toolbar-layout="narrow"]) #tabs {
         left: 0px;
       }
       #tabs paper-tab {
@@ -138,8 +140,8 @@
       tail="{{_subroute}}">
     </app-route>
 
-    <curium-responsive-layout id="toolbar" hide$="[[_hideToolbar]]" transparent$="[[_transparentToolbar]]" layout-map='{"0":"small","600":"wide"}' layout="{{_toolbarLayout}}">
-      <paper-material animated elevation="[[_enableIf(_toolbarShadow, 2, 0)]]">
+    <curium-responsive-layout id="toolbar" hide$="[[_hideToolbar]]" transparent$="[[_transparentToolbar]]" layout-map='{"0":"narrow","600":"normal"}' layout="{{_toolbarLayout}}">
+      <paper-material animated elevation="[[_enableIf(_showToolbarShadow, 2, 0)]]">
         <div id="toolbar-content">
 
           <div id="title">
@@ -149,11 +151,11 @@
           </div>
 
           <div id="tabs-container"><!-- provide absolute positioned element so that height 100% can work -->
-            <paper-tabs id="tabs" activate-event="" attr-for-selected="tab-id" selected="[[_routeData.tabPageID]]" scrollable="[[_isStringEqual(_toolbarLayout, 'small')]]" fit-container hide-scroll-buttons>
-              <paper-tab tab-id="home" link><a href="[[rootPath]]#/main/home" tabindex="-1">Home</a></paper-tab>
-              <paper-tab tab-id="rton" link><a href="[[rootPath]]#/main/rton" tabindex="-1">RTON</a></paper-tab>
-              <paper-tab tab-id="team" link><a href="[[rootPath]]#/main/team" tabindex="-1">Team</a></paper-tab>
-              <paper-tab tab-id="about" link><a href="[[rootPath]]#/main/about" tabindex="-1">About</a></paper-tab>
+            <paper-tabs id="tabs" activate-event="" attr-for-selected="tab-id" selected="[[_selectedTabPageID]]" scrollable="[[_isStringEqual(_toolbarLayout, 'narrow')]]" fit-container hide-scroll-buttons>
+              <paper-tab tab-id="home" link><a href$="[[defaultPath]]" tabindex="-1">Home</a></paper-tab>
+              <paper-tab tab-id="rton" link><a href$="[[rootPath]][[routePrefix]]main/rton" tabindex="-1">RTON</a></paper-tab>
+              <paper-tab tab-id="team" link><a href$="[[rootPath]][[routePrefix]]main/team" tabindex="-1">Team</a></paper-tab>
+              <paper-tab tab-id="about" link><a href$="[[rootPath]][[routePrefix]]main/about" tabindex="-1">About</a></paper-tab>
               <paper-tab link><a href="https://www.facebook.com/skylee.hku" tabindex="-1" target="_blank">Facebook</a></paper-tab>
             </paper-tabs>
           </div>
@@ -166,14 +168,14 @@
     <curium-animated-pages
       id="tab-pages"
       attr-for-selected="tab-page-id"
-      selected="[[_routeData.tabPageID]]"
-      selected-attribute="selected-tab-page"
+      selected="[[_selectedTabPageID]]"
+      selected-attribute="visible-tab-page"
       animation-manager="#tab-page-animation-manager">
 
-      <skylee-home tab-page-id="home" element-path="../skylee-home/skylee-home.html" selected-scene="[[selectedScene]]"></skylee-home>
-      <skylee-rton tab-page-id="rton" element-path="../skylee-rton/skylee-rton.html"></skylee-rton>
-      <skylee-team tab-page-id="team" element-path="../skylee-team/skylee-team.html"></skylee-team>
-      <skylee-about tab-page-id="about" element-path="../skylee-about/skylee-about.html"></skylee-about>
+      <skylee-home tab-page-id="home" visible-scene="[[visibleScene]]"></skylee-home> <!-- element already imported -->
+      <skylee-rton tab-page-id="rton" element-path$="[[rootPath]]src/skylee-rton/skylee-rton.html"></skylee-rton>
+      <skylee-team tab-page-id="team" element-path$="[[rootPath]]src/skylee-team/skylee-team.html"></skylee-team>
+      <skylee-about tab-page-id="about" element-path$="[[rootPath]]src/skylee-about/skylee-about.html"></skylee-about>
 
     </curium-animated-pages>
   </template>
@@ -193,29 +195,46 @@
             type: Object,
             notify: true
           },
-          selectedScene: {
+          visibleScene: {
             type: Boolean,
             value: false
           },
-
-          defaultPath: {
-            value: Skylee.defaultPath,
-            readOnly: true
+          sceneTitle: {
+            type: String,
+            computed: '_computeSceneTitle(_tabPageTitle)',
+            notify: true
           },
+          _selectedTabPageID: {
+            type: String,
+            computed: '_computeSelectedTabPageID(_routeData.tabPageID)'
+          },
+          _tabPageTitle: {
+            type: String,
+            value: ''
+          },
+
+          routePrefix: {
+            value: Skylee.routePrefix
+          },
+          defaultPath: {
+            value: Skylee.defaultPath
+          },
+
 
           _toolbarLayout: {
             type: String,
             reflectToAttribute: true
           },
+          _transparentToolbar: {
+            type: Boolean,
+            value: false,
+            observer: '_onTransparentToolbarChanged'
+          },
           _hideToolbar: {
             type: Boolean,
             value: false
           },
-          _toolbarShadow: {
-            type: Boolean,
-            value: false
-          },
-          _transparentToolbar: {
+          _showToolbarShadow: {
             type: Boolean,
             value: false
           }
@@ -225,64 +244,100 @@
       constructor() {
         super();
 
-        this._bindedOnTabPageScroll = e => this._setToolbarStyles(e.target, false);
-        this._bindedOnTransparentToolbarChanged = e => this._setToolbarStyles(e.target, false);
+        this._bindedOnTabPageTitleChanged = e => this._tabPageTitle = e.detail.value;
+        this._bindedOnTransparentToolbarChanged = e => this._transparentToolbar = e.detail.value;
+        this._bindedOnTabPageScroll = e => this._onTabPageScroll(e.target);
       }
 
       ready() {
         super.ready();
 
-        this.$['tab-pages'].addEventListener('iron-select', e => this._onTabPageSelectionChanged());
-        this.$['tab-pages'].addEventListener('iron-deselect', e => this._onTabPageSelectionChanged());
-      }
-
-      _onTabPageSelectionChanged(evt) {
-        this._tabPageSelectionDebouncer = Polymer.Debouncer.debounce(this._tabPageSelectionDebouncer, Polymer.Async.microTask, () => {
-
-          let selectedPage = this.$['tab-pages'].selectedItem;
-          let deselectedPage = this._prevSelectedTabPage;
-
-          this._prevSelectedTabPage = selectedPage;
-
-          this._loadTabPage(selectedPage);
-          this._observeTabPage(deselectedPage, selectedPage);
-          this._setToolbarStyles(selectedPage, true);
+        this.$['tab-pages'].addEventListener('iron-select', e => {
+          if (e.target === this.$['tab-pages']) this._onTabPageSelectionChanged()
+        });
+        this.$['tab-pages'].addEventListener('iron-deselect', e => {
+          if (e.target === this.$['tab-pages']) this._onTabPageSelectionChanged()
         });
       }
 
-      _loadTabPage(selectedPage) {
-        if (selectedPage) {
-          if (selectedPage.hasAttribute('element-path') && !selectedPage.hasAttribute('element-loaded')) {
-            let path = selectedPage.getAttribute('element-path');
+      _computeSelectedTabPageID(id) {
+        return id ? id : 'home';
+      }
+
+      _computeSceneTitle(tabPageTitle) {
+        return (tabPageTitle ? (tabPageTitle) : '');
+      }
+
+      _onTabPageSelectionChanged() {
+        this._tabPageSelectionDebouncer = Polymer.Debouncer.debounce(this._tabPageSelectionDebouncer, Polymer.Async.microTask, () => {
+
+          let selectedTabPage = this.$['tab-pages'].selectedItem;
+          let deselectedTabPage = this._prevSelectedTabPage;
+
+          this._prevSelectedTabPage = selectedTabPage;
+
+          this._loadTabPage(selectedTabPage);
+          this._observeTabPageProperties(deselectedTabPage, selectedTabPage);
+          this._syncTabPageProperties(selectedTabPage);
+          this._setToolbarApperance(selectedTabPage, true);
+        });
+      }
+
+      _loadTabPage(selectedTabPage) {
+        if (selectedTabPage) {
+          if (selectedTabPage.hasAttribute('element-path') && !selectedTabPage.hasAttribute('element-loaded')) {
+            let path = selectedTabPage.getAttribute('element-path');
             Polymer.importHref(this.resolveUrl(path), null, null, true);
-            selectedPage.setAttribute('element-loaded', '');
+            selectedTabPage.setAttribute('element-loaded', '');
           }
         }
       }
 
-      _observeTabPage(deselectedPage, selectedPage) {
-        if (deselectedPage) {
-          deselectedPage.removeEventListener('scroll', this._bindedOnTabPageScroll);
-          deselectedPage.removeEventListener('transparent-toolbar-changed', this._bindedOnTransparentToolbarChanged);
+      _observeTabPageProperties(deselectedTabPage, selectedTabPage) {
+        if (deselectedTabPage) {
+          deselectedTabPage.removeEventListener('tab-page-title-changed', this._bindedOnTabPageTitleChanged);
+          deselectedTabPage.removeEventListener('transparent-toolbar-changed', this._bindedOnTransparentToolbarChanged);
+          deselectedTabPage.removeEventListener('scroll', this._bindedOnTabPageScroll);
         }
-        if (selectedPage) {
-          selectedPage.addEventListener('scroll', this._bindedOnTabPageScroll);
-          selectedPage.addEventListener('transparent-toolbar-changed', this._bindedOnTransparentToolbarChanged);
+        if (selectedTabPage) {
+          selectedTabPage.addEventListener('tab-page-title-changed', this._bindedOnTabPageTitleChanged);
+          selectedTabPage.addEventListener('transparent-toolbar-changed', this._bindedOnTransparentToolbarChanged);
+          selectedTabPage.addEventListener('scroll', this._bindedOnTabPageScroll);
         }
       }
 
-      _setToolbarStyles(selectedPage, forceShowToolbar) {
+      _syncTabPageProperties(selectedTabPage, forceShowToolbar) {
+        let tabPageTitle = '';
+        if (selectedTabPage) {
+          if (selectedTabPage.tabPageTitle) {
+            tabPageTitle = selectedTabPage.tabPageTitle;
+          } else if (selectedTabPage.hasAttribute('tab-page-title')) {
+            tabPageTitle = selectedTabPage.getAttribute('tab-page-title');
+          }
+        }
+        this._tabPageTitle = tabPageTitle;
+        
+        this._transparentToolbar = selectedTabPage && (selectedTabPage.hasAttribute('transparent-toolbar') || selectedTabPage.transparentToolbar);
+      }
 
-        let newScrollTop = selectedPage ? selectedPage.scrollTop : 0;
+      _onTransparentToolbarChanged(transparent) {
+        this._setToolbarApperance(this.$['tab-pages'].selectedItem, false);
+      }
+
+      _onTabPageScroll(tabPage) {
+        this._setToolbarApperance(tabPage, false);
+      }
+
+      _setToolbarApperance(selectedTabPage, forceShowToolbar) {
+        let newScrollTop = selectedTabPage ? selectedTabPage.scrollTop : 0;
         let oldScrollTop = this._prevTabPageScrollTop || 0;
 
         this._prevTabPageScrollTop = newScrollTop;
 
-        let toolbarHeight = this._toolbarLayout === 'small' ? 96 : 64;
-
-        this._transparentToolbar = selectedPage.hasAttribute('transparent-toolbar') || selectedPage.transparentToolbar;
+        let toolbarHeight = this._toolbarLayout === 'narrow' ? 96 : 64;
+       
         this._hideToolbar = !this._transparentToolbar && !forceShowToolbar && newScrollTop >= toolbarHeight && newScrollTop > oldScrollTop;
-        this._toolbarShadow = !this._transparentToolbar && newScrollTop > 0;
+        this._showToolbarShadow = !this._transparentToolbar && newScrollTop > 0;
       }
 
       _isStringEqual(a, b) {

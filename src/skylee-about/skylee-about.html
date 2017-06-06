@@ -321,6 +321,16 @@
 
       static get is() { return 'skylee-about'; }
 
+      static get properties() {
+        return {
+          tabPageTitle: {
+            type: String,
+            value: 'About',
+            notify: true
+          }
+        };
+      }
+
     }
     window.customElements.define(SkyleeAbout.is, SkyleeAbout);
   </script>

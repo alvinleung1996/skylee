@@ -280,6 +280,16 @@
       
       static get is() { return 'skylee-team'; }
 
+      static get properties() {
+        return {
+          tabPageTitle: {
+            type: String,
+            value: 'Team',
+            notify: true
+          }
+        };
+      }
+
     }
     window.customElements.define(SkyleeTeam.is, SkyleeTeam);
   </script>
