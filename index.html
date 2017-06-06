@@ -13,14 +13,14 @@
     <script src="/bower_components/webcomponentsjs/webcomponents-loader.js"></script>
     <script>
       let root = document.URL;
-      root = root.replace(/#.*/, '');
-      if (root.endsWith('/')) root = root.substr(0, root.length - 1);
+      root = root.replace(/\/?(?:index.html)?(?:#.*)?$/, '');
+      root += '/';
       window.Polymer = {
         rootPath: root
       };
 
       window.Skylee = window.Skylee || {};
-      Skylee.defaultPath = `${Polymer.rootPath}/#/main/home`;
+      Skylee.defaultPath = `${Polymer.rootPath}#/main/home`;
     </script>
 
     <link rel="import" href="/src/skylee-app/skylee-app.html">

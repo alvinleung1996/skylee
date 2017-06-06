@@ -1,0 +1,105 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/shadycss/apply-shim.html">
+
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+
+<!--<link rel="import" href="../../bower_components/curium-responsive-layout/curium-responsive-layout.html">-->
+
+<dom-module id="skylee-rton">
+  <template strip-whitespace>
+    <style>
+      :host {
+        display: block;
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-top: var(--skylee-toolbar-height);
+        background-color: var(--skylee-primary-background-color);
+      }
+
+      .section {
+        min-height: 250px;
+        display: flex;
+        justify-content: center;
+      }
+      .section:not(:first-of-type) {
+        border-top: 1px solid var(--skylee-divider-color);
+      }
+      .section:nth-of-type(odd) {
+        background-color: var(--skylee-primary-background-color);
+      }
+      .section:nth-of-type(even) {
+        background-color: var(--skylee-secondary-background-color);
+      }
+      .section > * {
+        flex: 0 1 var(--skylee-content-max-width);
+        box-sizing: border-box;
+      }
+
+      .padding-block {
+        padding: 20px;
+      }
+
+      .event-block {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+      }
+      .event-block > :not(:first-child) {
+        margin-top: 16px;
+      }
+      .event-block > h2 {
+        margin: 0;
+        @apply --skylee-headline-font;
+        color: var(--skylee-primary-text-color);
+      }
+      .event-block > h2::first-letter {
+        font-size: 48px;
+      }
+      .event-block > p {
+        margin: 0;
+        @apply --skylee-body1-font;
+        color: var(--skylee-secondary-text-color);
+        text-align: justify;
+      }
+    </style>
+
+    <div class="section">
+      <div class="padding-block event-block">
+        <h2>Registration Day</h2>
+        <p>Registration day gives you an opportunity to take a sneak peek of our hall.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="padding-block event-block">
+        <h2>Touch Camp</h2>
+        <p>Touch Camp allows you to have a taste of our hall culture.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="padding-block event-block">
+        <h2>Orientation Camp</h2>
+        <p>Orientation Camp helps you to understand our hall comprehensively and build up a close relationship with our hall community.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="padding-block event-block">
+        <h2>Non-local Orientation Camp</h2>
+        <p>Non-local orientation camp helps non-local students to adapt the life in Hong Kong and integrate to the local community.</p>
+      </div>
+    </div>
+
+  </template>
+  <script>
+    class SkyleeRTON extends Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element) {
+
+      static get is() { return 'skylee-rton'; }
+
+    }
+    window.customElements.define(SkyleeRTON.is, SkyleeRTON);
+  </script>
+</dom-module>

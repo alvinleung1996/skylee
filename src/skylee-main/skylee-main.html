@@ -1,5 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../bower_components/polymer/lib/utils/debounce.html">
+<link rel="import" href="../../bower_components/shadycss/apply-shim.html">
 
 <link rel="import" href="../../bower_components/app-route/app-location.html">
 <link rel="import" href="../../bower_components/app-route/app-route.html">
@@ -20,10 +21,10 @@
         position: relative;
         overflow: hidden;
 
-        --skylee-toolbar-height: 64px;
+        --skylee-toolbar-height: var(--skylee-toolbar-normal-height);
       }
       :host([_toolbar-layout="small"]) {
-        --skylee-toolbar-height: 96px;
+        --skylee-toolbar-height: var(--skylee-toolbar-narrow-height);
       }
 
       #toolbar {
@@ -33,13 +34,13 @@
         right: 0px;
         height: var(--skylee-toolbar-height);
         z-index: 100;
-        background-color: var(--skylee-toolbar-background-color, white);
+        background-color: var(--skylee-primary-color);
         transform: translateY(0%);
         transition: transform 330ms ease-out 0ms,
                     background-color 330ms linear 0ms;
       }
       #toolbar[transparent] {
-        background-color: rgba(0, 0, 0, 0);
+        background-color: transparent;
       }
       #toolbar[hide] {
         transform: translateY(-100%);
@@ -59,6 +60,11 @@
         height: 100%;
         display: flex;
         justify-content: space-between;
+        opacity: 1;
+        transition: opacity 330ms linear 0ms;
+      }
+      #toolbar[hide] #toolbar-content {
+        opacity: 0;
       }
       :host([_toolbar-layout="small"]) #toolbar-content {
         flex-direction: column;
@@ -78,10 +84,6 @@
       #home-button {
         flex: 1;
         text-decoration: none;
-        font-family: var(--skylee-font-family);
-        font-size: var(--skylee-title-font-size);
-        font-weight: var(--skylee-title-font-weight);
-        color: var(--skylee-title-font-color);
         display: flex;
       }
       #home-button > paper-button {
@@ -89,6 +91,8 @@
         margin: 0;
         padding-top: 0;
         padding-bottom: 0;
+        @apply --skylee-headline-font;
+        color: var(--skylee-themed-primary-text-color);
         text-transform: none;
       }
 
@@ -101,26 +105,24 @@
         right: 0px;
         bottom: 0px;
         height: auto;
-        --paper-tabs-selection-bar-color: var(--skylee-nav-selection-bar-color);
+        --paper-tabs-selection-bar-color: var(--skylee-themed-primary-text-color);
       }
       :host([_toolbar-layout="small"]) #tabs {
         left: 0px;
       }
       #tabs paper-tab {
-        --paper-tab-ink: var(--skylee-nav-selection-ink-color);
+        --paper-tab-ink: var(--skylee-themed-primary-text-color);
       }
       #tabs paper-tab[link] a {
         /* cannot use paper-tab > a in shadydom */
-        padding-left: 7px;
-        padding-right: 7px;
+        padding-left: 12px;
+        padding-right: 12px;
         display: flex;
         justify-content: center;
         align-items: center;
+        @apply --skylee-subheading-font;
+        color: var(--skylee-themed-primary-text-color);
         text-decoration: none;
-        font-family: var(--skylee-font-family);
-        font-size: var(--skylee-nav-font-size);
-        font-weight: var(--skylee-nav-font-weight);
-        color: var(--skylee-nav-font-color);
       }
 
       #tab-pages {
@@ -148,8 +150,10 @@
 
           <div id="tabs-container"><!-- provide absolute positioned element so that height 100% can work -->
             <paper-tabs id="tabs" activate-event="" attr-for-selected="tab-id" selected="[[_routeData.tabPageID]]" scrollable="[[_isStringEqual(_toolbarLayout, 'small')]]" fit-container hide-scroll-buttons>
-              <paper-tab tab-id="home" link><a href="[[rootPath]]/#/main/home" tabindex="-1">Home</a></paper-tab>
-              <paper-tab tab-id="about" link><a href="[[rootPath]]/#/main/about" tabindex="-1">About</a></paper-tab>
+              <paper-tab tab-id="home" link><a href="[[rootPath]]#/main/home" tabindex="-1">Home</a></paper-tab>
+              <paper-tab tab-id="rton" link><a href="[[rootPath]]#/main/rton" tabindex="-1">RTON</a></paper-tab>
+              <paper-tab tab-id="team" link><a href="[[rootPath]]#/main/team" tabindex="-1">Team</a></paper-tab>
+              <paper-tab tab-id="about" link><a href="[[rootPath]]#/main/about" tabindex="-1">About</a></paper-tab>
               <paper-tab link><a href="https://www.facebook.com/skylee.hku" tabindex="-1" target="_blank">Facebook</a></paper-tab>
             </paper-tabs>
           </div>
@@ -167,6 +171,8 @@
       animation-manager="#tab-page-animation-manager">
 
       <skylee-home tab-page-id="home" element-path="../skylee-home/skylee-home.html" selected-scene="[[selectedScene]]"></skylee-home>
+      <skylee-rton tab-page-id="rton" element-path="../skylee-rton/skylee-rton.html"></skylee-rton>
+      <skylee-team tab-page-id="team" element-path="../skylee-team/skylee-team.html"></skylee-team>
       <skylee-about tab-page-id="about" element-path="../skylee-about/skylee-about.html"></skylee-about>
 
     </curium-animated-pages>

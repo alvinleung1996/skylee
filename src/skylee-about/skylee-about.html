@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/shadycss/apply-shim.html">
 
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
@@ -18,8 +19,8 @@
         overflow-x: hidden;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
-        padding-top: var(--skylee-toolbar-height, 0px);
-        background-color: #fafafa;
+        padding-top: var(--skylee-toolbar-height);
+        background-color: var(--skylee-primary-background-color);
       }
 
       .section {
@@ -28,10 +29,13 @@
         justify-content: center;
       }
       .section:not(:first-of-type) {
-        border-top: 1px solid rgba(0, 0, 0, 0.12);
+        border-top: 1px solid var(--skylee-divider-color);
       }
       .section:nth-of-type(odd) {
-        background-color: white;
+        background-color: var(--skylee-primary-background-color);
+      }
+      .section:nth-of-type(even) {
+        background-color: var(--skylee-secondary-background-color);
       }
       .section > * {
         flex: 0 1 var(--skylee-content-max-width);
@@ -78,17 +82,13 @@
       }
       .text-block > h2 {
         margin: 0;
-        font-family: var(--skylee-font-family);
-        font-size: var(--skylee-header-font-size);
-        font-weight: var(--skylee-header-font-weight);
-        color: var(--skylee-header-font-color);
+        @apply --skylee-headline-font;
+        color: var(--skylee-primary-text-color);
       }
       .text-block > p {
         margin: 0;
-        font-family: var(--skylee-font-family);
-        font-size: var(--skylee-font-size);
-        font-weight: var(--skylee-font-weight);
-        color: var(--skylee-font-color);
+        @apply --skylee-body1-font;
+        color: var(--skylee-secondary-text-color);
         text-align: justify;
       }
 
@@ -111,20 +111,16 @@
         padding: 5px;
       }
       .table-block td:not(:first-of-type) {
-        border-left: 1px dashed rgba(0, 0, 0, 0.12);
+        border-left: 1px dashed var(--skylee-divider-color);
       }
       .table-block thead td {
-        font-family: var(--skylee-font-family);
-        font-size: var(--skylee-font-size);
-        font-weight: var(--skylee-font-weight);
-        color: var(--skylee-font-color);
+        @apply --skylee-body1-font;
+        color: var(--skylee-primary-text-color);
       }
       .table-block tbody td {
-        border-top: 1px solid rgba(0, 0, 0, 0.12);
-        font-family: var(--skylee-font-family);
-        font-size: var(--skylee-font-size);
-        font-weight: var(--skylee-font-weight);
-        color: var(--skylee-font-color);
+        border-top: 1px solid var(--skylee-divider-color);
+        @apply --skylee-body1-font;
+        color: var(--skylee-secondary-text-color);
       }
 
       .lyrics-block {
@@ -135,17 +131,13 @@
       }
       .lyrics-block > h2 {
         margin: 0;
-        font-family: var(--skylee-font-family);
-        font-size: var(--skylee-header-font-size);
-        font-weight: var(--skylee-header-font-weight);
-        color: var(--skylee-header-font-color);
+        @apply --skylee-headline-font;
+        color: var(--skylee-primary-text-color);
       }
       .lyrics-block > p {
         margin: 8px 0 0 0;
-        font-family: var(--skylee-font-family);
-        font-size: var(--skylee-font-size);
-        font-weight: var(--skylee-font-weight);
-        color: var(--skylee-font-color);
+        @apply --skylee-body1-font;
+        color: var(--skylee-secondary-text-color);
       }
       .lyrics-block > p:first-of-type {
         margin-top: 16px;
@@ -159,21 +151,17 @@
       }
       .download-block > h2 {
         margin: 0;
-        font-family: var(--skylee-font-family);
-        font-size: var(--skylee-header-font-size);
-        font-weight: var(--skylee-header-font-weight);
-        color: var(--skylee-header-font-color);
+        @apply --skylee-headline-font;
+        color: var(--skylee-primary-text-color);
       }
       .download-block > a {
         margin-top: 10px;
         text-decoration: none;
-        font-family: var(--skylee-font-family);
-        font-size: var(--skylee-font-size);
-        font-weight: var(--skylee-button-font-weight);
-        color: var(--skylee-font-color);
       }
       .download-block > a > paper-button {
         margin: 0;
+        @apply --skylee-button-font;
+        color: var(--skylee-primary-text-color);
       }
 
       .map-iframe-block {
@@ -183,6 +171,7 @@
         min-height: 300px;
         flex: 1;
         border-radius: 5px;
+        border: 1px solid rgba(0, 0, 0, 0.12);
       }
 
 
@@ -196,7 +185,7 @@
           <p>Located inside the main campus, it is extremely convenient to travel from Lee Hall to any parts of HKU. Since Lee Hall is located at the Composite Building, next to Hsu Long Sing Amenities Centre, it takes less than 2 minutes to reach the Union Restaurant, the Students’ Union Office, the photocopying centre and the co-op.</p>
         </div>
 
-        <div class="padding-block map-iframe-block"><iframe style="border: 0px;" src="https://www.google.com/maps/embed/v1/place?q=place_id:ChIJy_g-sIX_AzQRQKVMfR8BxAk&key=AIzaSyBCeLWP6ls4Xl-lvQEpw7tYlK2msDviuLc" allowfullscreen></iframe></div>
+        <div class="padding-block map-iframe-block"><iframe src="https://www.google.com/maps/embed/v1/place?q=place_id:ChIJy_g-sIX_AzQRQKVMfR8BxAk&key=AIzaSyBCeLWP6ls4Xl-lvQEpw7tYlK2msDviuLc" allowfullscreen></iframe></div>
 
       </curium-responsive-layout>
     </div>
@@ -268,8 +257,8 @@
         </div>
 
         <div class="padding-block image-block">
-          <curium-proportional src="[[rootPath]]/images/hall-song.jpg">
-            <iron-image src="[[rootPath]]/images/hall-song.jpg" sizing="contain" preload fade></iron-image>
+          <curium-proportional src="[[rootPath]]images/hall-song.jpg">
+            <iron-image src="[[rootPath]]images/hall-song.jpg" sizing="contain" preload fade></iron-image>
           </curium-proportional>
         </div>
 
@@ -286,8 +275,8 @@
         </div>
 
         <div class="padding-block image-block">
-          <curium-proportional src="[[rootPath]]/images/hall-logo.jpg">
-            <iron-image src="[[rootPath]]/images/hall-logo.jpg" sizing="contain" preload fade></iron-image>
+          <curium-proportional src="[[rootPath]]images/hall-logo.jpg">
+            <iron-image src="[[rootPath]]images/hall-logo.jpg" sizing="contain" preload fade></iron-image>
           </curium-proportional>
         </div>
 
@@ -299,7 +288,7 @@
 
         <div class="padding-block download-block">
           <h2>Hall Regulations</h2>
-          <a href$="[[rootPath]]/data/regulations-governing-halls-and-flats.pdf" tabindex="-1" target="_blank">
+          <a href$="[[rootPath]]data/regulations-governing-halls-and-flats.pdf" tabindex="-1" target="_blank">
             <paper-button>
               <iron-icon icon="skylee:file-download"></iron-icon>Download
             </paper-button>
@@ -308,7 +297,7 @@
 
         <div class="padding-block download-block">
           <h2>Hall Charges</h2>
-          <a href$="[[rootPath]]/data/hall-charges-2016-2017.pdf" tabindex="-1" target="_blank">
+          <a href$="[[rootPath]]data/hall-charges-2016-2017.pdf" tabindex="-1" target="_blank">
             <paper-button>
               <iron-icon icon="skylee:file-download"></iron-icon>Download
             </paper-button>

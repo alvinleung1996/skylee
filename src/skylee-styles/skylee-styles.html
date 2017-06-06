@@ -1,38 +1,129 @@
+<link rel="import" href="../../bower_components/polymer/lib/elements/custom-style.html">
+<link rel="import" href="../../bower_components/shadycss/apply-shim.html">
+
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/paper-styles/color.html">
+
 <style>
   @import url(//fonts.googleapis.com/earlyaccess/notosanstc.css);
 </style>
 
-<dom-module id="skylee-styles">
-  <template strip-whitespace>
-    <style>
-      :host {
-        --skylee-font-family: 'Noto Sans TC', sans-serif;
-        --skylee-font-size: 16px;
-        --skylee-font-weight: 300;
-        --skylee-font-color: rgba(0, 0, 0, 0.87);
+<custom-style>
+  <style>
+    html {
+      /* namespace-subnamespace-component-variety-property */
 
-        --skylee-header-font-size: 24px;
-        --skylee-header-font-weight: 400;
-        --skylee-header-font-color: rgba(0, 0, 0, 0.87);
+      /*
+       * Typography
+       */
+      --skylee-font-family: 'Noto Sans TC', sans-serif;
 
-        --skylee-button-font-weight: 400;
+      --skylee-display4-font: {
+        @apply --paper-font-display4;
+        font-family: var(--skylee-font-family);
+      };
 
-        --skylee-title-font-size: 24px;
-        --skylee-title-font-weight: 400;
-        --skylee-title-font-color: white;
+      --skylee-display3-font: {
+        @apply --paper-font-display3;
+        font-family: var(--skylee-font-family);
+      };
 
-        --skylee-nav-font-size: 16px;
-        --skylee-nav-font-weight: 400;
-        --skylee-nav-font-color: white;
-        --skylee-nav-selection-bar-color: white;
-        --skylee-nav-selection-ink-color: white;
+      --skylee-display2-font: {
+        @apply --paper-font-display2;
+        font-family: var(--skylee-font-family);
+      };
+
+      --skylee-display1-font: {
+        @apply --paper-font-display1;
+        font-family: var(--skylee-font-family);
+      };
+
+      --skylee-headline-font: {
+        @apply --paper-font-headline;
+        font-family: var(--skylee-font-family);
+      };
+
+      --skylee-title-font: {
+        @apply --paper-font-title;
+        font-family: var(--skylee-font-family);
+      };
+
+      --skylee-subheading-font: {
+        @apply --paper-font-subhead;
+        font-family: var(--skylee-font-family);
+      };
+
+      --skylee-body2-font: {
+        @apply --paper-font-body2;
+        font-family: var(--skylee-font-family);
+      };
+
+      --skylee-body1-font: {
+        @apply --paper-font-body1;
+        font-family: var(--skylee-font-family);
+      };
+
+      --skylee-caption-font: {
+        @apply --paper-font-caption;
+        font-family: var(--skylee-font-family);
+      };
+
+      --skylee-menu-font: {
+        @apply --paper-font-menu;
+        font-family: var(--skylee-font-family);
+      };
+
+      --skylee-button-font: {
+        @apply --paper-font-button;
+        font-family: var(--skylee-font-family);
+      };
+
+      /*
+       * Theme
+       */
+      /* Light theme */
+      --skylee-light-theme-primary-background-color: white;
+      --skylee-light-theme-secondary-background-color: var(--paper-grey-50);
+      --skylee-light-theme-primary-text-color: rgba(0, 0, 0, var(--light-primary-opacity));
+      --skylee-light-theme-secondary-text-color: rgba(0, 0, 0, var(--light-secondary-opacity));  /* for secondary text and icons */
+      --skylee-light-theme-disabled-text-color: rgba(0, 0, 0, var(--light-disabled-opacity));  /* disabled/hint text */
+      --skylee-light-theme-divider-color: rgba(0, 0, 0, var(--light-divider-opacity));
+
+      /* Dark theme */
+      --skylee-dark-theme-primary-background-color: var(--paper-grey-900);
+      --skylee-dark-theme-secondary-background-color: var(--paper-grey-800);
+      --skylee-dark-theme-primary-text-color: rgba(255, 255, 255, var(--dark-primary-opacity));
+      --skylee-dark-theme-secondary-text-color: rgba(255, 255, 255, var(--dark-secondary-opacity));  /* for secondary text and icons */
+      --skylee-dark-theme-disabled-text-color: rgba(255, 255, 255, var(--dark-disabled-opacity));  /* disabled/hint text */
+      --skylee-dark-theme-divider-color: rgba(255, 255, 255, var(--dark-divider-opacity));
+
+      /* Current theme */
+      --skylee-primary-background-color: var(--skylee-light-theme-primary-background-color);
+      --skylee-secondary-background-color: var(--skylee-light-theme-secondary-background-color);
+      --skylee-primary-text-color: var(--skylee-light-theme-primary-text-color);
+      --skylee-secondary-text-color: var(--skylee-light-theme-secondary-text-color);
+      --skylee-disabled-text-color: var(--skylee-light-theme-disabled-text-color);
+      --skylee-divider-color: var(--skylee-light-theme-divider-color);
+
+      /* Current primary-color background theme */
+      --skylee-themed-primary-text-color: white;
+      --skylee-themed-secondary-text-color: var(--skylee-dark-theme-secondary-text-color);
+      --skylee-themed-disabled-text-color: var(--skylee-dark-theme-disabled-text-color);
+      --skylee-themed-divider-color: var(--skylee-dark-theme-divider-color);
+
+      --skylee-primary-color: rgb(0, 71, 187);
 
 
-        --skylee-toolbar-background-color: rgb(0, 71, 187);
+      /*
+       * layout
+       */
+      /* Toolbar */
+      --skylee-toolbar-normal-height: 64px;
+      --skylee-toolbar-narrow-height: 96px;
 
-
-        --skylee-content-max-width: 1200px;
-      }
-    </style>
-  </template>
-</dom-module>
+      /* Content */
+      --skylee-content-max-width: 1200px;
+      
+    }
+  </style>
+</custom-style>

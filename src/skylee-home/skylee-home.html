@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/shadycss/apply-shim.html">
 
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
 
@@ -56,17 +57,21 @@
           transform: scale(1, 1);
         }
       }
-      .slide > #caption {
+      .slide > #caption-background {
         position: relative; /* position caption so caption will overlay image according to the document order */
         flex: 1;
         height: 200px;
         background-image: linear-gradient(to top, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+        display: flex;
+        justify-content: center;
+      }
+      .slide > #caption-background > #caption {
+        box-sizing: border-box;
+        flex: 0 1 var(--skylee-content-max-width);
         padding: 20px;
         display: flex;
         align-items: flex-end;
-        font-family: var(--skylee-font-family);
-        font-size: 32px;
-        font-weight: 300;
+        @apply --skylee-display1-font;
         color: white;
       }
     </style>
@@ -76,32 +81,32 @@
     <curium-slideshow-animation-manager id="slideshow-animation-manager"></curium-slideshow-animation-manager>
     <curium-animated-pages id="slides" selected="0" play$="[[_logicAnd(selectedScene, selectedTabPage)]]" animation-manager="#slideshow-animation-manager">
       <div class="slide">
-        <iron-image id="image" src="[[rootPath]]/images/featured/our-hall.jpg" sizing="cover"></iron-image>
-        <div id="caption">Our Hall</div>
+        <iron-image id="image" src="[[rootPath]]images/featured/our-hall.jpg" sizing="cover"></iron-image>
+        <div id="caption-background"><div id="caption">Our Hall</div></div>
       </div>
       <div class="slide">
-        <iron-image id="image" src="[[rootPath]]/images/featured/hall-photo.jpg" sizing="cover"></iron-image>
-        <div id="caption">Our Family</div>
+        <iron-image id="image" src="[[rootPath]]images/featured/hall-photo.jpg" sizing="cover"></iron-image>
+        <div id="caption-background"><div id="caption">Our Family</div></div>
       </div>
       <div class="slide">
-        <iron-image id="image" src="[[rootPath]]/images/featured/inheritance.jpg" sizing="cover"></iron-image>
-        <div id="caption">Inheritance</div>
+        <iron-image id="image" src="[[rootPath]]images/featured/inheritance.jpg" sizing="cover"></iron-image>
+        <div id="caption-background"><div id="caption">Inheritance</div></div>
       </div>
       <div class="slide">
-        <iron-image id="image" src="[[rootPath]]/images/featured/our-pride.jpg" sizing="cover"></iron-image>
-        <div id="caption">Our Pride</div>
+        <iron-image id="image" src="[[rootPath]]images/featured/our-pride.jpg" sizing="cover"></iron-image>
+        <div id="caption-background"><div id="caption">Our Pride</div></div>
       </div>
       <div class="slide">
-        <iron-image id="image" src="[[rootPath]]/images/featured/champion-dream.jpg" sizing="cover"></iron-image>
-        <div id="caption">Our Champion Dream</div>
+        <iron-image id="image" src="[[rootPath]]images/featured/champion-dream.jpg" sizing="cover"></iron-image>
+        <div id="caption-background"><div id="caption">Our Champion Dream</div></div>
       </div>
       <div class="slide">
-        <iron-image id="image" src="[[rootPath]]/images/featured/share-joy.jpg" sizing="cover"></iron-image>
-        <div id="caption">Our Joy</div>
+        <iron-image id="image" src="[[rootPath]]images/featured/share-joy.jpg" sizing="cover"></iron-image>
+        <div id="caption-background"><div id="caption">Our Joy</div></div>
       </div>
       <div class="slide">
-        <iron-image id="image" src="[[rootPath]]/images/featured/graduation-photo.jpg" sizing="cover"></iron-image>
-        <div id="caption">Our Alumni</div>
+        <iron-image id="image" src="[[rootPath]]images/featured/graduation-photo.jpg" sizing="cover"></iron-image>
+        <div id="caption-background"><div id="caption">Our Alumni</div></div>
       </div>
     </curium-animated-pages>
 
