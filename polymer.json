@@ -3,8 +3,10 @@
   "shell": "src/skylee-app/skylee-app.html",
   "fragments": [
     "src/skylee-main/skylee-main.html",
-	  "src/skylee-home/skylee-home.html",
-	  "src/skylee-about/skylee-about.html"
+    "src/skylee-home/skylee-home.html",
+    "src/skylee-rton/skylee-rton.html",
+    "src/skylee-team/skylee-team.html",
+    "src/skylee-about/skylee-about.html"
   ],
   "sources": [
     "src/**/*",
@@ -16,8 +18,25 @@
       "name": "publish",
       "addServiceWorker": false,
       "addPushManifest": false,
-      "insertPrefetchLinks": false,
+      "insertPrefetchLinks": true,
       "bundle": true,
+      "html": {
+        "minify": false
+      },
+      "css": {
+        "minify": false
+      },
+      "js": {
+        "minify": false,
+        "compile": false
+      }
+    },
+    {
+      "name": "edge",
+      "addServiceWorker": false,
+      "addPushManifest": false,
+      "insertPrefetchLinks": true,
+      "bundle": false,
       "html": {
         "minify": true
       },

@@ -1,0 +1,286 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/shadycss/apply-shim.html">
+
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+
+<link rel="import" href="../../bower_components/curium-proportional/curium-proportional.html">
+<link rel="import" href="../../bower_components/curium-responsive-layout/curium-responsive-layout.html">
+
+<dom-module id="skylee-team">
+  <template strip-whitespace>
+    <style>
+      :host {
+        display: block;
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-top: var(--skylee-toolbar-height);
+        background-color: var(--skylee-primary-background-color);
+      }
+
+      .section {
+        display: flex;
+        justify-content: center;
+      }
+      .section:not(:first-of-type) {
+        border-top: 1px solid var(--skylee-divider-color);
+      }
+      .section:nth-of-type(odd) {
+        background-color: var(--skylee-primary-background-color);
+      }
+      .section:nth-of-type(even) {
+        background-color: var(--skylee-secondary-background-color);
+      }
+      .section > * {
+        flex: 0 1 var(--skylee-content-max-width);
+        box-sizing: border-box;
+      }
+
+      [layout="vertical"] {
+        display: flex;
+        flex-direction: column;
+      }
+      [layout="vertical"] > * {
+        flex: 1 0 auto;
+      }
+
+      .padding-block {
+        padding: 20px;
+      }
+
+      .text-block {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+      }
+      .text-block > :not(:first-child) {
+        margin-top: 16px;
+      }
+      .text-block > h2 {
+        margin: 0;
+        @apply --skylee-headline-font;
+        color: var(--skylee-primary-text-color);
+      }
+      .text-block > p {
+        margin: 0;
+        @apply --skylee-body1-font;
+        color: var(--skylee-secondary-text-color);
+        text-align: justify;
+      }
+
+      .teams-block {
+        padding: 5px;
+        display: grid;
+        /* chrome bug: the "250px" will make the row height locked at 250px
+           which ignore the children height (The children overflowed) */
+        grid-template-columns: repeat(auto-fill, minmax(250px, auto));
+        grid-auto-rows: auto;
+        grid-gap: 5px;
+      }
+
+      .team-block {
+        /* curium-proportional alreay relative positioned this element */
+        --curium-proportional-aspect-ratio: 100%;
+        overflow: hidden;
+        border: 1px solid black;
+        transform: none;
+      }
+      .team-block > #cover {
+        /* curium-proportional alreay absolute positioned this element */
+        filter: brightness(0.25);
+        transition: filter 200ms linear 0ms;
+      }
+      .team-block:hover > #cover {
+        filter: none;
+      }
+      .team-block > #overlay {
+        /* curium-proportional alreay absolute positioned this element */
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        /*transform: translateY(0%);*/
+        opacity: 1;
+        transition: opacity 200ms ease-out 0ms;
+      }
+      .team-block:hover > #overlay {
+        /*transform: translateX(-100%);*/
+        opacity: 0;
+      }
+      .team-block > #overlay > h2 {
+        margin: 16px 0px 0px 0px;
+        @apply --skylee-headline-font;
+        color: white;
+      }
+      .team-block > #overlay > img {
+        width: 64px;
+        height: 64px;
+        image-rendering: -webkit-optimize-contrast; /* Chrome only look less blurry with this option */
+      }
+    </style>
+
+    <div class="section">
+      <div layout="vertical">
+
+        <div class="padding-block text-block">
+          <h2>Sports Teams</h2>
+        </div>
+
+        <curium-responsive-layout class="teams-block">
+
+          <curium-proportional class="team-block">
+            <iron-image id="cover" src="[[rootPath]]images/team/badminton/cover.jpg" sizing="cover" preload fade></iron-image>
+            <div id="overlay">
+              <img src$="[[rootPath]]images/team/badminton/symbol.png"></img>
+              <h2>Badminton</h2>
+            </div>
+          </curium-proportional>
+
+          <curium-proportional class="team-block">
+            <iron-image id="cover" src="[[rootPath]]images/team/basketball/cover.jpg" sizing="cover" preload fade></iron-image>
+            <div id="overlay">
+              <img src$="[[rootPath]]images/team/basketball/symbol.png"></img>
+              <h2>Basketball</h2>
+            </div>
+          </curium-proportional>
+
+          <curium-proportional class="team-block">
+            <iron-image id="cover" src="[[rootPath]]images/team/handball/cover.jpg" sizing="cover" preload fade></iron-image>
+            <div id="overlay">
+              <img src$="[[rootPath]]images/team/handball/symbol.png"></img>
+              <h2>Handball</h2>
+            </div>
+          </curium-proportional>
+
+          <curium-proportional class="team-block">
+            <iron-image id="cover" src="[[rootPath]]images/team/hockey/cover.jpg" sizing="cover" preload fade></iron-image>
+            <div id="overlay">
+              <img src$="[[rootPath]]images/team/hockey/symbol.png"></img>
+              <h2>Hockey</h2>
+            </div>
+          </curium-proportional>
+
+          <curium-proportional class="team-block">
+            <iron-image id="cover" src="[[rootPath]]images/team/lacrosse/cover.jpg" sizing="cover" preload fade></iron-image>
+            <div id="overlay">
+              <h2>Lacrosse</h2>
+            </div>
+          </curium-proportional>
+
+          <curium-proportional class="team-block">
+            <iron-image id="cover" src="[[rootPath]]images/team/soccer/cover.jpg" sizing="cover" preload fade></iron-image>
+            <div id="overlay">
+              <img src$="[[rootPath]]images/team/soccer/symbol.png"></img>
+              <h2>Soccer</h2>
+            </div>
+          </curium-proportional>
+
+          <curium-proportional class="team-block">
+            <iron-image id="cover" src="[[rootPath]]images/team/softball/cover.jpg" sizing="cover" preload fade></iron-image>
+            <div id="overlay">
+              <img src$="[[rootPath]]images/team/softball/symbol.png"></img>
+              <h2>Softball</h2>
+            </div>
+          </curium-proportional>
+
+          <curium-proportional class="team-block">
+            <iron-image id="cover" src="[[rootPath]]images/team/squash/cover.jpg" sizing="cover" preload fade></iron-image>
+            <div id="overlay">
+              <h2>Squash</h2>
+            </div>
+          </curium-proportional>
+
+          <curium-proportional class="team-block">
+            <iron-image id="cover" src="[[rootPath]]images/team/table-tennis/cover.jpg" sizing="cover" preload fade></iron-image>
+            <div id="overlay">
+              <img src$="[[rootPath]]images/team/table-tennis/symbol.png"></img>
+              <h2>Table Tennis</h2>
+            </div>
+          </curium-proportional>
+
+          <curium-proportional class="team-block">
+            <iron-image id="cover" src="[[rootPath]]images/team/volleyball/cover.jpg" sizing="cover" preload fade></iron-image>
+            <div id="overlay">
+              <img src$="[[rootPath]]images/team/volleyball/symbol.png"></img>
+              <h2>Volleyball</h2>
+            </div>
+          </curium-proportional>
+
+        </curium-responsive-layout>
+      </div>
+    </div>
+
+    <div class="section">
+      <div layout="vertical">
+
+        <div class="padding-block text-block">
+          <h2>Cultural Teams</h2>
+        </div>
+
+        <curium-responsive-layout class="teams-block">
+
+          <curium-proportional class="team-block">
+            <iron-image id="cover" src="[[rootPath]]images/team/band/cover.jpg" sizing="cover" preload fade></iron-image>
+            <div id="overlay">
+              <img src$="[[rootPath]]images/team/band/symbol.png"></img>
+              <h2>Band</h2>
+            </div>
+          </curium-proportional>
+
+          <curium-proportional class="team-block">
+            <iron-image id="cover" src="[[rootPath]]images/team/bridge/cover.jpg" sizing="cover" preload fade></iron-image>
+            <div id="overlay">
+              <img src$="[[rootPath]]images/team/bridge/symbol.png"></img>
+              <h2>Bridge</h2>
+            </div>
+          </curium-proportional>
+
+          <curium-proportional class="team-block">
+            <iron-image id="cover" src="[[rootPath]]images/team/choir/cover.jpg" sizing="cover" preload fade></iron-image>
+            <div id="overlay">
+              <img src$="[[rootPath]]images/team/choir/symbol.png"></img>
+              <h2>Choir</h2>
+            </div>
+          </curium-proportional>
+
+          <curium-proportional class="team-block">
+            <iron-image id="cover" src="[[rootPath]]images/team/dancing/cover.jpg" sizing="cover" preload fade></iron-image>
+            <div id="overlay">
+              <img src$="[[rootPath]]images/team/dancing/symbol.png"></img>
+              <h2>Dancing</h2>
+            </div>
+          </curium-proportional>
+
+          <curium-proportional class="team-block">
+            <iron-image id="cover" src="[[rootPath]]images/team/debating/cover.jpg" sizing="cover" preload fade></iron-image>
+            <div id="overlay">
+              <img src$="[[rootPath]]images/team/debating/symbol.png"></img>
+              <h2>Debating</h2>
+            </div>
+          </curium-proportional>
+
+          <curium-proportional class="team-block">
+            <iron-image id="cover" src="[[rootPath]]images/team/drama/cover.jpg" sizing="cover" preload fade></iron-image>
+            <div id="overlay">
+              <img src$="[[rootPath]]images/team/drama/symbol.png"></img>
+              <h2>Drama</h2>
+            </div>
+          </curium-proportional>
+
+        </curium-responsive-layout>
+      </div>
+    </div>
+
+  </template>
+  <script>
+    class SkyleeTeam extends Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element) {
+      
+      static get is() { return 'skylee-team'; }
+
+    }
+    window.customElements.define(SkyleeTeam.is, SkyleeTeam);
+  </script>
+</dom-module>
