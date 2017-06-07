@@ -70,14 +70,38 @@
         text-align: justify;
       }
 
-      .teams-block {
-        padding: 5px;
-        display: grid;
-        /* chrome bug: the "250px" will make the row height locked at 250px
-           which ignore the children height (The children overflowed) */
-        grid-template-columns: repeat(auto-fill, minmax(250px, auto));
-        grid-auto-rows: auto;
-        grid-gap: 5px;
+      .teams-block[layout="narrow"] {
+        display: flex;
+        flex-direction: column;
+      }
+      .teams-block[layout="narrow"] > :not(:first-child) {
+        margin-top: 5px;
+      }
+      .teams-block[layout="normal"] {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .teams-block[layout="normal"] > * {
+        flex: 0 0 250px;
+        margin: 5px;
+      }
+      @supports (display: grid) {
+        .teams-block[layout="normal"] {
+          justify-content: initial;
+          flex-wrap: initial;
+
+          display: grid;
+          /* chrome bug: the "250px" will make the row height locked at 250px
+            which ignore the children height (The children overflowed) */
+          grid-template-columns: repeat(auto-fill, minmax(250px, auto));
+          grid-auto-rows: auto;
+          grid-gap: 5px;
+        }
+        .teams-block[layout="normal"] > * {
+          flex-basis: initial;
+          margin: initial;
+        }
       }
 
       .team-block {
@@ -89,11 +113,6 @@
       }
       .team-block > #cover {
         /* curium-proportional alreay absolute positioned this element */
-        filter: brightness(0.25);
-        transition: filter 200ms linear 0ms;
-      }
-      .team-block:hover > #cover {
-        filter: none;
       }
       .team-block > #overlay {
         /* curium-proportional alreay absolute positioned this element */
@@ -102,12 +121,11 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        /*transform: translateY(0%);*/
+        background-color: rgba(0, 0, 0, 0.75);
         opacity: 1;
         transition: opacity 200ms ease-out 0ms;
       }
       .team-block:hover > #overlay {
-        /*transform: translateX(-100%);*/
         opacity: 0;
       }
       .team-block > #overlay > h2 {
@@ -129,7 +147,7 @@
           <h2>Sports Teams</h2>
         </div>
 
-        <curium-responsive-layout class="teams-block">
+        <curium-responsive-layout class="padding-block teams-block" layout-map='{"0":"narrow","300":"normal"}'>
 
           <curium-proportional class="team-block">
             <iron-image id="cover" src="[[rootPath]]images/team/badminton/cover.jpg" sizing="cover" preload fade></iron-image>
@@ -220,7 +238,7 @@
           <h2>Cultural Teams</h2>
         </div>
 
-        <curium-responsive-layout class="teams-block">
+        <curium-responsive-layout class="padding-block teams-block" layout-map='{"0":"narrow","300":"normal"}'>
 
           <curium-proportional class="team-block">
             <iron-image id="cover" src="[[rootPath]]images/team/band/cover.jpg" sizing="cover" preload fade></iron-image>
@@ -279,6 +297,16 @@
     class SkyleeTeam extends Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element) {
       
       static get is() { return 'skylee-team'; }
+
+      static get properties() {
+        return {
+          tabPageTitle: {
+            type: String,
+            value: 'Team',
+            notify: true
+          }
+        };
+      }
 
     }
     window.customElements.define(SkyleeTeam.is, SkyleeTeam);

@@ -47,7 +47,9 @@
       }
       #slides[play] > .slide.iron-selected > #image {
         /* animation will be re-applied everytime the slide is selected by the class .iron-selected */
-        animation: slide-animation 3s ease-out 0s 1 normal forwards running;
+        animation: slide-animation 3s ease-out 0s 1 normal forwards;
+        /* Fix for IE11: IE does not support putting play-state into the animation property */
+        animation-play-state: running;
       }
       @keyframes slide-animation {
         from {
@@ -59,7 +61,7 @@
       }
       .slide > #caption-background {
         position: relative; /* position caption so caption will overlay image according to the document order */
-        flex: 1;
+        flex: 1 1 auto;
         height: 200px;
         background-image: linear-gradient(to top, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
         display: flex;
@@ -79,7 +81,7 @@
     <div id="toolbar-background"></div>
 
     <curium-slideshow-animation-manager id="slideshow-animation-manager"></curium-slideshow-animation-manager>
-    <curium-animated-pages id="slides" selected="0" play$="[[_logicAnd(selectedScene, selectedTabPage)]]" animation-manager="#slideshow-animation-manager">
+    <curium-animated-pages id="slides" selected="0" play$="[[_logicAnd(visibleScene, visibleTabPage)]]" animation-manager="#slideshow-animation-manager">
       <div class="slide">
         <iron-image id="image" src="[[rootPath]]images/featured/our-hall.jpg" sizing="cover"></iron-image>
         <div id="caption-background"><div id="caption">Our Hall</div></div>
@@ -118,15 +120,19 @@
 
       static get properties() {
         return {
-          selectedScene: {
+          visibleScene: {
             type: Boolean,
             value: false
           },
-          selectedTabPage: {
+          visibleTabPage: {
             type: Boolean,
             value: false
           },
-
+          tabPageTitle: {
+            type: String,
+            value: 'Home',
+            notify: true
+          },
           transparentToolbar: {
             type: Boolean,
             value: true,
@@ -137,19 +143,19 @@
 
       static get observers() {
         return [
-          '_onSelectionStateChanged(selectedScene, selectedTabPage)'
+          '_onVisibleStateChanged(visibleScene, visibleTabPage)'
         ];
       }
 
-      _onSelectionStateChanged(selectedScene, selectedTabPage) {
-        if (selectedScene && selectedTabPage) {
-          if (!Number.isInteger(this._slideshowTimerID)) {
+      _onVisibleStateChanged(visibleScene, visibleTabPage) {
+        if (visibleScene && visibleTabPage) {
+          if (!this._isInteger(this._slideshowTimerID)) {
             this._slideshowTimerID = setInterval(() => {
               this.$.slides.selectNext();
             }, 5000);
           }
         } else {
-          if (Number.isInteger(this._slideshowTimerID)) {
+          if (this._isInteger(this._slideshowTimerID)) {
             clearInterval(this._slideshowTimerID);
             this._slideshowTimerID = null;
           }
@@ -158,6 +164,12 @@
 
       _logicAnd(a, b) {
         return a && b;
+      }
+
+      /* polyfil for IE 11 */
+      _isInteger(value) {
+        return Number.isInteger ? Number.isInteger(value) :
+               (typeof value === 'number' && window.isFinite(value) && Math.floor(value) === value);
       }
 
     }

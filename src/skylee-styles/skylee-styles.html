@@ -79,7 +79,7 @@
       };
 
       /*
-       * Theme
+       * Theme & Color
        */
       /* Light theme */
       --skylee-light-theme-primary-background-color: white;
@@ -98,12 +98,23 @@
       --skylee-dark-theme-divider-color: rgba(255, 255, 255, var(--dark-divider-opacity));
 
       /* Current theme */
-      --skylee-primary-background-color: var(--skylee-light-theme-primary-background-color);
-      --skylee-secondary-background-color: var(--skylee-light-theme-secondary-background-color);
-      --skylee-primary-text-color: var(--skylee-light-theme-primary-text-color);
-      --skylee-secondary-text-color: var(--skylee-light-theme-secondary-text-color);
-      --skylee-disabled-text-color: var(--skylee-light-theme-disabled-text-color);
-      --skylee-divider-color: var(--skylee-light-theme-divider-color);
+      /*--skylee-light-theme: {*/
+        --skylee-primary-background-color: var(--skylee-light-theme-primary-background-color);
+        --skylee-secondary-background-color: var(--skylee-light-theme-secondary-background-color);
+        --skylee-primary-text-color: var(--skylee-light-theme-primary-text-color);
+        --skylee-secondary-text-color: var(--skylee-light-theme-secondary-text-color);
+        --skylee-disabled-text-color: var(--skylee-light-theme-disabled-text-color);
+        --skylee-divider-color: var(--skylee-light-theme-divider-color);
+      /*};*/
+      --skylee-dark-theme: {
+        --skylee-primary-background-color: var(--skylee-dark-theme-primary-background-color);
+        --skylee-secondary-background-color: var(--skylee-dark-theme-secondary-background-color);
+        --skylee-primary-text-color: var(--skylee-dark-theme-primary-text-color);
+        --skylee-secondary-text-color: var(--skylee-dark-theme-secondary-text-color);
+        --skylee-disabled-text-color: var(--skylee-dark-theme-disabled-text-color);
+        --skylee-divider-color: var(--skylee-dark-theme-divider-color);
+      };
+      /*@apply --skylee-dark-theme;*/
 
       /* Current primary-color background theme */
       --skylee-themed-primary-text-color: white;
@@ -113,6 +124,7 @@
 
       --skylee-primary-color: rgb(0, 71, 187);
 
+      /* Theme switching */
 
       /*
        * layout
@@ -123,7 +135,7 @@
 
       /* Content */
       --skylee-content-max-width: 1200px;
-      
+
     }
   </style>
 </custom-style>
