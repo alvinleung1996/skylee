@@ -26,7 +26,7 @@
       },
       "js": {
         "minify": true,
-        "compile": false
+        "compile": true
       }
     },
     {
@@ -43,7 +43,7 @@
       },
       "js": {
         "minify": true,
-        "compile": false
+        "compile": true
       }
     }
   ],

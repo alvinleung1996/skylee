@@ -84,12 +84,12 @@
       }
 
       #home-button {
-        flex: 1;
+        flex: 1 1 auto;
         text-decoration: none;
         display: flex;
       }
       #home-button > paper-button {
-        flex: 1;
+        flex: 1 1 auto;
         margin: 0;
         padding-top: 0;
         padding-bottom: 0;
@@ -100,6 +100,12 @@
 
       #tabs-container {
         position: relative;
+      }
+      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {  
+        /* Fix for IE11 specific styles */
+        #tabs-container {
+          flex: 1 0 auto;
+        }  
       }
       #tabs {
         position: absolute;
@@ -223,7 +229,8 @@
 
           _toolbarLayout: {
             type: String,
-            reflectToAttribute: true
+            reflectToAttribute: true,
+            observer: '_onToolbarLayoutChanged' /* Fix for ShadyCSS */
           },
           _transparentToolbar: {
             type: Boolean,
@@ -258,6 +265,17 @@
         this.$['tab-pages'].addEventListener('iron-deselect', e => {
           if (e.target === this.$['tab-pages']) this._onTabPageSelectionChanged()
         });
+      }
+
+      _onToolbarLayoutChanged(layout) {
+        /* Fix for ShadyCSS */
+        if (window.ShadyCSS && !window.ShadyCSS.nativeCss) {
+          let stylesToUpdate = {
+            '--skylee-toolbar-height': layout === 'narrow' ? '96px' : '64px'
+          };
+          this.updateStyles(stylesToUpdate);
+          this.$['tab-pages'].items.filter(n => n instanceof Polymer.Element).forEach(n => n.updateStyles(stylesToUpdate));
+        }
       }
 
       _computeSelectedTabPageID(id) {

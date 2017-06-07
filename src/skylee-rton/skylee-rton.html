@@ -21,6 +21,7 @@
         min-height: 250px;
         display: flex;
         justify-content: center;
+        /* IE11 Bug: flexbox container does not render correctly with min-height */
       }
       .section:not(:first-of-type) {
         border-top: 1px solid var(--skylee-divider-color);
@@ -53,6 +54,8 @@
         margin: 0;
         @apply --skylee-headline-font;
         color: var(--skylee-primary-text-color);
+        /* Fix for IE11: IE does not wrap p in flexbox */
+        align-self: stretch;
       }
       .event-block > h2::first-letter {
         font-size: 48px;
@@ -62,6 +65,8 @@
         @apply --skylee-body1-font;
         color: var(--skylee-secondary-text-color);
         text-align: justify;
+        /* Fix for IE11: IE does not wrap p in flexbox */
+        align-self: stretch;
       }
     </style>
 

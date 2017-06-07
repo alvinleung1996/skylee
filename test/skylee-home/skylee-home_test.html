@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
 
-    <title>skylee-app test</title>
+    <title>skylee-home test</title>
 
     <script>
 	    /*
@@ -25,13 +25,29 @@
     </script>
 	
     <script src="../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <link rel="import" href="../../bower_components/polymer/lib/elements/custom-style.html">
 
     <link rel="import" href="../../src/skylee-styles/skylee-styles.html">
-    <link rel="import" href="../../src/skylee-about/skylee-about.html">
+    <link rel="import" href="../../src/skylee-home/skylee-home.html">
+
+    <custom-style>
+      <style>
+        body {
+          margin: 0;
+        }
+        html, body, skylee-home {
+          width: 100%;
+          height: 100%;
+        }
+        skylee-home {
+          --skylee-toolbar-height: 64px;
+        }
+      </style>
+    </custom-style>
   </head>
   <body>
 
-    <skylee-about></skylee-about>
+    <skylee-home visible-scene visible-tab-page></skylee-home>
 
   </body>
 </html>
