@@ -6,8 +6,8 @@
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 
+<link rel="import" href="../../bower_components/curium-responsive-image/curium-responsive-image.html">
 <link rel="import" href="../../bower_components/curium-responsive-layout/curium-responsive-layout.html">
-<link rel="import" href="../../bower_components/curium-proportional/curium-proportional.html">
 
 <link rel="import" href="../skylee-icons/skylee-icons.html">
 
@@ -25,12 +25,17 @@
 
       .section {
         min-height: 300px;
+        border-bottom: 1px solid var(--skylee-divider-color);
         display: flex;
         justify-content: center;
-        /* IE11 Bug: flexbox container does not render correctly with min-height */
       }
-      .section:not(:first-of-type) {
-        border-top: 1px solid var(--skylee-divider-color);
+      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {  
+        /* Fix for IE11 flexbox container min-height bug:
+           Flexbox children cannot get the height of their parent
+           and behave like there is no height in their parent. */  
+        .section {
+          min-height: 0px;
+        }
       }
       .section:nth-of-type(odd) {
         background-color: var(--skylee-primary-background-color);
@@ -97,9 +102,15 @@
 
       .image-block {
         display: flex;
+        flex-direction: column;
+        justify-content: center;
       }
-      .image-block > * {
-        flex: 1 1 auto;
+      .image-block > #image-set {
+        flex: 0 0 auto;
+      }
+      .image-block > #image-set > #image {
+        display: block;
+        --iron-image-width: 100%;
       }
 
       .table-block {
@@ -168,6 +179,7 @@
       }
       .download-block > a > paper-button {
         margin: 0;
+        display: flex;
         @apply --skylee-button-font;
         color: var(--skylee-primary-text-color);
       }
@@ -265,9 +277,11 @@
         </div>
 
         <div class="padding-block image-block">
-          <curium-proportional src="[[rootPath]]images/hall-song.jpg">
-            <iron-image src="[[rootPath]]images/hall-song.jpg" sizing="contain" preload fade></iron-image>
-          </curium-proportional>
+          <curium-responsive-image id="image-set" sizing="fit-width"
+            src-map="320w-314h [[rootPath]]images/about/hall-song-320w.jpg,
+                     [[rootPath]]images/about/hall-song-default.jpg">
+            <iron-image id="image" preload fade></iron-image>
+          </curium-responsive-image>
         </div>
 
       </curium-responsive-layout>
@@ -283,9 +297,13 @@
         </div>
 
         <div class="padding-block image-block">
-          <curium-proportional src="[[rootPath]]images/hall-logo.jpg">
-            <iron-image src="[[rootPath]]images/hall-logo.jpg" sizing="contain" preload fade></iron-image>
-          </curium-proportional>
+          <curium-responsive-image id="image-set" sizing="fit-width"
+            src-map="320w-226h [[rootPath]]images/about/hall-logo-320w.jpg,
+                     640w-453h [[rootPath]]images/about/hall-logo-640w.jpg,
+                     1280w-905h [[rootPath]]images/about/hall-logo-1280w.jpg,
+                     [[rootPath]]images/about/hall-logo-default.jpg">
+            <iron-image id="image" preload fade></iron-image>
+          </curium-responsive-image>
         </div>
 
       </curium-responsive-layout>

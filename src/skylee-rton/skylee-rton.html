@@ -19,12 +19,17 @@
 
       .section {
         min-height: 250px;
+        border-bottom: 1px solid var(--skylee-divider-color);
         display: flex;
         justify-content: center;
-        /* IE11 Bug: flexbox container does not render correctly with min-height */
       }
-      .section:not(:first-of-type) {
-        border-top: 1px solid var(--skylee-divider-color);
+      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {  
+        /* Fix for IE11 flexbox container min-height bug:
+           Flexbox children cannot get the height of their parent
+           and behave like there is no height in their parent. */  
+        .section {
+          min-height: 0px;
+        }
       }
       .section:nth-of-type(odd) {
         background-color: var(--skylee-primary-background-color);

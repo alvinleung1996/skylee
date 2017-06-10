@@ -1,12 +1,13 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/polymer/lib/utils/debounce.html">
 <link rel="import" href="../../bower_components/shadycss/apply-shim.html">
 
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
 <link rel="import" href="../../bower_components/curium-animated-pages/curium-animated-pages.html">
 <link rel="import" href="../../bower_components/curium-animated-pages/animations/curium-slideshow-animation-manager.html">
-
-<!-- TODO: Image mipmap, only load the next photo but not all , screen flash when switching tab pages, test z-index -->
+<link rel="import" href="../../bower_components/curium-responsive-image/curium-responsive-image.html">
 
 <dom-module id="skylee-home">
   <template strip-whitespace>
@@ -45,7 +46,7 @@
         bottom: 0px;
         left: 0px;
       }
-      #slides[play] > .slide.iron-selected > #image {
+      .slide.iron-selected > #image {
         /* animation will be re-applied everytime the slide is selected by the class .iron-selected */
         animation: slide-animation 3s ease-out 0s 1 normal forwards;
         /* Fix for IE11: IE does not support putting play-state into the animation property */
@@ -81,40 +82,90 @@
     <div id="toolbar-background"></div>
 
     <curium-slideshow-animation-manager id="slideshow-animation-manager"></curium-slideshow-animation-manager>
-    <curium-animated-pages id="slides" selected="0" play$="[[_logicAnd(visibleScene, visibleTabPage)]]" animation-manager="#slideshow-animation-manager">
+    <curium-animated-pages id="slides"
+      selected="0" animation-manager="#slideshow-animation-manager" notify-resize-on-grandchildren>
+
       <div class="slide">
-        <iron-image id="image" src="[[rootPath]]images/featured/our-hall.jpg" sizing="cover"></iron-image>
+        <curium-responsive-image id="image" sizing="cover" prevent-load
+          src-map="320w-180h [[rootPath]]images/featured/our-hall-320w.jpg,
+                   640w-360h [[rootPath]]images/featured/our-hall-640w.jpg,
+                   [[rootPath]]images/featured/our-hall-default.jpg">
+          <iron-image sizing="cover" preload fade></iron-image>
+        </curium-responsive-image>
         <div id="caption-background"><div id="caption">Our Hall</div></div>
       </div>
+
       <div class="slide">
-        <iron-image id="image" src="[[rootPath]]images/featured/hall-photo.jpg" sizing="cover"></iron-image>
+        <curium-responsive-image id="image" sizing="cover" prevent-load
+          src-map="320w-214h [[rootPath]]images/featured/hall-photo-320w.jpg,
+                   640w-427h [[rootPath]]images/featured/hall-photo-640w.jpg,
+                   1280w-854h [[rootPath]]images/featured/hall-photo-1280w.jpg,
+                   [[rootPath]]images/featured/hall-photo-default.jpg">
+          <iron-image sizing="cover" preload fade></iron-image>
+        </curium-responsive-image>
         <div id="caption-background"><div id="caption">Our Family</div></div>
       </div>
+
       <div class="slide">
-        <iron-image id="image" src="[[rootPath]]images/featured/inheritance.jpg" sizing="cover"></iron-image>
+        <curium-responsive-image id="image" sizing="cover" prevent-load
+          src-map="320w-180h [[rootPath]]images/featured/inheritance-320w.jpg,
+                   640w-360h [[rootPath]]images/featured/inheritance-640w.jpg,
+                   1280w-720h [[rootPath]]images/featured/inheritance-1280w.jpg,
+                   [[rootPath]]images/featured/inheritance-default.jpg">
+          <iron-image sizing="cover" preload fade></iron-image>
+        </curium-responsive-image>
         <div id="caption-background"><div id="caption">Inheritance</div></div>
       </div>
+
       <div class="slide">
-        <iron-image id="image" src="[[rootPath]]images/featured/our-pride.jpg" sizing="cover"></iron-image>
+        <curium-responsive-image id="image" sizing="cover" prevent-load
+          src-map="320w-180h [[rootPath]]images/featured/our-pride-320w.jpg,
+                   640w-360h [[rootPath]]images/featured/our-pride-640w.jpg,
+                   1280w-719h [[rootPath]]images/featured/our-pride-1280w.jpg,
+                   [[rootPath]]images/featured/our-pride-default.jpg">
+          <iron-image sizing="cover" preload fade></iron-image>
+        </curium-responsive-image>
         <div id="caption-background"><div id="caption">Our Pride</div></div>
       </div>
+
       <div class="slide">
-        <iron-image id="image" src="[[rootPath]]images/featured/champion-dream.jpg" sizing="cover"></iron-image>
+        <curium-responsive-image id="image" sizing="cover" prevent-load
+          src-map="320w-180h [[rootPath]]images/featured/champion-dream-320w.jpg,
+                   640w-360h [[rootPath]]images/featured/champion-dream-640w.jpg,
+                   1280w-720h [[rootPath]]images/featured/champion-dream-1280w.jpg,
+                   [[rootPath]]images/featured/champion-dream-default.jpg">
+          <iron-image sizing="cover" preload fade></iron-image>
+        </curium-responsive-image>
         <div id="caption-background"><div id="caption">Our Champion Dream</div></div>
       </div>
+
       <div class="slide">
-        <iron-image id="image" src="[[rootPath]]images/featured/share-joy.jpg" sizing="cover"></iron-image>
+        <curium-responsive-image id="image" sizing="cover" prevent-load
+          src-map="320w-180h [[rootPath]]images/featured/share-joy-320w.jpg,
+                   640w-360h [[rootPath]]images/featured/share-joy-640w.jpg,
+                   1280w-720h [[rootPath]]images/featured/share-joy-1280w.jpg,
+                   [[rootPath]]images/featured/share-joy-default.jpg">
+          <iron-image sizing="cover" preload fade></iron-image>
+        </curium-responsive-image>
         <div id="caption-background"><div id="caption">Our Joy</div></div>
       </div>
+
       <div class="slide">
-        <iron-image id="image" src="[[rootPath]]images/featured/graduation-photo.jpg" sizing="cover"></iron-image>
+        <curium-responsive-image id="image" sizing="cover" prevent-load
+          src-map="320w-180h [[rootPath]]images/featured/graduation-photo-320w.jpg,
+                   640w-360h [[rootPath]]images/featured/graduation-photo-640w.jpg,
+                   1280w-720h [[rootPath]]images/featured/graduation-photo-1280w.jpg,
+                   [[rootPath]]images/featured/graduation-photo-default.jpg">
+          <iron-image sizing="cover" preload fade></iron-image>
+        </curium-responsive-image>
         <div id="caption-background"><div id="caption">Our Alumni</div></div>
       </div>
+      
     </curium-animated-pages>
 
   </template>
   <script>
-    class SkyleeHome extends Polymer.Element {
+    class SkyleeHome extends Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element) {
 
       static get is() { return 'skylee-home'; }
 
@@ -147,6 +198,15 @@
         ];
       }
 
+      ready() {
+        super.ready();
+        
+        this.$.slides.addEventListener('iron-resize', e => this._onSlidesResize(e));
+        this.$.slides.addEventListener('iron-select', e => {
+          if (e.target === this.$.slides) this._onSlidesSelectionChanged(e);
+        });
+      }
+
       _onVisibleStateChanged(visibleScene, visibleTabPage) {
         if (visibleScene && visibleTabPage) {
           if (!this._isInteger(this._slideshowTimerID)) {
@@ -162,8 +222,32 @@
         }
       }
 
-      _logicAnd(a, b) {
-        return a && b;
+      _onSlidesResize(evt) {
+        this._slidesResizeDebouncer = Polymer.Debouncer.debounce(this._slidesResizeDebouncer, Polymer.Async.timeOut.after(100), () => {
+          this._updateSlideSrc();
+        });
+      }
+
+      _onSlidesSelectionChanged(evt) {
+        this._updateSlideSrc();
+      }
+
+      _updateSlideSrc() {
+        let slides = this.$.slides;
+        let slideList = slides.items;
+        let selectedSlide = slides.selectedItem;
+
+        let properties = {
+          width: slides.clientWidth,
+          height: slides.clientHeight,
+          preventLoad: false
+        };
+        let selectedIndex = slideList.indexOf(selectedSlide);
+
+        for (let i = 0; i < 2 && i < slideList.length; ++i) {
+          let image = slideList[(selectedIndex + i) % slideList.length].querySelector('curium-responsive-image')
+          if (image) image.setProperties(properties);
+        }
       }
 
       /* polyfil for IE 11 */

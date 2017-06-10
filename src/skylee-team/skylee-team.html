@@ -5,6 +5,7 @@
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
 <link rel="import" href="../../bower_components/curium-proportional/curium-proportional.html">
+<link rel="import" href="../../bower_components/curium-responsive-image/curium-responsive-image.html">
 <link rel="import" href="../../bower_components/curium-responsive-layout/curium-responsive-layout.html">
 
 <dom-module id="skylee-team">
@@ -20,11 +21,9 @@
       }
 
       .section {
+        border-bottom: 1px solid var(--skylee-divider-color);
         display: flex;
         justify-content: center;
-      }
-      .section:not(:first-of-type) {
-        border-top: 1px solid var(--skylee-divider-color);
       }
       .section:nth-of-type(odd) {
         background-color: var(--skylee-primary-background-color);
@@ -149,8 +148,14 @@
 
         <curium-responsive-layout class="padding-block teams-block" layout-map='{"0":"narrow","300":"normal"}'>
 
-          <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/badminton/cover.jpg" sizing="cover" preload fade></iron-image>
+          <curium-proportional id="cover" class="team-block">
+            <curium-responsive-image sizing="cover"
+              src-map="320w-214h [[rootPath]]images/team/badminton/badminton-cover-320w.jpg,
+                       640w-427h [[rootPath]]images/team/badminton/badminton-cover-640w.jpg,
+                       1280w-854h [[rootPath]]images/team/badminton/badminton-cover-1280w.jpg,
+                       [[rootPath]]images/team/badminton/badminton-cover-default.jpg">
+              <iron-image sizing="cover" preload fade></iron-image>
+            </curium-responsive-image>
             <div id="overlay">
               <img src$="[[rootPath]]images/team/badminton/symbol.png"></img>
               <h2>Badminton</h2>
@@ -158,7 +163,13 @@
           </curium-proportional>
 
           <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/basketball/cover.jpg" sizing="cover" preload fade></iron-image>
+            <curium-responsive-image sizing="cover"
+              src-map="320w-180h [[rootPath]]images/team/basketball/basketball-cover-320w.jpg,
+                       640w-360h [[rootPath]]images/team/basketball/basketball-cover-640w.jpg,
+                       1280w-721h [[rootPath]]images/team/basketball/basketball-cover-1280w.jpg,
+                       [[rootPath]]images/team/basketball/basketball-cover-default.jpg">
+              <iron-image sizing="cover" preload fade></iron-image>
+            </curium-responsive-image>
             <div id="overlay">
               <img src$="[[rootPath]]images/team/basketball/symbol.png"></img>
               <h2>Basketball</h2>
@@ -166,7 +177,13 @@
           </curium-proportional>
 
           <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/handball/cover.jpg" sizing="cover" preload fade></iron-image>
+            <curium-responsive-image sizing="cover"
+              src-map="320w-213h [[rootPath]]images/team/handball/handball-cover-320w.jpg,
+                       640w-427h [[rootPath]]images/team/handball/handball-cover-640w.jpg,
+                       1280w-854h [[rootPath]]images/team/handball/handball-cover-1280w.jpg,
+                       [[rootPath]]images/team/handball/handball-cover-default.jpg">
+              <iron-image sizing="cover" preload fade></iron-image>
+            </curium-responsive-image>
             <div id="overlay">
               <img src$="[[rootPath]]images/team/handball/symbol.png"></img>
               <h2>Handball</h2>
@@ -174,7 +191,13 @@
           </curium-proportional>
 
           <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/hockey/cover.jpg" sizing="cover" preload fade></iron-image>
+            <curium-responsive-image sizing="cover"
+              src-map="320w-213h [[rootPath]]images/team/hockey/hockey-cover-320w.jpg,
+                       640w-427h [[rootPath]]images/team/hockey/hockey-cover-640w.jpg,
+                       1280w-854h [[rootPath]]images/team/hockey/hockey-cover-1280w.jpg,
+                       [[rootPath]]images/team/hockey/hockey-cover-default.jpg">
+              <iron-image sizing="cover" preload fade></iron-image>
+            </curium-responsive-image>
             <div id="overlay">
               <img src$="[[rootPath]]images/team/hockey/symbol.png"></img>
               <h2>Hockey</h2>
@@ -182,14 +205,26 @@
           </curium-proportional>
 
           <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/lacrosse/cover.jpg" sizing="cover" preload fade></iron-image>
+            <curium-responsive-image sizing="cover"
+              src-map="320w-213h [[rootPath]]images/team/lacrosse/lacrosse-cover-320w.jpg,
+                       640w-427h [[rootPath]]images/team/lacrosse/lacrosse-cover-640w.jpg,
+                       1280w-854h [[rootPath]]images/team/lacrosse/lacrosse-cover-1280w.jpg,
+                       [[rootPath]]images/team/lacrosse/lacrosse-cover-default.jpg">
+              <iron-image sizing="cover" preload fade></iron-image>
+            </curium-responsive-image>
             <div id="overlay">
               <h2>Lacrosse</h2>
             </div>
           </curium-proportional>
 
           <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/soccer/cover.jpg" sizing="cover" preload fade></iron-image>
+            <curium-responsive-image sizing="cover"
+              src-map="320w-213h [[rootPath]]images/team/soccer/soccer-cover-320w.jpg,
+                       640w-427h [[rootPath]]images/team/soccer/soccer-cover-640w.jpg,
+                       1280w-853h [[rootPath]]images/team/soccer/soccer-cover-1280w.jpg,
+                       [[rootPath]]images/team/soccer/soccer-cover-default.jpg">
+              <iron-image sizing="cover" preload fade></iron-image>
+            </curium-responsive-image>
             <div id="overlay">
               <img src$="[[rootPath]]images/team/soccer/symbol.png"></img>
               <h2>Soccer</h2>
@@ -197,7 +232,12 @@
           </curium-proportional>
 
           <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/softball/cover.jpg" sizing="cover" preload fade></iron-image>
+            <curium-responsive-image sizing="cover"
+              src-map="320w-180h [[rootPath]]images/team/softball/softball-cover-320w.jpg,
+                       640w-360h [[rootPath]]images/team/softball/softball-cover-640w.jpg,
+                       [[rootPath]]images/team/softball/softball-cover-default.jpg">
+              <iron-image sizing="cover" preload fade></iron-image>
+            </curium-responsive-image>
             <div id="overlay">
               <img src$="[[rootPath]]images/team/softball/symbol.png"></img>
               <h2>Softball</h2>
@@ -205,14 +245,25 @@
           </curium-proportional>
 
           <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/squash/cover.jpg" sizing="cover" preload fade></iron-image>
+            <curium-responsive-image sizing="cover"
+              src-map="320w-214h [[rootPath]]images/team/squash/squash-cover-320w.jpg,
+                       640w-427h [[rootPath]]images/team/squash/squash-cover-640w.jpg,
+                       1280w-854h [[rootPath]]images/team/squash/squash-cover-1280w.jpg,
+                       [[rootPath]]images/team/squash/squash-cover-default.jpg">
+              <iron-image sizing="cover" preload fade></iron-image>
+            </curium-responsive-image>
             <div id="overlay">
               <h2>Squash</h2>
             </div>
           </curium-proportional>
 
           <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/table-tennis/cover.jpg" sizing="cover" preload fade></iron-image>
+            <curium-responsive-image sizing="cover"
+              src-map="320w-180h [[rootPath]]images/team/table-tennis/table-tennis-cover-320w.jpg,
+                       640w-360h [[rootPath]]images/team/table-tennis/table-tennis-cover-640w.jpg,
+                       [[rootPath]]images/team/table-tennis/table-tennis-cover-default.jpg">
+              <iron-image sizing="cover" preload fade></iron-image>
+            </curium-responsive-image>
             <div id="overlay">
               <img src$="[[rootPath]]images/team/table-tennis/symbol.png"></img>
               <h2>Table Tennis</h2>
@@ -220,7 +271,13 @@
           </curium-proportional>
 
           <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/volleyball/cover.jpg" sizing="cover" preload fade></iron-image>
+            <curium-responsive-image sizing="cover"
+              src-map="320w-214h [[rootPath]]images/team/volleyball/volleyball-cover-320w.jpg,
+                       640w-427h [[rootPath]]images/team/volleyball/volleyball-cover-640w.jpg,
+                       1280w-854h [[rootPath]]images/team/volleyball/volleyball-cover-1280w.jpg,
+                       [[rootPath]]images/team/volleyball/volleyball-cover-default.jpg">
+              <iron-image sizing="cover" preload fade></iron-image>
+            </curium-responsive-image>
             <div id="overlay">
               <img src$="[[rootPath]]images/team/volleyball/symbol.png"></img>
               <h2>Volleyball</h2>
@@ -241,7 +298,13 @@
         <curium-responsive-layout class="padding-block teams-block" layout-map='{"0":"narrow","300":"normal"}'>
 
           <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/band/cover.jpg" sizing="cover" preload fade></iron-image>
+            <curium-responsive-image sizing="cover"
+              src-map="320w-213h [[rootPath]]images/team/band/band-cover-320w.jpg,
+                       640w-427h [[rootPath]]images/team/band/band-cover-640w.jpg,
+                       1280w-853h [[rootPath]]images/team/band/band-cover-1280w.jpg,
+                       [[rootPath]]images/team/band/band-cover-default.jpg">
+              <iron-image sizing="cover" preload fade></iron-image>
+            </curium-responsive-image>
             <div id="overlay">
               <img src$="[[rootPath]]images/team/band/symbol.png"></img>
               <h2>Band</h2>
@@ -249,7 +312,13 @@
           </curium-proportional>
 
           <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/bridge/cover.jpg" sizing="cover" preload fade></iron-image>
+            <curium-responsive-image sizing="cover"
+              src-map="320w-213h [[rootPath]]images/team/bridge/bridge-cover-320w.jpg,
+                       640w-427h [[rootPath]]images/team/bridge/bridge-cover-640w.jpg,
+                       1280w-854h [[rootPath]]images/team/bridge/bridge-cover-1280w.jpg,
+                       [[rootPath]]images/team/bridge/bridge-cover-default.jpg">
+              <iron-image sizing="cover" preload fade></iron-image>
+            </curium-responsive-image>
             <div id="overlay">
               <img src$="[[rootPath]]images/team/bridge/symbol.png"></img>
               <h2>Bridge</h2>
@@ -257,7 +326,13 @@
           </curium-proportional>
 
           <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/choir/cover.jpg" sizing="cover" preload fade></iron-image>
+            <curium-responsive-image sizing="cover"
+              src-map="320w-213h [[rootPath]]images/team/choir/choir-cover-320w.jpg,
+                       640w-427h [[rootPath]]images/team/choir/choir-cover-640w.jpg,
+                       1280w-854h [[rootPath]]images/team/choir/choir-cover-1280w.jpg,
+                       [[rootPath]]images/team/choir/choir-cover-default.jpg">
+              <iron-image sizing="cover" preload fade></iron-image>
+            </curium-responsive-image>
             <div id="overlay">
               <img src$="[[rootPath]]images/team/choir/symbol.png"></img>
               <h2>Choir</h2>
@@ -265,7 +340,13 @@
           </curium-proportional>
 
           <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/dancing/cover.jpg" sizing="cover" preload fade></iron-image>
+            <curium-responsive-image sizing="cover"
+              src-map="320w-214h [[rootPath]]images/team/dancing/dancing-cover-320w.jpg,
+                       640w-427h [[rootPath]]images/team/dancing/dancing-cover-640w.jpg,
+                       1280w-854h [[rootPath]]images/team/dancing/dancing-cover-1280w.jpg,
+                       [[rootPath]]images/team/dancing/dancing-cover-default.jpg">
+              <iron-image sizing="cover" preload fade></iron-image>
+            </curium-responsive-image>
             <div id="overlay">
               <img src$="[[rootPath]]images/team/dancing/symbol.png"></img>
               <h2>Dancing</h2>
@@ -273,7 +354,13 @@
           </curium-proportional>
 
           <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/debating/cover.jpg" sizing="cover" preload fade></iron-image>
+            <curium-responsive-image sizing="cover"
+              src-map="320w-212h [[rootPath]]images/team/debating/debating-cover-320w.jpg,
+                       640w-424h [[rootPath]]images/team/debating/debating-cover-640w.jpg,
+                       1280w-848h [[rootPath]]images/team/debating/debating-cover-1280w.jpg,
+                       [[rootPath]]images/team/debating/debating-cover-default.jpg">
+              <iron-image sizing="cover" preload fade></iron-image>
+            </curium-responsive-image>
             <div id="overlay">
               <img src$="[[rootPath]]images/team/debating/symbol.png"></img>
               <h2>Debating</h2>
@@ -281,7 +368,13 @@
           </curium-proportional>
 
           <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/drama/cover.jpg" sizing="cover" preload fade></iron-image>
+            <curium-responsive-image sizing="cover"
+              src-map="320w-213h [[rootPath]]images/team/drama/drama-cover-320w.jpg,
+                       640w-427h [[rootPath]]images/team/drama/drama-cover-640w.jpg,
+                       1280w-853h [[rootPath]]images/team/drama/drama-cover-1280w.jpg,
+                       [[rootPath]]images/team/drama/drama-cover-default.jpg">
+              <iron-image sizing="cover" preload fade></iron-image>
+            </curium-responsive-image>
             <div id="overlay">
               <img src$="[[rootPath]]images/team/drama/symbol.png"></img>
               <h2>Drama</h2>
