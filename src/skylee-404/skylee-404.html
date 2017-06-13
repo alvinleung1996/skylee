@@ -1,11 +1,12 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../bower_components/shadycss/apply-shim.html">
 
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
-<!--<link rel="import" href="../../bower_components/curium-responsive-layout/curium-responsive-layout.html">-->
+<link rel="import" href="../skylee-icons/skylee-icons.html">
 
-<dom-module id="skylee-rton">
+<dom-module id="skylee-404">
   <template strip-whitespace>
     <style>
       :host {
@@ -42,84 +43,84 @@
         box-sizing: border-box;
       }
 
+      [layout="vertical"] {
+        display: flex;
+        flex-direction: column;
+      }
+
       .padding-block {
         padding: 20px;
       }
+      
+      .icon-block {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .icon-block > iron-icon {
+        --iron-icon-width: 128px;
+        --iron-icon-height: 128px;
+        --iron-icon-fill-color: var(--skylee-primary-text-color);
+      }
 
-      .event-block {
+      .info-block {
         display: flex;
         flex-direction: column;
         justify-content: center;
-        align-items: flex-start;
+        /*align-items: center;*/
+        /* Fix for IE 11 */
+        align-items: stretch;
       }
-      .event-block > :not(:first-child) {
+      .info-block > :not(:first-child) {
         margin-top: 16px;
       }
-      .event-block > h2 {
+      .info-block > h2 {
         margin: 0;
         @apply --skylee-headline-font;
         color: var(--skylee-primary-text-color);
-        /* Fix for IE11: IE does not wrap p in flexbox */
-        align-self: stretch;
+        text-align: center;
       }
-      .event-block > h2::first-letter {
-        font-size: 48px;
-      }
-      .event-block > p {
+      .info-block > p {
         margin: 0;
         @apply --skylee-body1-font;
         color: var(--skylee-secondary-text-color);
-        text-align: justify;
-        /* Fix for IE11: IE does not wrap p in flexbox */
-        align-self: stretch;
+        text-align: center;
       }
     </style>
 
     <div class="section">
-      <div class="padding-block event-block">
-        <h2>Registration Day</h2>
-        <p>Registration day gives you an opportunity to take a sneak peek of our hall.</p>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="padding-block event-block">
-        <h2>Touch Camp</h2>
-        <p>Touch Camp allows you to have a taste of our hall culture.</p>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="padding-block event-block">
-        <h2>Orientation Camp</h2>
-        <p>Orientation Camp helps you to understand our hall comprehensively and build up a close relationship with our hall community.</p>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="padding-block event-block">
-        <h2>Non-local Orientation Camp</h2>
-        <p>Non-local orientation camp helps non-local students to adapt the life in Hong Kong and integrate to the local community.</p>
+      <div layout="vectical">
+        <div class="padding-block icon-block">
+          <iron-icon icon="skylee:info-outline"></iron-icon>
+        </div>
+        <div class="padding-block info-block">
+          <h2>Oh NO! We couldn't find the page you were looking for.</h2>
+          <p>Maybe head back to the <a href$="[[defaultPath]]">homepage</a> or use one of the tab links instead?</p>
+        </div>
       </div>
     </div>
 
   </template>
   <script>
-    class SkyleeRTON extends Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element) {
+    class Skylee404 extends Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element) {
 
-      static get is() { return 'skylee-rton'; }
+      static get is() { return 'skylee-404'; }
 
       static get properties() {
         return {
           tabPageTitle: {
             type: String,
-            value: 'RTON',
+            value: '404',
             notify: true
+          },
+          defaultPath: {
+            type: String,
+            value: Skylee.defaultPath
           }
         };
       }
 
     }
-    window.customElements.define(SkyleeRTON.is, SkyleeRTON);
+    window.customElements.define(Skylee404.is, Skylee404);
   </script>
 </dom-module>

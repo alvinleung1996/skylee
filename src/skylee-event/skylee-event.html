@@ -1,0 +1,205 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/shadycss/apply-shim.html">
+
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+
+<!--<link rel="import" href="../../bower_components/curium-responsive-layout/curium-responsive-layout.html">-->
+
+<dom-module id="skylee-event">
+  <template strip-whitespace>
+    <style>
+      :host {
+        display: block;
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-top: var(--skylee-toolbar-height);
+        background-color: var(--skylee-primary-background-color);
+        
+        /* ShadyCSS work only if these variables are placed at the root */
+        --skylee-event-block-padding-top: 40px;
+        --skylee-event-block-padding-right: 20px;
+        --skylee-event-block-padding-bottom: 40px;
+        --skylee-event-block-padding-left: 20px;
+
+        --skylee-event-block-content-margin-left: var(--skylee-event-block-padding-left);
+
+        --skylee-event-block-timeline-width: 2px;
+        --skylee-event-block-timeline-color: rgba(var(--skylee-base-color-r),
+                                                  var(--skylee-base-color-g),
+                                                  var(--skylee-base-color-b),
+                                                  0.5);
+
+        --skylee-event-block-timeline-dot-size: 20px;
+        --skylee-event-block-timeline-dot-border-width: var(--skylee-event-block-timeline-width);
+        --skylee-event-block-timeline-dot-border-color: var(--skylee-event-block-timeline-color);
+        --skylee-event-block-timeline-dot-color: var(--skylee-primary-background-color);
+      }
+
+      :host > section {
+        display: flex;
+        justify-content: center;
+      }
+      :host > section > * {
+        flex: 0 1 var(--skylee-content-max-width);
+        box-sizing: border-box;
+      }
+
+      .event-block {
+        position: relative;
+        padding: var(--skylee-event-block-padding-top)
+                 var(--skylee-event-block-padding-right)
+                 var(--skylee-event-block-padding-bottom)
+                 var(--skylee-event-block-padding-left);
+      }
+      .event-block::before { /* timeline */
+        content: "";
+        display: block;
+        position: absolute;
+        top: 0px;
+        bottom: 0px;
+        left: calc(var(--skylee-event-block-padding-left) + (var(--skylee-event-block-timeline-dot-size) - var(--skylee-event-block-timeline-width)) / 2);
+        width: var(--skylee-event-block-timeline-width);
+        z-index: -1;
+        background: var(--skylee-event-block-timeline-color);
+      }
+      section:first-of-type > .event-block::before {
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0), var(--skylee-event-block-timeline-color) var(--skylee-event-block-padding-top), var(--skylee-event-block-timeline-color));
+      }
+      section:last-of-type > .event-block::before {
+        background: linear-gradient(to bottom, var(--skylee-event-block-timeline-color), var(--skylee-event-block-timeline-color) calc(var(--skylee-event-block-padding-top) + var(--skylee-event-block-timeline-dot-size)), rgba(0, 0, 0, 0));
+      }
+      .event-block > header {
+        display: flex;
+        align-items: center;
+      }
+      .event-block > header::before { /* timeline dot */
+        content: "";
+        display: block;
+        box-sizing: border-box;
+        width: var(--skylee-event-block-timeline-dot-size);
+        height: var(--skylee-event-block-timeline-dot-size);
+        border-radius: 50%;
+        border: var(--skylee-event-block-timeline-dot-border-width) solid var(--skylee-event-block-timeline-dot-border-color);
+        background-color: var(--skylee-event-block-timeline-dot-color);
+      }
+      .event-block > header > time {
+        display: block;
+        margin-left: var(--skylee-event-block-content-margin-left);
+        @apply --skylee-body1-font;
+        color: var(--skylee-primary-text-color);
+      }
+      .event-block > #content {
+        margin-left: calc(var(--skylee-event-block-timeline-dot-size) + var(--skylee-event-block-content-margin-left));
+      }
+      .event-block > #content > h2 {
+        margin: 10px 0px 0px 0px;
+        @apply --skylee-headline-font;
+        color: var(--skylee-primary-text-color);
+      }
+      .event-block > #content > p {
+        margin: 5px 0px 0px 0px;
+        @apply --skylee-body1-font;
+        color: var(--skylee-secondary-text-color);
+        text-align: justify;
+      }
+      .event-block > #content > iframe {
+        margin: 10px 0px 0px 0px;
+        width: 100%;
+        border: none;
+        overflow: hidden;
+      }
+    </style>
+
+    <section>
+      <div class="event-block">
+        <header>
+          <time>8 - 9 July 2017</time>
+        </header>
+        <div id="content">
+          <h2>Sky Camp 2017 天空任李行</h2>
+          <iframe src="https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fskylee.hku%2Fposts%2F878843898948147%3A0&width=auto&show_text=true&height=687&appId" style="min-height:687px;"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="event-block">
+        <header>
+          <time>August 2017</time>
+        </header>
+        <div id="content">
+          <h2>Registration Day</h2>
+          <p>Registration day gives you an opportunity to take a sneak peek of our hall.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="event-block">
+        <header>
+          <time>August 2017</time>
+        </header>
+        <div id="content">
+          <h2>Touch Camp</h2>
+          <p>Touch Camp allows you to have a taste of our hall culture.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="event-block">
+        <header>
+          <time>August 2017</time>
+        </header>
+        <div id="content">
+          <h2>Orientation Camp</h2>
+          <p>Orientation Camp helps you to understand our hall comprehensively and build up a close relationship with our hall community.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="event-block">
+        <header>
+          <time>September 2017</time>
+        </header>
+        <div id="content">
+          <h2>Non-local Orientation Camp</h2>
+          <p>Non-local orientation camp helps non-local students to adapt the life in Hong Kong and integrate to the local community.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="event-block">
+        <header>
+          <time>November 2017</time>
+        </header>
+        <div id="content">
+          <h2>Information Day</h2>
+          <!--<p>Non-local orientation camp helps non-local students to adapt the life in Hong Kong and integrate to the local community.</p>-->
+        </div>
+      </div>
+    </section>
+
+  </template>
+  <script>
+    class SkyleeEvent extends Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element) {
+
+      static get is() { return 'skylee-event'; }
+
+      static get properties() {
+        return {
+          tabPageTitle: {
+            type: String,
+            value: 'Event',
+            notify: true
+          }
+        };
+      }
+
+    }
+    window.customElements.define(SkyleeEvent.is, SkyleeEvent);
+  </script>
+</dom-module>

@@ -2,9 +2,10 @@
   "entrypoint": "index.html",
   "shell": "src/skylee-app/skylee-app.html",
   "fragments": [
-    "src/skylee-rton/skylee-rton.html",
+    "src/skylee-event/skylee-event.html",
     "src/skylee-team/skylee-team.html",
-    "src/skylee-about/skylee-about.html"
+    "src/skylee-about/skylee-about.html",
+    "src/skylee-404/skylee-404.html"
   ],
   "sources": [
     "src/**/*",
