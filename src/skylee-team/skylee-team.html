@@ -20,18 +20,18 @@
         background-color: var(--skylee-primary-background-color);
       }
 
-      .section {
+      section {
         border-bottom: 1px solid var(--skylee-divider-color);
         display: flex;
         justify-content: center;
       }
-      .section:nth-of-type(odd) {
+      section:nth-of-type(odd) {
         background-color: var(--skylee-primary-background-color);
       }
-      .section:nth-of-type(even) {
+      section:nth-of-type(even) {
         background-color: var(--skylee-secondary-background-color);
       }
-      .section > * {
+      section > * {
         flex: 0 1 var(--skylee-content-max-width);
         box-sizing: border-box;
       }
@@ -139,7 +139,7 @@
       }
     </style>
 
-    <div class="section">
+    <section>
       <div layout="vertical">
 
         <div class="padding-block text-block">
@@ -286,9 +286,9 @@
 
         </curium-responsive-layout>
       </div>
-    </div>
+    </section>
 
-    <div class="section">
+    <section>
       <div layout="vertical">
 
         <div class="padding-block text-block">
@@ -383,7 +383,7 @@
 
         </curium-responsive-layout>
       </div>
-    </div>
+    </section>
 
   </template>
   <script>

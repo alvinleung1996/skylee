@@ -23,7 +23,7 @@
         background-color: var(--skylee-primary-background-color);
       }
 
-      .section {
+      section {
         min-height: 300px;
         border-bottom: 1px solid var(--skylee-divider-color);
         display: flex;
@@ -33,17 +33,17 @@
         /* Fix for IE11 flexbox container min-height bug:
            Flexbox children cannot get the height of their parent
            and behave like there is no height in their parent. */  
-        .section {
+        section {
           min-height: 0px;
         }
       }
-      .section:nth-of-type(odd) {
+      section:nth-of-type(odd) {
         background-color: var(--skylee-primary-background-color);
       }
-      .section:nth-of-type(even) {
+      section:nth-of-type(even) {
         background-color: var(--skylee-secondary-background-color);
       }
-      .section > * {
+      section > * {
         flex: 0 1 var(--skylee-content-max-width);
         box-sizing: border-box;
       }
@@ -181,36 +181,94 @@
         margin: 0;
         display: flex;
         @apply --skylee-button-font;
+        color: var(--skylee-secondary-text-color);
+      }
+
+      .contact-block {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+      }
+      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {  
+        .contact-block {
+          align-items: stretch;
+        }
+      }
+      .contact-block > :not(:first-child) {
+        margin-top: 16px;
+      }
+      .contact-block > h2 {
+        margin: 0;
+        @apply --skylee-headline-font;
         color: var(--skylee-primary-text-color);
+      }
+      .contact-block > p {
+        margin: 0;
+        @apply --skylee-body1-font;
+        color: var(--skylee-secondary-text-color);
+        text-align: justify;
+        /* Fix for IE11: IE does not wrap p in flexbox */
+        align-self: stretch;
+      }
+      .contact-block > a {
+        text-decoration: none;
+      }
+      .contact-block > a:not(:first-of-type) {
+        margin-top: 0;
+      }
+      .contact-block > a > paper-button {
+        margin: 0;
+        display: flex;
+        @apply --skylee-button-font;
+        color: var(--skylee-secondary-text-color);
+        text-transform: none;
+      }
+      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {  
+        .contact-block > a > paper-button {
+          justify-content: flex-start;
+        }
+      }
+      .contact-block > a > paper-button.wrappable {
+        white-space: normal;
+      }
+      .contact-block > a > paper-button > iron-icon {
+        flex: 0 0 auto;
+        margin-right: 10px;
       }
 
       .map-iframe-block {
         display: flex;
       }
-      .map-iframe-block > * {
-        min-height: 300px;
+      .map-iframe-block > iframe {
         flex: 1 1 auto;
         border-radius: 5px;
         border: 1px solid rgba(0, 0, 0, 0.12);
+        /* Fix for Edge and IE11 */
+        height: 100%;
+        box-sizing: border-box;
       }
 
 
     </style>
 
-    <div class="section">
+    <section>
       <curium-responsive-layout layout-map='{"0":"vertical","600":"horizontal-2-reverse"}'>
 
-        <div class="padding-block text-block">
-          <h2>Location</h2>
+        <div class="padding-block contact-block">
+          <h2>Location &amp; Contact</h2>
           <p>Located inside the main campus, it is extremely convenient to travel from Lee Hall to any parts of HKU. Since Lee Hall is located at the Composite Building, next to Hsu Long Sing Amenities Centre, it takes less than 2 minutes to reach the Union Restaurant, the Students’ Union Office, the photocopying centre and the co-op.</p>
+          <a href="mailto:skyhall@hku.hk"><paper-button><iron-icon icon="skylee:email"></iron-icon>skyhall@hku.hk</paper-button></a>
+          <a href="tel:39170307"><paper-button><iron-icon icon="skylee:local-phone"></iron-icon>3917 0307</paper-button></a>
+          <a href="geo:22.283021,114.135835"><paper-button class="wrappable"><iron-icon icon="skylee:home"></iron-icon>Simon K. Y. Lee Hall, The University of Hong Kong, Pok Fu Lam Road, Hong Kong</paper-button></a>
         </div>
 
-        <div class="padding-block map-iframe-block"><iframe src="https://www.google.com/maps/embed/v1/place?q=place_id:ChIJy_g-sIX_AzQRQKVMfR8BxAk&key=AIzaSyBCeLWP6ls4Xl-lvQEpw7tYlK2msDviuLc" allowfullscreen></iframe></div>
+        <div class="padding-block map-iframe-block"><iframe style="min-height:300px;" src="https://www.google.com/maps/embed/v1/place?q=place_id:ChIJy_g-sIX_AzQRQKVMfR8BxAk&key=AIzaSyBCeLWP6ls4Xl-lvQEpw7tYlK2msDviuLc" allowfullscreen></iframe></div>
 
       </curium-responsive-layout>
-    </div>
+    </section>
 
-    <div class="section">
+    <section>
       <curium-responsive-layout layout-map='{"0":"vertical","600":"horizontal-2"}'>
 
         <div class="padding-block text-block">
@@ -253,9 +311,9 @@
         </div>
 
       </curium-responsive-layout>
-    </div>
+    </section>
 
-    <div class="section">
+    <section>
       <curium-responsive-layout layout-map='{"0":"vertical","600":"horizontal-2-reverse"}'>
 
         <div class="padding-block lyrics-block">
@@ -285,9 +343,9 @@
         </div>
 
       </curium-responsive-layout>
-    </div>
+    </section>
 
-    <div class="section">
+    <section>
       <curium-responsive-layout layout-map='{"0":"vertical","600":"horizontal-2"}'>
 
         <div class="padding-block text-block">
@@ -307,9 +365,9 @@
         </div>
 
       </curium-responsive-layout>
-    </div>
+    </section>
 
-    <div class="section">
+    <section>
       <curium-responsive-layout layout-map='{"0":"vertical","600":"horizontal-2"}'>
 
         <div class="padding-block download-block">
@@ -331,15 +389,15 @@
         </div>
 
       </curium-responsive-layout>
-    </div>
+    </section>
 
-    <div class="section">
+    <section>
       <div class="padding-block text-block">
         <h2>Our History</h2>
         <p>Found in 1985, the development of Lee Hall was funded by a generous donation from the late Dr. Simon K. Y. Lee and therefore the hall was named after him. In 1986, the Students’ Association was formed.</p>
         <p>Through its over 20-year history, Lee Hall has developed into a vital and diversified hall. All hall mates participate in and contribute to the hall. “We are Skyers, Active and Sincere” has long been our slogan.</p>
       </div>
-    </div>
+    </section>
 
   </template>
   <script>

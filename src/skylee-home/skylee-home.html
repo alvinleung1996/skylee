@@ -250,7 +250,7 @@
         }
       }
 
-      /* polyfil for IE 11 */
+      /* polyfill for IE11 */
       _isInteger(value) {
         return Number.isInteger ? Number.isInteger(value) :
                (typeof value === 'number' && window.isFinite(value) && Math.floor(value) === value);
