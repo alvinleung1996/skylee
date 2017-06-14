@@ -143,7 +143,7 @@
       }
     </style>
 
-    <app-location route="{{_route}}" use-hash-as-path></app-location>
+    <app-location route="{{_route}}"></app-location>
     <app-route
       route="{{_route}}"
       pattern="/:tabPageID"
@@ -164,9 +164,9 @@
           <div id="tabs-container"><!-- provide absolute positioned element so that height 100% can work -->
             <paper-tabs id="tabs" activate-event="" attr-for-selected="tab-id" selected="[[_selectedTabPageID]]" scrollable="[[_isStringEqual(_toolbarLayout, 'narrow')]]" fit-container hide-scroll-buttons>
               <paper-tab tab-id="home" link><a href$="[[defaultPath]]" tabindex="-1">Home</a></paper-tab>
-              <paper-tab tab-id="event" link><a href$="[[rootPath]][[routePrefix]]event" tabindex="-1">Event</a></paper-tab>
-              <paper-tab tab-id="team" link><a href$="[[rootPath]][[routePrefix]]team" tabindex="-1">Team</a></paper-tab>
-              <paper-tab tab-id="about" link><a href$="[[rootPath]][[routePrefix]]about" tabindex="-1">About</a></paper-tab>
+              <paper-tab tab-id="event" link><a href$="[[rootPath]][[routePrefix]]event[[routeSuffix]]" tabindex="-1">Event</a></paper-tab>
+              <paper-tab tab-id="team" link><a href$="[[rootPath]][[routePrefix]]team[[routeSuffix]]" tabindex="-1">Team</a></paper-tab>
+              <paper-tab tab-id="about" link><a href$="[[rootPath]][[routePrefix]]about[[routeSuffix]]" tabindex="-1">About</a></paper-tab>
               <paper-tab link><a href="https://www.facebook.com/skylee.hku" tabindex="-1" target="_blank">Facebook</a></paper-tab>
             </paper-tabs>
           </div>
@@ -221,6 +221,9 @@
 
           routePrefix: {
             value: Skylee.routePrefix
+          },
+          routeSuffix: {
+            value: Skylee.routeSuffix
           },
           defaultPath: {
             value: Skylee.defaultPath

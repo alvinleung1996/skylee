@@ -10,7 +10,9 @@
   "sources": [
     "src/**/*",
     "images/**/*",
-    "data/**/*"
+    "data/**/*",
+    "index.html",
+    ".htaccess"
   ],
   "builds": [
     {

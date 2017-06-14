@@ -25,8 +25,9 @@
       Polymer.rootPath = '/';
 
       window.Skylee = window.Skylee || {};
-      Skylee.routePrefix = '#/';
-      Skylee.defaultPath = `${Polymer.rootPath}${Skylee.routePrefix}home`;
+      Skylee.routePrefix = '';
+      Skylee.routeSuffix = '';
+      Skylee.defaultPath = `${Polymer.rootPath}${Skylee.routePrefix}home${Skylee.routeSuffix}`;
     </script>
 
     <script src="/bower_components/webcomponentsjs/webcomponents-loader.js"></script>

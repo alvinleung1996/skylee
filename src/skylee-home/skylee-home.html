@@ -171,13 +171,10 @@
 
       static get properties() {
         return {
-          visibleScene: {
-            type: Boolean,
-            value: false
-          },
           visibleTabPage: {
             type: Boolean,
-            value: false
+            value: false,
+            observer: '_onTabPageVisibilityChanged'
           },
           tabPageTitle: {
             type: String,
@@ -192,12 +189,6 @@
         };
       }
 
-      static get observers() {
-        return [
-          '_onVisibleStateChanged(visibleScene, visibleTabPage)'
-        ];
-      }
-
       ready() {
         super.ready();
         
@@ -207,8 +198,8 @@
         });
       }
 
-      _onVisibleStateChanged(visibleScene, visibleTabPage) {
-        if (visibleScene && visibleTabPage) {
+      _onTabPageVisibilityChanged(visibleTabPage) {
+        if (visibleTabPage) {
           if (!this._isInteger(this._slideshowTimerID)) {
             this._slideshowTimerID = setInterval(() => {
               this.$.slides.selectNext();
