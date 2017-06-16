@@ -1,8 +1,8 @@
 RewriteEngine on
 
 # Redirect to index.html if the uri is one of the page
-RewriteCond "%{REQUEST_URI}" "^\/(?:|home|event|team|about)?$"
-RewriteRule ".*" "/index.html" [L]
+RewriteCond %{REQUEST_URI} ^\/(?:home|event|team|about)?$
+RewriteRule ^.*$ /index.html [L]
 
 # Redirect to index.html and report 404 if the file does not exist
 ErrorDocument 404 /index.html
