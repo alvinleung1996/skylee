@@ -12,6 +12,7 @@
     "images/**/*",
     "data/**/*",
     "index.html",
+    "manifest.json",
     ".htaccess"
   ],
   "builds": [
