@@ -14,7 +14,8 @@
     "iron-iconset-svg": "PolymerElements/iron-iconset-svg#^2.0.0",
     "paper-material": "PolymerElements/paper-material#^2.0.0",
     "paper-tabs": "PolymerElements/paper-tabs#^2.0.0",
-    "curium-responsive-image": "alvinleung1996/curium-responsive-image"
+    "curium-responsive-image": "alvinleung1996/curium-responsive-image",
+    "iron-media-query": "PolymerElements/iron-media-query#^2.0.0"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^6.0.0",

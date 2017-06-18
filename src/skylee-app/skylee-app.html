@@ -4,6 +4,7 @@
 
 <link rel="import" href="../../bower_components/app-route/app-location.html">
 <link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-material/paper-material.html">
@@ -11,7 +12,6 @@
 
 <link rel="import" href="../../bower_components/curium-animated-pages/curium-animated-pages.html">
 <link rel="import" href="../../bower_components/curium-animated-pages/animations/curium-tab-page-animation-manager.html">
-<link rel="import" href="../../bower_components/curium-responsive-layout/curium-responsive-layout.html">
 
 <link rel="import" href="../skylee-home/skylee-home.html">
 <link rel="import" href="../skylee-styles/skylee-styles.html">
@@ -23,11 +23,13 @@
         display: block;
         position: relative;
         overflow: hidden;
-
         --skylee-toolbar-height: var(--skylee-toolbar-normal-height);
       }
-      :host([_toolbar-layout="narrow"]) {
+      :host([_narrow-toolbar]) {
         --skylee-toolbar-height: var(--skylee-toolbar-narrow-height);
+      }
+      :host([_short-toolbar]:not([_narrow-toolbar])) {
+        --skylee-toolbar-height: var(--skylee-toolbar-short-height);
       }
 
       #toolbar {
@@ -40,7 +42,7 @@
         background-color: var(--skylee-primary-color);
         transform: translateY(0%);
         transition: transform 330ms ease-out 0ms,
-                    background-color 330ms linear 0ms;
+                    background-color 330ms ease-out 0ms;
       }
       #toolbar[transparent] {
         background-color: transparent;
@@ -57,35 +59,30 @@
 
       #toolbar-content {
         flex: 0 1 var(--skylee-content-max-width);
-        /* fix for Safari: flex-basis percentage only work
-           when all the parents have specific height,
-           just like the "height" proeprty */
+        /*  */
         height: 100%;
-        display: flex;
-        justify-content: space-between;
+        position: relative;
         opacity: 1;
         transition: opacity 330ms linear 0ms;
       }
       #toolbar[hide] #toolbar-content {
         opacity: 0;
       }
-      :host([_toolbar-layout="narrow"]) #toolbar-content {
-        flex-direction: column;
-        justify-content: flex-start;
-      }
-      :host([_toolbar-layout="narrow"]) #toolbar-content > * {
-        flex: 0 0 50%;
-      }
 
       #title {
+        position: absolute;
+        top: 0px;
+        bottom: 0px;
+        left: 0px;
         display: flex;
       }
-      :host([_toolbar-layout="narrow"]) #title {
-        align-self: flex-start;
+      :host([_narrow-toolbar]) #title {
+        bottom: 50%;
       }
 
       #home-button {
         flex: 1 1 auto;
+        -webkit-tap-highlight-color: transparent;
         text-decoration: none;
         display: flex;
       }
@@ -99,24 +96,16 @@
         text-transform: none;
       }
 
-      #tabs-container {
-        position: relative;
-      }
-      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {  
-        /* Fix for IE11 specific styles */
-        #tabs-container {
-          flex: 1 0 auto;
-        }  
-      }
       #tabs {
         position: absolute;
+        height: auto;
         top: 0px;
         right: 0px;
         bottom: 0px;
-        height: auto;
         --paper-tabs-selection-bar-color: var(--skylee-themed-primary-text-color);
       }
-      :host([_toolbar-layout="narrow"]) #tabs {
+      :host([_narrow-toolbar]) #tabs {
+        top: 50%;
         left: 0px;
       }
       #tabs paper-tab {
@@ -126,6 +115,7 @@
         /* cannot use paper-tab > a in shadydom */
         padding-left: 12px;
         padding-right: 12px;
+        outline: none;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -138,10 +128,13 @@
         width: 100%;
         height: 100%;
       }
-      #tab-pages > * {
+      #tab-pages > [element-path]:not([element-loaded]) {
         background-color: var(--skylee-primary-background-color);
       }
     </style>
+
+    <iron-media-query query="not all and (min-width: 610px)" query-matches="{{_narrowToolbar}}" full></iron-media-query>
+    <iron-media-query query="not all and (min-height: 450px)" query-matches="{{_shortToolbar}}" full></iron-media-query>
 
     <app-location route="{{_route}}"></app-location>
     <app-route
@@ -151,7 +144,7 @@
       tail="{{_subroute}}">
     </app-route>
 
-    <curium-responsive-layout id="toolbar" hide$="[[_hideToolbar]]" transparent$="[[_transparentToolbar]]" layout-map='{"0":"narrow","600":"normal"}' layout="{{_toolbarLayout}}">
+    <div id="toolbar" hide$="[[_hideToolbar]]" transparent$="[[_transparentToolbar]]">
       <paper-material animated elevation="[[_enableIf(_showToolbarShadow, 2, 0)]]">
         <div id="toolbar-content">
 
@@ -161,19 +154,18 @@
             </a>
           </div>
 
-          <div id="tabs-container"><!-- provide absolute positioned element so that height 100% can work -->
-            <paper-tabs id="tabs" activate-event="" attr-for-selected="tab-id" selected="[[_selectedTabPageID]]" scrollable="[[_isStringEqual(_toolbarLayout, 'narrow')]]" fit-container hide-scroll-buttons>
-              <paper-tab tab-id="home" link><a href$="[[defaultPath]]" tabindex="-1">Home</a></paper-tab>
-              <paper-tab tab-id="event" link><a href$="[[rootPath]][[routePrefix]]event[[routeSuffix]]" tabindex="-1">Event</a></paper-tab>
-              <paper-tab tab-id="team" link><a href$="[[rootPath]][[routePrefix]]team[[routeSuffix]]" tabindex="-1">Team</a></paper-tab>
-              <paper-tab tab-id="about" link><a href$="[[rootPath]][[routePrefix]]about[[routeSuffix]]" tabindex="-1">About</a></paper-tab>
-              <paper-tab link><a href="https://www.facebook.com/skylee.hku" tabindex="-1" target="_blank">Facebook</a></paper-tab>
-            </paper-tabs>
-          </div>
+          <paper-tabs id="tabs" activate-event="" attr-for-selected="tab-id" selected="[[_selectedTabPageID]]"
+            scrollable="[[_narrowToolbar]]" fit-container hide-scroll-buttons>
+            <paper-tab tab-id="home" link><a href$="[[defaultPath]]" tabindex="-1">Home</a></paper-tab>
+            <paper-tab tab-id="event" link><a href$="[[rootPath]][[routePrefix]]event[[routeSuffix]]" tabindex="-1">Event</a></paper-tab>
+            <paper-tab tab-id="team" link><a href$="[[rootPath]][[routePrefix]]team[[routeSuffix]]" tabindex="-1">Team</a></paper-tab>
+            <paper-tab tab-id="about" link><a href$="[[rootPath]][[routePrefix]]about[[routeSuffix]]" tabindex="-1">About</a></paper-tab>
+            <paper-tab link><a href="https://www.facebook.com/skylee.hku" tabindex="-1" target="_blank">Facebook</a></paper-tab>
+          </paper-tabs>
 
         </div>
       </paper-material>
-    </curium-responsive-layout>
+    </div>
 
     <curium-tab-page-animation-manager id="tab-page-animation-manager" duration="330" no-intermediate-page></curium-tab-page-animation-manager>
     <curium-animated-pages
@@ -229,10 +221,13 @@
             value: Skylee.defaultPath
           },
 
-          _toolbarLayout: {
-            type: String,
-            reflectToAttribute: true,
-            observer: '_onToolbarLayoutChanged' /* Fix for ShadyCSS */
+          _narrowToolbar: {
+            type: Boolean,
+            reflectToAttribute: true
+          },
+          _shortToolbar: {
+            type: Boolean,
+            reflectToAttribute: true
           },
           _transparentToolbar: {
             type: Boolean,
@@ -249,6 +244,10 @@
           }
         };
       }
+
+      static get observers() { return [
+        '_onToolbarSizeChanged(_narrowToolbar, _shortToolbar)' /* Fix for ShadyCSS */
+      ];}
 
       constructor() {
         super();
@@ -281,11 +280,11 @@
         return id ? id : 'home';
       }
 
-      _onToolbarLayoutChanged(layout) {
+      _onToolbarSizeChanged(narrow, short) {
         /* Fix for ShadyCSS */
         if (window.ShadyCSS && !window.ShadyCSS.nativeCss) {
           let stylesToUpdate = {
-            '--skylee-toolbar-height': layout === 'narrow' ? '96px' : '64px'
+            '--skylee-toolbar-height': narrow ? '96px' : (short ? '48px' : '64px')
           };
           this.updateStyles(stylesToUpdate);
           this.$['tab-pages'].items.filter(n => n instanceof Polymer.Element).forEach(n => n.updateStyles(stylesToUpdate));
@@ -309,10 +308,13 @@
 
       _loadTabPage(selectedTabPage) {
         if (selectedTabPage) {
-          if (selectedTabPage.hasAttribute('element-path') && !selectedTabPage.hasAttribute('element-loaded')) {
+          if (selectedTabPage.hasAttribute('element-path') && !selectedTabPage.hasAttribute('element-loading') && !selectedTabPage.hasAttribute('element-loaded')) {
             let path = selectedTabPage.getAttribute('element-path');
-            Polymer.importHref(this.resolveUrl(path), null, null, true);
-            selectedTabPage.setAttribute('element-loaded', '');
+            selectedTabPage.setAttribute('element-loading', '');
+            Polymer.importHref(this.resolveUrl(path), () => {
+              selectedTabPage.removeAttribute('element-loading');
+              selectedTabPage.setAttribute('element-loaded', '');
+            }, null, true);
           }
         }
       }
@@ -358,7 +360,7 @@
 
         this._prevTabPageScrollTop = newScrollTop;
 
-        let toolbarHeight = this._toolbarLayout === 'narrow' ? 96 : 64;
+        let toolbarHeight = this._narrowToolbar ? 96 : (this._shortToolbar ? 48 : 64);
        
         this._hideToolbar = !this._transparentToolbar && !forceShowToolbar && newScrollTop >= toolbarHeight && newScrollTop > oldScrollTop;
         this._showToolbarShadow = !this._transparentToolbar && newScrollTop > 0;

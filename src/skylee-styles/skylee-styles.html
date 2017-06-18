@@ -4,9 +4,7 @@
 <link rel="import" href="../../bower_components/paper-styles/typography.html">
 <link rel="import" href="../../bower_components/paper-styles/color.html">
 
-<style>
-  @import url(//fonts.googleapis.com/earlyaccess/notosanstc.css);
-</style>
+<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/earlyaccess/notosanstc.css">
 
 <custom-style>
   <style>
@@ -196,22 +194,80 @@
       };
       /*@apply --skylee-dark-theme;*/
 
-      /* Current primary-color background theme */
+      /* primary-color background color */
       --skylee-themed-primary-text-color: white;
       --skylee-themed-secondary-text-color: var(--skylee-dark-theme-secondary-text-color);
       --skylee-themed-disabled-text-color: var(--skylee-dark-theme-disabled-text-color);
       --skylee-themed-divider-color: var(--skylee-dark-theme-divider-color);
 
+      /* Primary color */
       --skylee-primary-color: rgb(0, 71, 187);
 
-      /* Theme switching */
+      /*
+       * Shadow
+       */
+      --skylee-shadow-transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1); /* extract from --shadow-transition */
+      --skylee-shadow-elevation-0-box-shadow: none;
+      --skylee-shadow-elevation-1-box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+                                              0 1px 5px 0 rgba(0, 0, 0, 0.12),
+                                              0 3px 1px -2px rgba(0, 0, 0, 0.2);
+      --skylee-shadow-elevation-2-box-shadow: 0 3px 4px 0 rgba(0, 0, 0, 0.14),
+                                              0 1px 8px 0 rgba(0, 0, 0, 0.12),
+                                              0 3px 3px -2px rgba(0, 0, 0, 0.4);
+      --skylee-shadow-elevation-3-box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+                                              0 1px 10px 0 rgba(0, 0, 0, 0.12),
+                                              0 2px 4px -1px rgba(0, 0, 0, 0.4);
+      --skylee-shadow-elevation-4-box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 0.14),
+                                              0 1px 18px 0 rgba(0, 0, 0, 0.12),
+                                              0 3px 5px -1px rgba(0, 0, 0, 0.4);
+      --skylee-shadow-elevation-5-box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14),
+                                              0 3px 14px 2px rgba(0, 0, 0, 0.12),
+                                              0 5px 5px -3px rgba(0, 0, 0, 0.4);
+      --skylee-shadow-elevation-6-box-shadow: 0 12px 16px 1px rgba(0, 0, 0, 0.14),
+                                              0 4px 22px 3px rgba(0, 0, 0, 0.12),
+                                              0 6px 7px -4px rgba(0, 0, 0, 0.4);
+      --skylee-shadow-elevation-7-box-shadow: 0 16px 24px 2px rgba(0, 0, 0, 0.14),
+                                              0  6px 30px 5px rgba(0, 0, 0, 0.12),
+                                              0  8px 10px -5px rgba(0, 0, 0, 0.4);
+      --skylee-shadow-elevation-8-box-shadow: 0 24px 38px 3px rgba(0, 0, 0, 0.14),
+                                              0 9px 46px 8px rgba(0, 0, 0, 0.12),
+                                              0 11px 15px -7px rgba(0, 0, 0, 0.4);
 
+      --skylee-shadow-elevation-0: {
+        box-shadow: var(--skylee-shadow-elevation-0-box-shadow);
+      }
+      --skylee-shadow-elevation-1: {
+        box-shadow: var(--skylee-shadow-elevation-1-box-shadow);
+      }
+      --skylee-shadow-elevation-2: {
+        box-shadow: var(--skylee-shadow-elevation-2-box-shadow);
+      }
+      --skylee-shadow-elevation-3: {
+        box-shadow: var(--skylee-shadow-elevation-3-box-shadow);
+      }
+      --skylee-shadow-elevation-4: {
+        box-shadow: var(--skylee-shadow-elevation-4-box-shadow);
+      }
+      --skylee-shadow-elevation-5: {
+        box-shadow: var(--skylee-shadow-elevation-5-box-shadow);
+      }
+      --skylee-shadow-elevation-6: {
+        box-shadow: var(--skylee-shadow-elevation-6-box-shadow);
+      }
+      --skylee-shadow-elevation-7: {
+        box-shadow: var(--skylee-shadow-elevation-7-box-shadow);
+      }
+      --skylee-shadow-elevation-8: {
+        box-shadow: var(--skylee-shadow-elevation-8-box-shadow);
+      }
+      
       /*
        * layout
        */
       /* Toolbar */
       --skylee-toolbar-normal-height: 64px;
       --skylee-toolbar-narrow-height: 96px;
+      --skylee-toolbar-short-height: 48px;
 
       /* Content */
       --skylee-content-max-width: 1200px;

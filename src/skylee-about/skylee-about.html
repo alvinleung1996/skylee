@@ -3,11 +3,11 @@
 
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 
 <link rel="import" href="../../bower_components/curium-responsive-image/curium-responsive-image.html">
-<link rel="import" href="../../bower_components/curium-responsive-layout/curium-responsive-layout.html">
 
 <link rel="import" href="../skylee-icons/skylee-icons.html">
 
@@ -48,28 +48,28 @@
         box-sizing: border-box;
       }
 
-      [layout="horizontal-2"] {
+      .horizontal-2-layout {
         display: flex;
       }
-      [layout="horizontal-2"] > * {
+      .horizontal-2-layout > * {
         flex: 1 1 50%;
         box-sizing: border-box;
       }
 
-      [layout="horizontal-2-reverse"] {
+      .horizontal-2-reverse-layout {
         display: flex;
         flex-direction: row-reverse;
       }
-      [layout="horizontal-2-reverse"] > * {
+      .horizontal-2-reverse-layout > * {
         flex: 1 1 50%;
         box-sizing: border-box;
       }
       
-      [layout="vertical"] {
+      .vertical-layout {
         display: flex;
         flex-direction: column;
       }
-      [layout="vertical"] > * {
+      .vertical-layout > * {
         flex: 1 0 auto;
       }
 
@@ -175,6 +175,7 @@
       }
       .download-block > a {
         margin-top: 10px;
+        -webkit-tap-highlight-color: transparent;
         text-decoration: none;
       }
       .download-block > a > paper-button {
@@ -212,6 +213,7 @@
         align-self: stretch;
       }
       .contact-block > a {
+        -webkit-tap-highlight-color: transparent;
         text-decoration: none;
       }
       .contact-block > a:not(:first-of-type) {
@@ -249,8 +251,10 @@
 
     </style>
 
+    <iron-media-query query="not all and (min-width: 600px)" query-matches="{{_narrowLayout}}" full></iron-media-query>
+
     <section>
-      <curium-responsive-layout layout-map='{"0":"vertical","600":"horizontal-2-reverse"}'>
+      <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-reverse-layout')]]">
 
         <div class="padding-block contact-block">
           <h2>Location &amp; Contact</h2>
@@ -262,11 +266,11 @@
 
         <div class="padding-block map-iframe-block"><iframe style="min-height:300px;" src="https://www.google.com/maps/embed/v1/place?q=place_id:ChIJy_g-sIX_AzQRQKVMfR8BxAk&key=AIzaSyBCeLWP6ls4Xl-lvQEpw7tYlK2msDviuLc" allowfullscreen></iframe></div>
 
-      </curium-responsive-layout>
+      </div>
     </section>
 
     <section>
-      <curium-responsive-layout layout-map='{"0":"vertical","600":"horizontal-2"}'>
+      <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-layout')]]">
 
         <div class="padding-block text-block">
           <h2>Transportation</h2>
@@ -307,11 +311,11 @@
           </table>
         </div>
 
-      </curium-responsive-layout>
+      </div>
     </section>
 
     <section>
-      <curium-responsive-layout layout-map='{"0":"vertical","600":"horizontal-2-reverse"}'>
+      <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-reverse-layout')]]">
 
         <div class="padding-block lyrics-block">
           <h2>Hall Song</h2>
@@ -339,11 +343,11 @@
           </curium-responsive-image>
         </div>
 
-      </curium-responsive-layout>
+      </div>
     </section>
 
     <section>
-      <curium-responsive-layout layout-map='{"0":"vertical","600":"horizontal-2"}'>
+      <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-layout')]]">
 
         <div class="padding-block text-block">
           <h2>Hall Logo</h2>
@@ -361,11 +365,11 @@
           </curium-responsive-image>
         </div>
 
-      </curium-responsive-layout>
+      </div>
     </section>
 
     <section>
-      <curium-responsive-layout layout-map='{"0":"vertical","600":"horizontal-2"}'>
+      <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-reverse-layout')]]">
 
         <div class="padding-block download-block">
           <h2>Hall Regulations</h2>
@@ -385,7 +389,7 @@
           </a>
         </div>
 
-      </curium-responsive-layout>
+      </div>
     </section>
 
     <section>
@@ -410,6 +414,10 @@
             notify: true
           }
         };
+      }
+
+      _enableIf(cond, value, otherwise) {
+        return cond ? value : otherwise;
       }
 
     }

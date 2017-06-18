@@ -2,11 +2,11 @@
 <link rel="import" href="../../bower_components/shadycss/apply-shim.html">
 
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
 <link rel="import" href="../../bower_components/curium-proportional/curium-proportional.html">
 <link rel="import" href="../../bower_components/curium-responsive-image/curium-responsive-image.html">
-<link rel="import" href="../../bower_components/curium-responsive-layout/curium-responsive-layout.html">
 
 <dom-module id="skylee-team">
   <template strip-whitespace>
@@ -36,11 +36,11 @@
         box-sizing: border-box;
       }
 
-      [layout="vertical"] {
+      .layout-vertical {
         display: flex;
         flex-direction: column;
       }
-      [layout="vertical"] > * {
+      .layout-vertical > * {
         flex: 1 0 auto;
       }
 
@@ -69,38 +69,44 @@
         text-align: justify;
       }
 
-      .teams-block[layout="narrow"] {
-        display: flex;
-        flex-direction: column;
-      }
-      .teams-block[layout="narrow"] > :not(:first-child) {
-        margin-top: 5px;
-      }
-      .teams-block[layout="normal"] {
+      .teams-block {
         display: flex;
         justify-content: center;
         flex-wrap: wrap;
       }
-      .teams-block[layout="normal"] > * {
-        flex: 0 0 250px;
+      .teams-block > * {
+        flex: 1 0 250px;
         margin: 5px;
       }
       @supports (display: grid) {
-        .teams-block[layout="normal"] {
+        .teams-block {
           justify-content: initial;
           flex-wrap: initial;
 
           display: grid;
           /* chrome bug: the "250px" will make the row height locked at 250px
-            which ignore the children height (The children overflowed) */
+             which ignore the children height (The children overflowed) */
           grid-template-columns: repeat(auto-fill, minmax(250px, auto));
           grid-auto-rows: auto;
           grid-gap: 5px;
         }
-        .teams-block[layout="normal"] > * {
-          flex-basis: initial;
+        .teams-block > * {
+          flex: initial;
           margin: initial;
         }
+      }
+      .teams-block[narrow] {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+      }
+      .teams-block[narrow] > * {
+        flex: 0 0 auto;
+        margin: 5px 0px 0px 0px;
+      }
+      .teams-block[narrow] > :first-child {
+        margin-top: 0px;
       }
 
       .team-block {
@@ -108,6 +114,7 @@
         --curium-proportional-aspect-ratio: 100%;
         overflow: hidden;
         border: 1px solid black;
+        border-radius: 2px;
         transform: none;
       }
       .team-block > #cover {
@@ -139,14 +146,16 @@
       }
     </style>
 
+    <iron-media-query query="not all and (min-width: 300px)" query-matches="{{_narrowLayout}}" full></iron-media-query>
+
     <section>
-      <div layout="vertical">
+      <div class="layout-vertical">
 
         <div class="padding-block text-block">
           <h2>Sports Teams</h2>
         </div>
 
-        <curium-responsive-layout class="padding-block teams-block" layout-map='{"0":"narrow","300":"normal"}'>
+        <div class="padding-block teams-block" narrow$="[[_narrowLayout]]">
 
           <curium-proportional id="cover" class="team-block">
             <curium-responsive-image sizing="cover"
@@ -284,18 +293,18 @@
             </div>
           </curium-proportional>
 
-        </curium-responsive-layout>
+        </div>
       </div>
     </section>
 
     <section>
-      <div layout="vertical">
+      <div class="layout-vertical">
 
         <div class="padding-block text-block">
           <h2>Cultural Teams</h2>
         </div>
 
-        <curium-responsive-layout class="padding-block teams-block" layout-map='{"0":"narrow","300":"normal"}'>
+        <div class="padding-block teams-block" narrow$="[[_narrowLayout]]">
 
           <curium-proportional class="team-block">
             <curium-responsive-image sizing="cover"
@@ -381,7 +390,7 @@
             </div>
           </curium-proportional>
 
-        </curium-responsive-layout>
+        </div>
       </div>
     </section>
 
