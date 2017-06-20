@@ -14,13 +14,16 @@
         overflow-x: hidden;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
-        padding-top: var(--skylee-toolbar-height);
-        background-color: var(--skylee-primary-background-color);
+        padding-top: var(--skylee-toolbar_height);
+        transition: var(--skylee-toolbar_transition_padding-top);
+        /* Safari Bug: transition cannot use var */
+        -webkit-transition: var(--skylee-toolbar_transition_padding-top);
+        background-color: var(--skylee-background--secondary_background-color);
       }
 
-      .section {
-        min-height: 250px;
-        border-bottom: 1px solid var(--skylee-divider-color);
+      section {
+        min-height: 300px;
+        border-bottom: 1px solid var(--skylee-divider_color);
         display: flex;
         justify-content: center;
       }
@@ -28,24 +31,23 @@
         /* Fix for IE11 flexbox container min-height bug:
            Flexbox children cannot get the height of their parent
            and behave like there is no height in their parent. */  
-        .section {
+        section {
           min-height: 0px;
         }
       }
-      .section:nth-of-type(odd) {
-        background-color: var(--skylee-primary-background-color);
-      }
-      .section:nth-of-type(even) {
-        background-color: var(--skylee-secondary-background-color);
-      }
-      .section > * {
-        flex: 0 1 var(--skylee-content-max-width);
+      section > * {
+        flex: 0 1 var(--skylee-content_max-width);
         box-sizing: border-box;
       }
 
-      [layout="vertical"] {
+      .vertical-layout {
         display: flex;
         flex-direction: column;
+      }
+      .vertical-layout > * {
+        /* set flex-grow to 1 so elemenets can fill the remaining place
+         * in case the elements take less height than the min-height */
+        flex: 1 0 auto;
       }
 
       .padding-block {
@@ -57,48 +59,52 @@
         justify-content: center;
         align-items: center;
       }
-      .icon-block > iron-icon {
+      .icon-block__icon {
         --iron-icon-width: 128px;
         --iron-icon-height: 128px;
-        --iron-icon-fill-color: var(--skylee-primary-text-color);
+        --iron-icon-fill-color: var(--skylee-text--primary_color);
       }
 
       .info-block {
         display: flex;
         flex-direction: column;
         justify-content: center;
-        /*align-items: center;*/
-        /* Fix for IE 11 */
-        align-items: stretch;
+        align-items: center;
+      }
+      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {
+        .info-block {
+          /* Fix for IE11: IE does not wrap p in flexbox */
+          align-items: stretch;
+        }
       }
       .info-block > :not(:first-child) {
         margin-top: 16px;
       }
-      .info-block > h2 {
+      .info-block__title {
         margin: 0;
-        @apply --skylee-headline-font;
-        color: var(--skylee-primary-text-color);
+        @apply --skylee-text--headline_font;
+        color: var(--skylee-text--primary_color);
         text-align: center;
       }
       .info-block > p {
         margin: 0;
-        @apply --skylee-body1-font;
-        color: var(--skylee-secondary-text-color);
+        @apply --skylee-text--body1_font;
+        color: var(--skylee-text--secondary_color);
         text-align: center;
       }
     </style>
 
-    <div class="section">
-      <div layout="vectical">
+    <section>
+      <div class="vertical-layout">
         <div class="padding-block icon-block">
-          <iron-icon icon="skylee:info-outline"></iron-icon>
+          <iron-icon class="icon-block__icon" icon="skylee:info-outline"></iron-icon>
         </div>
         <div class="padding-block info-block">
-          <h2>Oh NO! We couldn't find the page you were looking for.</h2>
+          <h2 class="info-block__title">Oh NO! We couldn't find the page you were looking for.</h2>
           <p>Maybe head back to the <a href$="[[defaultPath]]">homepage</a> or use one of the tab links instead?</p>
         </div>
       </div>
-    </div>
+    </section>
 
   </template>
   <script>

@@ -4,7 +4,7 @@
 <link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
-<!--<link rel="import" href="../../bower_components/curium-responsive-layout/curium-responsive-layout.html">-->
+<link rel="import" href="skylee-event-timeline-block.html">
 
 <dom-module id="skylee-event">
   <template strip-whitespace>
@@ -14,35 +14,10 @@
         overflow-x: hidden;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
-        padding-top: var(--skylee-toolbar-height);
-        background-color: var(--skylee-secondary-background-color);
-        
-        /* ShadyCSS work only if these variables are placed at the root */
-        --skylee-event-block-padding-top: 30px;
-        --skylee-event-block-padding-right: 20px;
-          --skylee-event-block-narrow-padding-right: 5px;
-        --skylee-event-block-padding-bottom: 30px;
-        --skylee-event-block-padding-left: 20px;
-          --skylee-event-block-narrow-padding-left: 5px;
-
-        --skylee-event-block-card-margin: var(--skylee-event-block-padding-left);
-        --skylee-event-block-card-box-shadow: var(--skylee-shadow-elevation-2-box-shadow);
-        --skylee-event-block-card-border-radius: 5px;
-        --skylee-event-block-card-padding: 20px;
-
-        --skylee-event-block-top-bar-color: var(--skylee-primary-background-color); /* default */
-
-        --skylee-event-block-arrow-size: 20px;
-
-        --skylee-event-block-timeline-width: 5px;
-        --skylee-event-block-timeline-color: rgba(var(--skylee-base-color-r),
-                                                    var(--skylee-base-color-g),
-                                                    var(--skylee-base-color-b),
-                                                    0.25);
-
-        --skylee-event-block-icon-size: 48px;
-        --skylee-event-block-icon-color: var(--skylee-primary-background-color); /* default */
-        --skylee-event-block-icon-box-shadow: var(--skylee-event-block-card-box-shadow);
+        padding-top: var(--skylee-toolbar_height);
+        transition: var(--skylee-toolbar_transition_padding-top);
+        -webkit-transition: var(--skylee-toolbar_transition_padding-top);
+        background-color: var(--skylee-background--secondary_background-color);
       }
 
       section {
@@ -50,280 +25,74 @@
         justify-content: center;
       }
       section > * {
-        flex: 0 1 var(--skylee-content-max-width);
+        flex: 0 1 var(--skylee-content_max-width);
         box-sizing: border-box;
-      }
-
-      .event-block {
-        position: relative;
-        padding: var(--skylee-event-block-padding-top)
-                 var(--skylee-event-block-padding-right)
-                 var(--skylee-event-block-padding-bottom)
-                 var(--skylee-event-block-padding-left);
-      }
-      .event-block[narrow] {
-        padding-left: var(--skylee-event-block-narrow-padding-left);
-        padding-right: var(--skylee-event-block-narrow-padding-right);
-      }
-      .event-block::before { /* timeline */
-        content: "";
-        display: block;
-        position: absolute;
-        top: 0px;
-        bottom: 0px;
-        left: 0px;
-        width: var(--skylee-event-block-timeline-width);
-        transform: translateX(calc(var(--skylee-event-block-padding-left) + (var(--skylee-event-block-icon-size) - 100%) / 2));
-        z-index: -1;
-        background: var(--skylee-event-block-timeline-color);
-      }
-      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {  
-        /* Fix for IE11: does not support calc in translate */
-        .event-block::before {
-          left: calc(var(--skylee-event-block-padding-left) + (var(--skylee-event-block-icon-size) - var(--skylee-event-block-timeline-width)) / 2);
-          transform: none;
-        }
-      }
-      section:first-of-type .event-block::before {
-        background: linear-gradient(to bottom, transparent, var(--skylee-event-block-timeline-color) var(--skylee-event-block-padding-top), var(--skylee-event-block-timeline-color));
-      }
-      section:last-of-type .event-block::before {
-        background: linear-gradient(to top, transparent, var(--skylee-event-block-timeline-color) var(--skylee-event-block-padding-bottom), var(--skylee-event-block-timeline-color));
-      }
-      .event-block__card {
-        margin-left: calc(var(--skylee-event-block-icon-size) + var(--skylee-event-block-card-margin));
-        box-shadow: var(--skylee-event-block-card-box-shadow);
-        background-color: var(--skylee-primary-background-color);
-        border-radius: var(--skylee-event-block-card-border-radius);
-      }
-      .event-block[narrow] .event-block__card {
-        margin-left: 0px;
-        margin-top: calc(var(--skylee-event-block-icon-size) + var(--skylee-event-block-card-margin));
-      }
-      .event-block__top-bar {
-        position: relative;
-        border-radius: var(--skylee-event-block-card-border-radius);
-        background-color: var(--skylee-event-block-top-bar-color); /* default color */
-      }
-      .event-block__icon {
-        position: absolute;
-        top: 50%;
-        transform: translate(calc(0px - var(--skylee-event-block-card-margin) - 100%), -50%);
-        width: var(--skylee-event-block-icon-size);
-        height: var(--skylee-event-block-icon-size);
-        border-radius: 50%;
-        background-color: var(--skylee-event-block-icon-color); /* default color */
-        box-shadow: var(--skylee-event-block-icon-box-shadow);
-      }
-      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {  
-        /* Fix for IE11: does not support calc in translate */
-        .event-block__icon {
-          left: calc(0px - var(--skylee-event-block-card-margin) - var(--skylee-event-block-icon-size));
-          transform: translateY(-50%);
-        }
-      }
-      .event-block[narrow] .event-block__icon {
-        top: 0px;
-        transform: translate(calc(0px - var(--skylee-event-block-narrow-padding-left) + var(--skylee-event-block-padding-left)), calc(0px - var(--skylee-event-block-card-margin) - 100%));
-      }
-      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {  
-        /* Fix for IE11: does not support calc in translate */
-        .event-block[narrow] .event-block__icon {
-          top: calc(0px - var(--skylee-event-block-card-margin) - var(--skylee-event-block-icon-size));
-          left: calc(0px - var(--skylee-event-block-narrow-padding-left) + var(--skylee-event-block-padding-left));
-          transform: none;
-        }
-      }
-      .event-block__top-bar::before { /* arrow */
-        content: "";
-        display: block;
-        position: absolute;
-        top: 50%;
-        transform: translate(-25%, -50%) rotate(45deg);
-        width: var(--skylee-event-block-arrow-size);
-        height: var(--skylee-event-block-arrow-size);
-        background-color: inherit;
-        box-shadow: var(--skylee-event-block-card-box-shadow);
-      }
-      .event-block[narrow] .event-block__top-bar::before {
-        top: 0px;
-        transform: translate(calc(0px - var(--skylee-event-block-narrow-padding-left) + var(--skylee-event-block-padding-left) + (var(--skylee-event-block-icon-size) - 100%) / 2), -25%) rotate(45deg);
-      }
-      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {  
-        /* Fix for IE11: does not support calc in translate */  
-        .event-block[narrow] .event-block__top-bar::before {
-          left: calc(0px - var(--skylee-event-block-narrow-padding-left) + var(--skylee-event-block-padding-left) + (var(--skylee-event-block-icon-size) - var(--skylee-event-block-arrow-size)) / 2);
-          transform: translateY(-25%) rotate(45deg);
-        }
-      }
-      .event-block__header {
-        position: relative; /* so this can cover the arrow */
-        border-top-left-radius: var(--skylee-event-block-card-border-radius);
-        border-top-right-radius: var(--skylee-event-block-card-border-radius);
-        overflow: hidden;
-        padding: var(--skylee-event-block-card-padding);
-        background-color: inherit;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .event-block__top-bar:last-child .event-block__header {
-        border-bottom-left-radius: var(--skylee-event-block-card-border-radius);
-        border-bottom-right-radius: var(--skylee-event-block-card-border-radius);
-      }
-      .event-block__time {
-        display: block;
-        @apply --skylee-body1-font;
-        color: var(--skylee-primary-text-color);
-      }
-      .event-block__top-bar.light .event-block__time {
-        color: var(--skylee-light-theme-primary-text-color);
-      }
-      .event-block__top-bar.dark .event-block__time {
-        color: var(--skylee-dark-theme-primary-text-color);
-      }
-      .event-block__title {
-        margin: 0px;
-        @apply --skylee-headline-font;
-        color: var(--skylee-primary-text-color);
-      }
-      .event-block__top-bar.light .event-block__title {
-        color: var(--skylee-light-theme-primary-text-color);
-      }
-      .event-block__top-bar.dark .event-block__title {
-        color: var(--skylee-dark-theme-primary-text-color);
-      }
-      .event-block__content {
-        border-radius: 0px 0px
-                       var(--skylee-event-block-card-border-radius)
-                       var(--skylee-event-block-card-border-radius);
-        overflow: hidden;
-        padding: var(--skylee-event-block-card-padding);
-      }
-      .event-block__content > p {
-        margin: 0px;
-        @apply --skylee-body1-font;
-        color: var(--skylee-secondary-text-color);
-        text-align: justify;
-      }
-      .event-block__content > iframe {
-        width: 100%;
-        border: none;
-        overflow: hidden;
-      }
-
-      .event-block__icon.current {
-        animation: current-event-icon-animation 1s ease-in-out 0s infinite alternate forwards;
-        animation-play-state: running;
-        /*IE does not support putting play-state in animation */
-      }
-      @keyframes current-event-icon-animation {
-        from { background-color: rgb(255, 0, 0); }
-        to { background-color: rgb(64, 0, 0); }
       }
     </style>
 
     <iron-media-query query="not all and (min-width: 700px)" query-matches="{{_narrowLayout}}" full></iron-media-query>
 
     <section>
-      <div class="event-block" narrow$="[[_narrowLayout]]">
-        <div class="event-block__card">
-          <div class="event-block__top-bar light" style="background-color:#87CEFA;">
-            <div class="event-block__icon current" style="/*background-color:red;*/"></div>
-            <header class="event-block__header">
-              <time class="event-block__time">8 - 9 July 2017</time>
-              <h2 class="event-block__title">Sky Camp 2017 天空任李行</h2>
-            </header>
-          </div>
-          <div class="event-block__content">
-            <iframe style="height:315px" src="https://www.youtube.com/embed/urGSdarRvig" allowfullscreen></iframe>
-            <iframe style="height:687px;" src="https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fskylee.hku%2Fposts%2F878843898948147%3A0&width=auto&show_text=true&height=687&appId"></iframe>
-            <iframe style="height:406px;" src="https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fskylee.hku%2Fposts%2F886354301530440&width=auto&show_text=true&height=406&appId"></iframe>
-          </div>
-        </div>
-      </div>
+      <skylee-event-timeline-block
+        time="8 - 9 July 2017"
+        name="Sky Camp 2017 天空任李行"
+        position="first"
+        narrow="[[_narrowLayout]]"
+        header-background-color="#87CEFA" header-theme="light">
+        <iframe style="height:315px" src="https://www.youtube.com/embed/urGSdarRvig" allowfullscreen></iframe>
+        <iframe style="height:687px;" src="https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fskylee.hku%2Fposts%2F878843898948147%3A0&width=auto&show_text=true&height=687&appId"></iframe>
+        <iframe style="height:406px;" src="https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fskylee.hku%2Fposts%2F886354301530440&width=auto&show_text=true&height=406&appId"></iframe>
+      </skylee-event-timeline-block>
     </section>
 
     <section>
-      <div class="event-block event-block__dark-top-bar" narrow$="[[_narrowLayout]]">
-        <div class="event-block__card">
-          <div class="event-block__top-bar light" style="background-color:#f58e46;">
-            <div class="event-block__icon" style="/*background-color:red;*/"></div>
-            <header class="event-block__header">
-              <time class="event-block__time">August 2017</time>
-              <h2 class="event-block__title">Registration Day</h2>
-            </header>
-          </div>
-          <div class="event-block__content">
-            <p>Registration day gives you an opportunity to take a sneak peek of our hall.</p>
-          </div>
-        </div>
-      </div>
+      <skylee-event-timeline-block
+        time="August 2017"
+        name="Registration Day"
+        narrow="[[_narrowLayout]]"
+        header-background-color="#f58e46" header-theme="light">
+        <p>Registration day gives you an opportunity to take a sneak peek of our hall.</p>
+      </skylee-event-timeline-block>
     </section>
 
     <section>
-      <div class="event-block" narrow$="[[_narrowLayout]]">
-        <div class="event-block__card">
-          <div class="event-block__top-bar light" style="background-color:lightgreen;">
-            <div class="event-block__icon" style="/*background-color:red;*/"></div>
-            <header class="event-block__header">
-              <time class="event-block__time">August 2017</time>
-              <h2 class="event-block__title">Touch Camp</h2>
-            </header>
-          </div>
-          <div class="event-block__content">
-            <p>Touch Camp allows you to have a taste of our hall culture.</p>
-          </div>
-        </div>
-      </div>
+      <skylee-event-timeline-block
+        time="August 2017"
+        name="Touch Camp"
+        narrow="[[_narrowLayout]]"
+        header-background-color="lightgreen" header-theme="light">
+        <p>Touch Camp allows you to have a taste of our hall culture.</p>
+      </skylee-event-timeline-block>
     </section>
 
     <section>
-      <div class="event-block" narrow$="[[_narrowLayout]]">
-        <div class="event-block__card">
-          <div class="event-block__top-bar light" style="background-color:#f7e77a;">
-            <div class="event-block__icon" style="/*background-color:red;*/"></div>
-            <header class="event-block__header">
-              <time class="event-block__time">August 2017</time>
-              <h2 class="event-block__title">Orientation Camp</h2>
-            </header>
-          </div>
-          <div class="event-block__content">
-            <p>Orientation Camp helps you to understand our hall comprehensively and build up a close relationship with our hall community.</p>
-          </div>
-        </div>
-      </div>
+      <skylee-event-timeline-block
+        time="August 2017"
+        name="Orientation Camp"
+        narrow="[[_narrowLayout]]"
+        header-background-color="#f7e77a" header-theme="light">
+        <p>Orientation Camp helps you to understand our hall comprehensively and build up a close relationship with our hall community.</p>
+      </skylee-event-timeline-block>
     </section>
 
     <section>
-      <div class="event-block" narrow$="[[_narrowLayout]]">
-        <div class="event-block__card">
-          <div class="event-block__top-bar light" style="background-color:#ce90ee;">
-            <div class="event-block__icon" style="/*background-color:red;*/"></div>
-            <header class="event-block__header">
-              <time class="event-block__time">September 2017</time>
-              <h2 class="event-block__title">Non-local Orientation Camp</h2>
-            </header>
-          </div>
-          <div class="event-block__content">
-            <p>Non-local orientation camp helps non-local students to adapt the life in Hong Kong and integrate to the local community.</p>
-          </div>
-        </div>
-      </div>
+      <skylee-event-timeline-block
+        time="September 2017"
+        name="Non-local Orientation Camp"
+        narrow="[[_narrowLayout]]"
+        header-background-color="#ce90ee" header-theme="light">
+        <p>Non-local orientation camp helps non-local students to adapt the life in Hong Kong and integrate to the local community.</p>
+      </skylee-event-timeline-block>
     </section>
 
     <section>
-      <div class="event-block" narrow$="[[_narrowLayout]]">
-        <div class="event-block__card">
-          <div class="event-block__top-bar" style="/*background-color:lightgreen;*/">
-            <div class="event-block__icon" style="/*background-color:red;*/"></div>
-            <header class="event-block__header">
-              <time class="event-block__time">November 2017</time>
-              <h2 class="event-block__title">Information Day</h2>
-            </header>
-          </div>
-        </div>
-      </div>
+      <skylee-event-timeline-block
+        time="November 2017"
+        name="Information Day"
+        no-content
+        position="last"
+        narrow="[[_narrowLayout]]">
+      </skylee-event-timeline-block>
     </section>
 
   </template>

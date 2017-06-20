@@ -1,12 +1,10 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../bower_components/shadycss/apply-shim.html">
 
-<link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
-<link rel="import" href="../../bower_components/curium-proportional/curium-proportional.html">
-<link rel="import" href="../../bower_components/curium-responsive-image/curium-responsive-image.html">
+<link rel="import" href="skylee-team-tile.html">
 
 <dom-module id="skylee-team">
   <template strip-whitespace>
@@ -15,24 +13,21 @@
         display: block;
         overflow-x: hidden;
         overflow-y: auto;
+        padding-top: var(--skylee-toolbar_height);
+        transition: var(--skylee-toolbar_transition_padding-top);
+        /* Safari Bug: transition cannot use var */
+        -webkit-transition: var(--skylee-toolbar_transition_padding-top);
+        background-color: var(--skylee-background--secondary_background-color);
         -webkit-overflow-scrolling: touch;
-        padding-top: var(--skylee-toolbar-height);
-        background-color: var(--skylee-primary-background-color);
       }
 
       section {
-        border-bottom: 1px solid var(--skylee-divider-color);
+        border-bottom: 1px solid var(--skylee-divider_color);
         display: flex;
         justify-content: center;
       }
-      section:nth-of-type(odd) {
-        background-color: var(--skylee-primary-background-color);
-      }
-      section:nth-of-type(even) {
-        background-color: var(--skylee-secondary-background-color);
-      }
       section > * {
-        flex: 0 1 var(--skylee-content-max-width);
+        flex: 0 1 var(--skylee-content_max-width);
         box-sizing: border-box;
       }
 
@@ -41,7 +36,7 @@
         flex-direction: column;
       }
       .layout-vertical > * {
-        flex: 1 0 auto;
+        flex: 0 0 auto;
       }
 
       .padding-block {
@@ -57,15 +52,15 @@
       .text-block > :not(:first-child) {
         margin-top: 16px;
       }
-      .text-block > h2 {
+      .text-block__title {
         margin: 0;
-        @apply --skylee-headline-font;
-        color: var(--skylee-primary-text-color);
+        @apply --skylee-text--headline_font;
+        color: var(--skylee-text--primary_color);
       }
       .text-block > p {
         margin: 0;
-        @apply --skylee-body1-font;
-        color: var(--skylee-secondary-text-color);
+        @apply --skylee-text--body1_font;
+        color: var(--skylee-text--secondary_color);
         text-align: justify;
       }
 
@@ -75,8 +70,8 @@
         flex-wrap: wrap;
       }
       .teams-block > * {
-        flex: 1 0 250px;
-        margin: 5px;
+        flex: 0 0 250px;
+        margin: 8px;
       }
       @supports (display: grid) {
         .teams-block {
@@ -88,7 +83,7 @@
              which ignore the children height (The children overflowed) */
           grid-template-columns: repeat(auto-fill, minmax(250px, auto));
           grid-auto-rows: auto;
-          grid-gap: 5px;
+          grid-gap: 16px;
         }
         .teams-block > * {
           flex: initial;
@@ -103,46 +98,10 @@
       }
       .teams-block[narrow] > * {
         flex: 0 0 auto;
-        margin: 5px 0px 0px 0px;
+        margin: 16px 0px 0px 0px;
       }
       .teams-block[narrow] > :first-child {
         margin-top: 0px;
-      }
-
-      .team-block {
-        /* curium-proportional alreay relative positioned this element */
-        --curium-proportional-aspect-ratio: 100%;
-        overflow: hidden;
-        border: 1px solid black;
-        border-radius: 2px;
-        transform: none;
-      }
-      .team-block > #cover {
-        /* curium-proportional alreay absolute positioned this element */
-      }
-      .team-block > #overlay {
-        /* curium-proportional alreay absolute positioned this element */
-        padding: 10px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        background-color: rgba(0, 0, 0, 0.75);
-        opacity: 1;
-        transition: opacity 200ms ease-out 0ms;
-      }
-      .team-block:hover > #overlay {
-        opacity: 0;
-      }
-      .team-block > #overlay > h2 {
-        margin: 16px 0px 0px 0px;
-        @apply --skylee-headline-font;
-        color: white;
-      }
-      .team-block > #overlay > img {
-        width: 64px;
-        height: 64px;
-        image-rendering: -webkit-optimize-contrast; /* Chrome only look less blurry with this option */
       }
     </style>
 
@@ -152,146 +111,96 @@
       <div class="layout-vertical">
 
         <div class="padding-block text-block">
-          <h2>Sports Teams</h2>
+          <h2 class="text-block__title">Sports Teams</h2>
         </div>
 
         <div class="padding-block teams-block" narrow$="[[_narrowLayout]]">
 
-          <curium-proportional id="cover" class="team-block">
-            <curium-responsive-image sizing="cover"
-              src-map="320w-214h [[rootPath]]images/team/badminton/badminton-cover-320w.jpg,
-                       640w-427h [[rootPath]]images/team/badminton/badminton-cover-640w.jpg,
-                       1280w-854h [[rootPath]]images/team/badminton/badminton-cover-1280w.jpg,
-                       [[rootPath]]images/team/badminton/badminton-cover-default.jpg">
-              <iron-image sizing="cover" preload fade></iron-image>
-            </curium-responsive-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/badminton/symbol.png"></img>
-              <h2>Badminton</h2>
-            </div>
-          </curium-proportional>
+          <skylee-team-tile
+            cover-src-map="320w-214h [[rootPath]]images/team/badminton/badminton-cover-320w.jpg,
+                           640w-427h [[rootPath]]images/team/badminton/badminton-cover-640w.jpg,
+                           1280w-854h [[rootPath]]images/team/badminton/badminton-cover-1280w.jpg,
+                           [[rootPath]]images/team/badminton/badminton-cover-default.jpg"
+            icon-src="[[rootPath]]images/team/badminton/symbol.png"
+            name="Badminton">
+          </skylee-team-tile>
 
-          <curium-proportional class="team-block">
-            <curium-responsive-image sizing="cover"
-              src-map="320w-180h [[rootPath]]images/team/basketball/basketball-cover-320w.jpg,
-                       640w-360h [[rootPath]]images/team/basketball/basketball-cover-640w.jpg,
-                       1280w-721h [[rootPath]]images/team/basketball/basketball-cover-1280w.jpg,
-                       [[rootPath]]images/team/basketball/basketball-cover-default.jpg">
-              <iron-image sizing="cover" preload fade></iron-image>
-            </curium-responsive-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/basketball/symbol.png"></img>
-              <h2>Basketball</h2>
-            </div>
-          </curium-proportional>
+          <skylee-team-tile
+            cover-src-map="320w-180h [[rootPath]]images/team/basketball/basketball-cover-320w.jpg,
+                      640w-360h [[rootPath]]images/team/basketball/basketball-cover-640w.jpg,
+                      1280w-721h [[rootPath]]images/team/basketball/basketball-cover-1280w.jpg,
+                      [[rootPath]]images/team/basketball/basketball-cover-default.jpg"
+            icon-src="[[rootPath]]images/team/basketball/symbol.png"
+            name="Basketball">
+          </skylee-team-tile>
 
-          <curium-proportional class="team-block">
-            <curium-responsive-image sizing="cover"
-              src-map="320w-213h [[rootPath]]images/team/handball/handball-cover-320w.jpg,
-                       640w-427h [[rootPath]]images/team/handball/handball-cover-640w.jpg,
-                       1280w-854h [[rootPath]]images/team/handball/handball-cover-1280w.jpg,
-                       [[rootPath]]images/team/handball/handball-cover-default.jpg">
-              <iron-image sizing="cover" preload fade></iron-image>
-            </curium-responsive-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/handball/symbol.png"></img>
-              <h2>Handball</h2>
-            </div>
-          </curium-proportional>
+          <skylee-team-tile
+            cover-src-map="320w-213h [[rootPath]]images/team/handball/handball-cover-320w.jpg,
+                           640w-427h [[rootPath]]images/team/handball/handball-cover-640w.jpg,
+                           1280w-854h [[rootPath]]images/team/handball/handball-cover-1280w.jpg,
+                           [[rootPath]]images/team/handball/handball-cover-default.jpg"
+            icon-src="[[rootPath]]images/team/handball/symbol.png"
+            name="Handball">
+          </skylee-team-tile>
 
-          <curium-proportional class="team-block">
-            <curium-responsive-image sizing="cover"
-              src-map="320w-213h [[rootPath]]images/team/hockey/hockey-cover-320w.jpg,
-                       640w-427h [[rootPath]]images/team/hockey/hockey-cover-640w.jpg,
-                       1280w-854h [[rootPath]]images/team/hockey/hockey-cover-1280w.jpg,
-                       [[rootPath]]images/team/hockey/hockey-cover-default.jpg">
-              <iron-image sizing="cover" preload fade></iron-image>
-            </curium-responsive-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/hockey/symbol.png"></img>
-              <h2>Hockey</h2>
-            </div>
-          </curium-proportional>
+          <skylee-team-tile
+            cover-src-map="320w-213h [[rootPath]]images/team/hockey/hockey-cover-320w.jpg,
+                           640w-427h [[rootPath]]images/team/hockey/hockey-cover-640w.jpg,
+                           1280w-854h [[rootPath]]images/team/hockey/hockey-cover-1280w.jpg,
+                           [[rootPath]]images/team/hockey/hockey-cover-default.jpg"
+            icon-src="[[rootPath]]images/team/hockey/symbol.png"
+            name="Hockey">
+          </skylee-team-tile>
 
-          <curium-proportional class="team-block">
-            <curium-responsive-image sizing="cover"
-              src-map="320w-213h [[rootPath]]images/team/lacrosse/lacrosse-cover-320w.jpg,
-                       640w-427h [[rootPath]]images/team/lacrosse/lacrosse-cover-640w.jpg,
-                       1280w-854h [[rootPath]]images/team/lacrosse/lacrosse-cover-1280w.jpg,
-                       [[rootPath]]images/team/lacrosse/lacrosse-cover-default.jpg">
-              <iron-image sizing="cover" preload fade></iron-image>
-            </curium-responsive-image>
-            <div id="overlay">
-              <h2>Lacrosse</h2>
-            </div>
-          </curium-proportional>
+          <skylee-team-tile
+            cover-src-map="320w-213h [[rootPath]]images/team/lacrosse/lacrosse-cover-320w.jpg,
+                           640w-427h [[rootPath]]images/team/lacrosse/lacrosse-cover-640w.jpg,
+                           1280w-854h [[rootPath]]images/team/lacrosse/lacrosse-cover-1280w.jpg,
+                           [[rootPath]]images/team/lacrosse/lacrosse-cover-default.jpg"
+            name="Lacrosse">
+          </skylee-team-tile>
 
-          <curium-proportional class="team-block">
-            <curium-responsive-image sizing="cover"
-              src-map="320w-213h [[rootPath]]images/team/soccer/soccer-cover-320w.jpg,
-                       640w-427h [[rootPath]]images/team/soccer/soccer-cover-640w.jpg,
-                       1280w-853h [[rootPath]]images/team/soccer/soccer-cover-1280w.jpg,
-                       [[rootPath]]images/team/soccer/soccer-cover-default.jpg">
-              <iron-image sizing="cover" preload fade></iron-image>
-            </curium-responsive-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/soccer/symbol.png"></img>
-              <h2>Soccer</h2>
-            </div>
-          </curium-proportional>
+          <skylee-team-tile
+            cover-src-map="320w-213h [[rootPath]]images/team/soccer/soccer-cover-320w.jpg,
+                           640w-427h [[rootPath]]images/team/soccer/soccer-cover-640w.jpg,
+                           1280w-853h [[rootPath]]images/team/soccer/soccer-cover-1280w.jpg,
+                           [[rootPath]]images/team/soccer/soccer-cover-default.jpg"
+            icon-src="[[rootPath]]images/team/soccer/symbol.png"
+            name="Soccer">
+          </skylee-team-tile>
 
-          <curium-proportional class="team-block">
-            <curium-responsive-image sizing="cover"
-              src-map="320w-180h [[rootPath]]images/team/softball/softball-cover-320w.jpg,
-                       640w-360h [[rootPath]]images/team/softball/softball-cover-640w.jpg,
-                       [[rootPath]]images/team/softball/softball-cover-default.jpg">
-              <iron-image sizing="cover" preload fade></iron-image>
-            </curium-responsive-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/softball/symbol.png"></img>
-              <h2>Softball</h2>
-            </div>
-          </curium-proportional>
+          <skylee-team-tile
+            cover-src-map="320w-180h [[rootPath]]images/team/softball/softball-cover-320w.jpg,
+                           640w-360h [[rootPath]]images/team/softball/softball-cover-640w.jpg,
+                           [[rootPath]]images/team/softball/softball-cover-default.jpg"
+            icon-src="[[rootPath]]images/team/softball/symbol.png"
+            name="Softball">
+          </skylee-team-tile>
 
-          <curium-proportional class="team-block">
-            <curium-responsive-image sizing="cover"
-              src-map="320w-214h [[rootPath]]images/team/squash/squash-cover-320w.jpg,
-                       640w-427h [[rootPath]]images/team/squash/squash-cover-640w.jpg,
-                       1280w-854h [[rootPath]]images/team/squash/squash-cover-1280w.jpg,
-                       [[rootPath]]images/team/squash/squash-cover-default.jpg">
-              <iron-image sizing="cover" preload fade></iron-image>
-            </curium-responsive-image>
-            <div id="overlay">
-              <h2>Squash</h2>
-            </div>
-          </curium-proportional>
+          <skylee-team-tile
+            cover-src-map="320w-214h [[rootPath]]images/team/squash/squash-cover-320w.jpg,
+                           640w-427h [[rootPath]]images/team/squash/squash-cover-640w.jpg,
+                           1280w-854h [[rootPath]]images/team/squash/squash-cover-1280w.jpg,
+                           [[rootPath]]images/team/squash/squash-cover-default.jpg"
+            name="Squash">
+          </skylee-team-tile>
 
-          <curium-proportional class="team-block">
-            <curium-responsive-image sizing="cover"
-              src-map="320w-180h [[rootPath]]images/team/table-tennis/table-tennis-cover-320w.jpg,
-                       640w-360h [[rootPath]]images/team/table-tennis/table-tennis-cover-640w.jpg,
-                       [[rootPath]]images/team/table-tennis/table-tennis-cover-default.jpg">
-              <iron-image sizing="cover" preload fade></iron-image>
-            </curium-responsive-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/table-tennis/symbol.png"></img>
-              <h2>Table Tennis</h2>
-            </div>
-          </curium-proportional>
+          <skylee-team-tile
+            cover-src-map="320w-180h [[rootPath]]images/team/table-tennis/table-tennis-cover-320w.jpg,
+                           640w-360h [[rootPath]]images/team/table-tennis/table-tennis-cover-640w.jpg,
+                           [[rootPath]]images/team/table-tennis/table-tennis-cover-default.jpg"
+            icon-src="[[rootPath]]images/team/table-tennis/symbol.png"
+            name="Table Tennis">
+          </skylee-team-tile>
 
-          <curium-proportional class="team-block">
-            <curium-responsive-image sizing="cover"
-              src-map="320w-214h [[rootPath]]images/team/volleyball/volleyball-cover-320w.jpg,
-                       640w-427h [[rootPath]]images/team/volleyball/volleyball-cover-640w.jpg,
-                       1280w-854h [[rootPath]]images/team/volleyball/volleyball-cover-1280w.jpg,
-                       [[rootPath]]images/team/volleyball/volleyball-cover-default.jpg">
-              <iron-image sizing="cover" preload fade></iron-image>
-            </curium-responsive-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/volleyball/symbol.png"></img>
-              <h2>Volleyball</h2>
-            </div>
-          </curium-proportional>
+          <skylee-team-tile
+            cover-src-map="320w-214h [[rootPath]]images/team/volleyball/volleyball-cover-320w.jpg,
+                           640w-427h [[rootPath]]images/team/volleyball/volleyball-cover-640w.jpg,
+                           1280w-854h [[rootPath]]images/team/volleyball/volleyball-cover-1280w.jpg,
+                           [[rootPath]]images/team/volleyball/volleyball-cover-default.jpg"
+            icon-src="[[rootPath]]images/team/volleyball/symbol.png"
+            name="Volleyball">
+          </skylee-team-tile>
 
         </div>
       </div>
@@ -301,94 +210,64 @@
       <div class="layout-vertical">
 
         <div class="padding-block text-block">
-          <h2>Cultural Teams</h2>
+          <h2 class="text-block__title">Cultural Teams</h2>
         </div>
 
         <div class="padding-block teams-block" narrow$="[[_narrowLayout]]">
 
-          <curium-proportional class="team-block">
-            <curium-responsive-image sizing="cover"
-              src-map="320w-213h [[rootPath]]images/team/band/band-cover-320w.jpg,
-                       640w-427h [[rootPath]]images/team/band/band-cover-640w.jpg,
-                       1280w-853h [[rootPath]]images/team/band/band-cover-1280w.jpg,
-                       [[rootPath]]images/team/band/band-cover-default.jpg">
-              <iron-image sizing="cover" preload fade></iron-image>
-            </curium-responsive-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/band/symbol.png"></img>
-              <h2>Band</h2>
-            </div>
-          </curium-proportional>
+          <skylee-team-tile
+            cover-src-map="320w-213h [[rootPath]]images/team/band/band-cover-320w.jpg,
+                           640w-427h [[rootPath]]images/team/band/band-cover-640w.jpg,
+                           1280w-853h [[rootPath]]images/team/band/band-cover-1280w.jpg,
+                           [[rootPath]]images/team/band/band-cover-default.jpg"
+            icon-src="[[rootPath]]images/team/band/symbol.png"
+            name="Band">
+          </skylee-team-tile>
 
-          <curium-proportional class="team-block">
-            <curium-responsive-image sizing="cover"
-              src-map="320w-213h [[rootPath]]images/team/bridge/bridge-cover-320w.jpg,
-                       640w-427h [[rootPath]]images/team/bridge/bridge-cover-640w.jpg,
-                       1280w-854h [[rootPath]]images/team/bridge/bridge-cover-1280w.jpg,
-                       [[rootPath]]images/team/bridge/bridge-cover-default.jpg">
-              <iron-image sizing="cover" preload fade></iron-image>
-            </curium-responsive-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/bridge/symbol.png"></img>
-              <h2>Bridge</h2>
-            </div>
-          </curium-proportional>
+          <skylee-team-tile
+            cover-src-map="320w-213h [[rootPath]]images/team/bridge/bridge-cover-320w.jpg,
+                           640w-427h [[rootPath]]images/team/bridge/bridge-cover-640w.jpg,
+                           1280w-854h [[rootPath]]images/team/bridge/bridge-cover-1280w.jpg,
+                           [[rootPath]]images/team/bridge/bridge-cover-default.jpg"
+            icon-src="[[rootPath]]images/team/bridge/symbol.png"
+            name="Bridge">
+          </skylee-team-tile>
 
-          <curium-proportional class="team-block">
-            <curium-responsive-image sizing="cover"
-              src-map="320w-213h [[rootPath]]images/team/choir/choir-cover-320w.jpg,
-                       640w-427h [[rootPath]]images/team/choir/choir-cover-640w.jpg,
-                       1280w-854h [[rootPath]]images/team/choir/choir-cover-1280w.jpg,
-                       [[rootPath]]images/team/choir/choir-cover-default.jpg">
-              <iron-image sizing="cover" preload fade></iron-image>
-            </curium-responsive-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/choir/symbol.png"></img>
-              <h2>Choir</h2>
-            </div>
-          </curium-proportional>
+          <skylee-team-tile
+            cover-src-map="320w-213h [[rootPath]]images/team/choir/choir-cover-320w.jpg,
+                           640w-427h [[rootPath]]images/team/choir/choir-cover-640w.jpg,
+                           1280w-854h [[rootPath]]images/team/choir/choir-cover-1280w.jpg,
+                           [[rootPath]]images/team/choir/choir-cover-default.jpg"
+            icon-src="[[rootPath]]images/team/choir/symbol.png"
+            name="Choir">
+          </skylee-team-tile>
 
-          <curium-proportional class="team-block">
-            <curium-responsive-image sizing="cover"
-              src-map="320w-214h [[rootPath]]images/team/dancing/dancing-cover-320w.jpg,
-                       640w-427h [[rootPath]]images/team/dancing/dancing-cover-640w.jpg,
-                       1280w-854h [[rootPath]]images/team/dancing/dancing-cover-1280w.jpg,
-                       [[rootPath]]images/team/dancing/dancing-cover-default.jpg">
-              <iron-image sizing="cover" preload fade></iron-image>
-            </curium-responsive-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/dancing/symbol.png"></img>
-              <h2>Dancing</h2>
-            </div>
-          </curium-proportional>
+          <skylee-team-tile
+            cover-src-map="320w-214h [[rootPath]]images/team/dancing/dancing-cover-320w.jpg,
+                           640w-427h [[rootPath]]images/team/dancing/dancing-cover-640w.jpg,
+                           1280w-854h [[rootPath]]images/team/dancing/dancing-cover-1280w.jpg,
+                           [[rootPath]]images/team/dancing/dancing-cover-default.jpg"
+            icon-src="[[rootPath]]images/team/dancing/symbol.png"
+            name="Dancing">
+          </skylee-team-tile>
 
-          <curium-proportional class="team-block">
-            <curium-responsive-image sizing="cover"
-              src-map="320w-212h [[rootPath]]images/team/debating/debating-cover-320w.jpg,
-                       640w-424h [[rootPath]]images/team/debating/debating-cover-640w.jpg,
-                       1280w-848h [[rootPath]]images/team/debating/debating-cover-1280w.jpg,
-                       [[rootPath]]images/team/debating/debating-cover-default.jpg">
-              <iron-image sizing="cover" preload fade></iron-image>
-            </curium-responsive-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/debating/symbol.png"></img>
-              <h2>Debating</h2>
-            </div>
-          </curium-proportional>
+          <skylee-team-tile
+            cover-src-map="320w-212h [[rootPath]]images/team/debating/debating-cover-320w.jpg,
+                           640w-424h [[rootPath]]images/team/debating/debating-cover-640w.jpg,
+                           1280w-848h [[rootPath]]images/team/debating/debating-cover-1280w.jpg,
+                           [[rootPath]]images/team/debating/debating-cover-default.jpg"
+            icon-src="[[rootPath]]images/team/debating/symbol.png"
+            name="Debating">
+          </skylee-team-tile>
 
-          <curium-proportional class="team-block">
-            <curium-responsive-image sizing="cover"
-              src-map="320w-213h [[rootPath]]images/team/drama/drama-cover-320w.jpg,
-                       640w-427h [[rootPath]]images/team/drama/drama-cover-640w.jpg,
-                       1280w-853h [[rootPath]]images/team/drama/drama-cover-1280w.jpg,
-                       [[rootPath]]images/team/drama/drama-cover-default.jpg">
-              <iron-image sizing="cover" preload fade></iron-image>
-            </curium-responsive-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/drama/symbol.png"></img>
-              <h2>Drama</h2>
-            </div>
-          </curium-proportional>
+          <skylee-team-tile
+            cover-src-map="320w-213h [[rootPath]]images/team/drama/drama-cover-320w.jpg,
+                           640w-427h [[rootPath]]images/team/drama/drama-cover-640w.jpg,
+                           1280w-853h [[rootPath]]images/team/drama/drama-cover-1280w.jpg,
+                           [[rootPath]]images/team/drama/drama-cover-default.jpg"
+            icon-src="[[rootPath]]images/team/drama/symbol.png"
+            name="Drama">
+          </skylee-team-tile>
 
         </div>
       </div>

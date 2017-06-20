@@ -1,0 +1,85 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/shadycss/apply-shim.html">
+
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+
+<link rel="import" href="../../bower_components/curium-responsive-image/curium-responsive-image.html">
+
+<dom-module id="skylee-team-tile">
+  <template strip-whitespace>
+    <style>
+      :host {
+        display: block;
+        border-radius: 2px;
+        overflow: hidden;
+        position: relative;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent; /* for Android Chrome */
+        @apply --skylee-shadow--elevation-2;
+        transition: var(--skylee-shadow_transition);
+        /* Safari Bug: transition cannot use var */
+        -webkit-transition: var(--skylee-shadow_transition);
+      }
+      :host(:hover) {
+        @apply --skylee-shadow--elevation-6;
+        z-index: 10; /* Ensure shadow to be drawn on top of other divs */
+      }
+      #filling {
+        width: 100%;
+        padding-bottom: 100%;
+      }
+      #cover {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        bottom: 0px;
+        left: 0px;
+      }
+      #bannar {
+        position: absolute;
+        right: 0px;
+        bottom: 0px;
+        left: 0px;
+        background-color: var(--skylee-background--primary_background-color);
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        @apply --skylee-text--subheading_font;
+        color: var(--skylee-text--primary_color);
+      }
+      #icon {
+        width: 24px;
+        height: 24px;
+        margin-right: 12px;
+        image-rendering: -webkit-optimize-contrast; /* Chrome only look less blurry with this option */
+      }
+    </style>
+
+    <div id="filling"></div>
+
+    <curium-responsive-image id="cover" src-map="[[coverSrcMap]]" sizing="cover">
+      <iron-image sizing="cover" preload fade></iron-image>
+    </curium-responsive-image>
+
+    <div id="bannar">
+      <img id="icon" src$="[[iconSrc]]"></img>[[name]]
+    </div>
+
+  </template>
+  <script>
+    class SkyleeTeamTile extends Polymer.Element {
+
+      static get is() { return 'skylee-team-tile'; }
+
+      static get properties() { return {
+
+        coverSrcMap: String,
+        iconSrc: String,
+        name: String
+
+      };}
+
+    }
+    window.customElements.define(SkyleeTeamTile.is, SkyleeTeamTile);
+  </script>
+</dom-module>

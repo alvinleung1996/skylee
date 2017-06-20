@@ -19,13 +19,16 @@
         overflow-x: hidden;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
-        padding-top: var(--skylee-toolbar-height);
-        background-color: var(--skylee-primary-background-color);
+        padding-top: var(--skylee-toolbar_height);
+        transition: var(--skylee-toolbar_transition_padding-top);
+        /* Safari Bug: transition cannot use var */
+        -webkit-transition: var(--skylee-toolbar_transition_padding-top);
+        background-color: var(--skylee-background--secondary_background-color);
       }
 
       section {
         min-height: 300px;
-        border-bottom: 1px solid var(--skylee-divider-color);
+        border-bottom: 1px solid var(--skylee-divider_color);
         display: flex;
         justify-content: center;
       }
@@ -38,13 +41,13 @@
         }
       }
       section:nth-of-type(odd) {
-        background-color: var(--skylee-primary-background-color);
+        background-color: var(--skylee-background--primary_background-color);
       }
       section:nth-of-type(even) {
-        background-color: var(--skylee-secondary-background-color);
+        background-color: var(--skylee-background--secondary_background-color);
       }
       section > * {
-        flex: 0 1 var(--skylee-content-max-width);
+        flex: 0 1 var(--skylee-content_max-width);
         box-sizing: border-box;
       }
 
@@ -70,6 +73,8 @@
         flex-direction: column;
       }
       .vertical-layout > * {
+        /* set flex-grow to 1 so elemenets can fill the remaining place
+         * in case the elements take less height than the min-height */
         flex: 1 0 auto;
       }
 
@@ -83,21 +88,25 @@
         justify-content: center;
         align-items: flex-start;
       }
+      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {
+        .text-block {
+          /* Fix for IE11: IE does not wrap p in flexbox */
+          align-items: stretch;
+        }
+      }
       .text-block > :not(:first-child) {
         margin-top: 16px;
       }
-      .text-block > h2 {
+      .text-block__title {
         margin: 0;
-        @apply --skylee-headline-font;
-        color: var(--skylee-primary-text-color);
+        @apply --skylee-text--headline_font;
+        color: var(--skylee-text--primary_color);
       }
       .text-block > p {
         margin: 0;
-        @apply --skylee-body1-font;
-        color: var(--skylee-secondary-text-color);
+        @apply --skylee-text--body1_font;
+        color: var(--skylee-text--secondary_color);
         text-align: justify;
-        /* Fix for IE11: IE does not wrap p in flexbox */
-        align-self: stretch;
       }
 
       .image-block {
@@ -105,10 +114,10 @@
         flex-direction: column;
         justify-content: center;
       }
-      .image-block > #image-set {
+      .image-block__image-set {
         flex: 0 0 auto;
       }
-      .image-block > #image-set > #image {
+      .image-block__image {
         display: block;
         --iron-image-width: 100%;
       }
@@ -118,47 +127,50 @@
         justify-content: center;
         align-items: center;
       }
-      .table-block table {
+      .table-block__table {
         border-collapse: collapse;
       }
-      .table-block td {
+      .table-block__table td {
         padding: 5px;
       }
-      .table-block td:not(:first-of-type) {
-        border-left: 1px dashed var(--skylee-divider-color);
+      .table-block__table td:not(:first-of-type) {
+        border-left: 1px dashed var(--skylee-divider_color);
       }
-      .table-block thead td {
-        @apply --skylee-body1-font;
-        color: var(--skylee-primary-text-color);
+      .table-block__table thead td {
+        @apply --skylee-text--body1_font;
+        color: var(--skylee-text--primary_color);
       }
-      .table-block tbody td {
-        border-top: 1px solid var(--skylee-divider-color);
-        @apply --skylee-body1-font;
-        color: var(--skylee-secondary-text-color);
+      .table-block__table tbody td {
+        border-top: 1px solid var(--skylee-divider_color);
+        @apply --skylee-text--body1_font;
+        color: var(--skylee-text--secondary_color);
       }
 
       .lyrics-block {
         display: flex;
         flex-direction: column;
         justify-content: center;
-        /* Fix for IE11 */
-        align-items: stretch;
+        align-items: center;
       }
-      .lyrics-block > h2 {
+      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {
+        .lyrics-block {
+          /* Fix for IE11: IE does not wrap p in flexbox */
+          align-items: stretch;
+        }
+      }
+      .lyrics-block__title {
         margin: 0;
-        @apply --skylee-headline-font;
-        color: var(--skylee-primary-text-color);
-        /* Fix for IE11 */
+        @apply --skylee-text--headline_font;
+        color: var(--skylee-text--primary_color);
         text-align: center;
       }
       .lyrics-block > p {
         margin: 8px 0 0 0;
-        @apply --skylee-body1-font;
-        color: var(--skylee-secondary-text-color);
-        /* Fix for IE11 */
+        @apply --skylee-text--body1_font;
+        color: var(--skylee-text--secondary_color);
         text-align: center;
       }
-      .lyrics-block > p:first-of-type {
+      .lyrics-block > :first-of-type {
         margin-top: 16px;
       }
 
@@ -168,21 +180,28 @@
         justify-content: center;
         align-items: flex-start;
       }
-      .download-block > h2 {
+      .download-block__title {
         margin: 0;
-        @apply --skylee-headline-font;
-        color: var(--skylee-primary-text-color);
+        @apply --skylee-text--headline_font;
+        color: var(--skylee-text--primary_color);
       }
-      .download-block > a {
+      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {
+        .download-block__title {
+          /* Fix for IE11: IE does not wrap p in flexbox */
+          align-items: stretch;
+        }
+      }
+      .download-block__button-link {
         margin-top: 10px;
-        -webkit-tap-highlight-color: transparent;
+        -webkit-tap-highlight-color: transparent; /* for Android Chrome */
         text-decoration: none;
       }
-      .download-block > a > paper-button {
+      .download-block__button {
         margin: 0;
-        display: flex;
-        @apply --skylee-button-font;
-        color: var(--skylee-secondary-text-color);
+        display: flex; /* replace inline-flex */
+        outline: none; /* for Safari */
+        @apply --skylee-text--button_font;
+        color: var(--skylee-text--secondary_color);
       }
 
       .contact-block {
@@ -193,78 +212,90 @@
       }
       @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {  
         .contact-block {
+          /* Fix for IE11: IE does not wrap p in flexbox */
           align-items: stretch;
         }
       }
-      .contact-block > :not(:first-child) {
-        margin-top: 16px;
-      }
-      .contact-block > h2 {
+      .contact-block__title {
         margin: 0;
-        @apply --skylee-headline-font;
-        color: var(--skylee-primary-text-color);
+        @apply --skylee-text--headline_font;
+        color: var(--skylee-text--primary_color);
       }
       .contact-block > p {
-        margin: 0;
-        @apply --skylee-body1-font;
-        color: var(--skylee-secondary-text-color);
+        margin: 16px 0px 0px 0px;
+        @apply --skylee-text--body1_font;
+        color: var(--skylee-text--secondary_color);
         text-align: justify;
-        /* Fix for IE11: IE does not wrap p in flexbox */
-        align-self: stretch;
       }
-      .contact-block > a {
+      .contact-block__button-link {
         -webkit-tap-highlight-color: transparent;
         text-decoration: none;
       }
-      .contact-block > a:not(:first-of-type) {
-        margin-top: 0;
+      .contact-block__button-link:first-of-type {
+        margin-top: 16px;
       }
-      .contact-block > a > paper-button {
+      .contact-block__button {
         margin: 0;
-        display: flex;
-        @apply --skylee-button-font;
-        color: var(--skylee-secondary-text-color);
+        display: flex; /* Replace inline-flex */
+        outline: none; /* for Safari */
+        @apply --skylee-text--button_font;
+        color: var(--skylee-text--secondary_color);
         text-transform: none;
       }
       @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {  
-        .contact-block > a > paper-button {
+        .contact-block__button {
+          /* Since the button will be stretch in IE11 */
           justify-content: flex-start;
         }
       }
-      .contact-block > a > paper-button.wrappable {
+      .contact-block__button--wrappable {
         white-space: normal;
       }
-      .contact-block > a > paper-button > iron-icon {
+      .contact-block__icon {
         flex: 0 0 auto;
         margin-right: 10px;
       }
 
-      .map-iframe-block {
+      .iframe-block {
         display: flex;
       }
-      .map-iframe-block > iframe {
+      .iframe-block__iframe {
         flex: 1 1 auto;
         border-radius: 5px;
-        border: 1px solid rgba(0, 0, 0, 0.12);
+        border: 1px solid var(--skylee-divider_color);
       }
 
 
     </style>
 
-    <iron-media-query query="not all and (min-width: 600px)" query-matches="{{_narrowLayout}}" full></iron-media-query>
+    <iron-media-query query="not all and (min-width: 700px)" query-matches="{{_narrowLayout}}" full></iron-media-query>
 
     <section>
       <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-reverse-layout')]]">
 
         <div class="padding-block contact-block">
-          <h2>Location &amp; Contact</h2>
+          <h2 class="contact-block__title">Location &amp; Contact</h2>
           <p>Located inside the main campus, it is extremely convenient to travel from Lee Hall to any parts of HKU. Since Lee Hall is located at the Composite Building, next to Hsu Long Sing Amenities Centre, it takes less than 2 minutes to reach the Union Restaurant, the Students’ Union Office, the photocopying centre and the co-op.</p>
-          <a href="mailto:skyhall@hku.hk"><paper-button><iron-icon icon="skylee:email"></iron-icon>skyhall@hku.hk</paper-button></a>
-          <a href="tel:39170307"><paper-button><iron-icon icon="skylee:local-phone"></iron-icon>3917 0307</paper-button></a>
-          <a href="geo:22.283021,114.135835"><paper-button class="wrappable"><iron-icon icon="skylee:home"></iron-icon>Simon K. Y. Lee Hall, The University of Hong Kong, Pok Fu Lam Road, Hong Kong</paper-button></a>
+          <a class="contact-block__button-link" href="mailto:skyhall@hku.hk">
+            <paper-button class="contact-block__button">
+              <iron-icon class="contact-block__icon" icon="skylee:email"></iron-icon>skyhall@hku.hk
+            </paper-button>
+          </a>
+          <a class="contact-block__button-link" href="tel:39170307">
+            <paper-button class="contact-block__button">
+              <iron-icon class="contact-block__icon" icon="skylee:local-phone"></iron-icon>3917 0307
+            </paper-button>
+          </a>
+          <a class="contact-block__button-link" href="geo:22.283021,114.135835">
+            <paper-button class="contact-block__button contact-block__button--wrappable">
+              <iron-icon class="contact-block__icon" icon="skylee:home"></iron-icon>Simon K. Y. Lee Hall, The University of Hong Kong, Pok Fu Lam Road, Hong Kong
+            </paper-button>
+          </a>
         </div>
 
-        <div class="padding-block map-iframe-block"><iframe style="min-height:300px;" src="https://www.google.com/maps/embed/v1/place?q=place_id:ChIJy_g-sIX_AzQRQKVMfR8BxAk&key=AIzaSyBCeLWP6ls4Xl-lvQEpw7tYlK2msDviuLc" allowfullscreen></iframe></div>
+        <div class="padding-block iframe-block">
+          <iframe class="iframe-block__iframe" style="min-height:300px;" src="https://www.google.com/maps/embed/v1/place?q=place_id:ChIJy_g-sIX_AzQRQKVMfR8BxAk&key=AIzaSyBCeLWP6ls4Xl-lvQEpw7tYlK2msDviuLc" allowfullscreen></iframe>
+        </div>
 
       </div>
     </section>
@@ -273,12 +304,12 @@
       <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-layout')]]">
 
         <div class="padding-block text-block">
-          <h2>Transportation</h2>
+          <h2 class="text-block__title">Transportation</h2>
           <p>Lee Hall is easily accessible. MTR, all buses and mini-buses getting to the HKU, also get to Lee Hall.</p>
         </div>
 
         <div class="padding-block table-block">
-          <table>
+          <table class="table-block__table">
             <thead>
               <tr>
                 <td>Starting Point</td>
@@ -318,7 +349,7 @@
       <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-reverse-layout')]]">
 
         <div class="padding-block lyrics-block">
-          <h2>Hall Song</h2>
+          <h2 class="lyrics-block__title">Hall Song</h2>
           <p>O Simon K. Y. Lee Hall,</p>
           <p>in our hearts you’ll forever stay.</p>
           <p>O Simon K. Y. Lee Hall,</p>
@@ -336,10 +367,10 @@
         </div>
 
         <div class="padding-block image-block">
-          <curium-responsive-image id="image-set" sizing="fit-width"
+          <curium-responsive-image class="image-block__image-set" sizing="fit-width"
             src-map="320w-314h [[rootPath]]images/about/hall-song-320w.jpg,
                      [[rootPath]]images/about/hall-song-default.jpg">
-            <iron-image id="image" preload fade></iron-image>
+            <iron-image class="image-block__image" preload fade></iron-image>
           </curium-responsive-image>
         </div>
 
@@ -350,18 +381,18 @@
       <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-layout')]]">
 
         <div class="padding-block text-block">
-          <h2>Hall Logo</h2>
+          <h2 class="text-block__title">Hall Logo</h2>
           <p>The current hall logo was adopted in 1997. It incorporates clouds, a flying pigeon and the sea.</p>
           <p>The flying pigeon exhibits the characteristics of Skyers – the flying bird shows activeness while the pigeon shows sincerity and friendliness. The curved lines at the bottom represent sea waves and they act as a foil for the boundless sky.</p>
         </div>
 
         <div class="padding-block image-block">
-          <curium-responsive-image id="image-set" sizing="fit-width"
+          <curium-responsive-image class="image-block__image-set" sizing="fit-width"
             src-map="320w-226h [[rootPath]]images/about/hall-logo-320w.jpg,
                      640w-453h [[rootPath]]images/about/hall-logo-640w.jpg,
                      1280w-905h [[rootPath]]images/about/hall-logo-1280w.jpg,
                      [[rootPath]]images/about/hall-logo-default.jpg">
-            <iron-image id="image" preload fade></iron-image>
+            <iron-image class="image-block__image" preload fade></iron-image>
           </curium-responsive-image>
         </div>
 
@@ -372,18 +403,18 @@
       <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-reverse-layout')]]">
 
         <div class="padding-block download-block">
-          <h2>Hall Regulations</h2>
-          <a href$="[[rootPath]]data/regulations-governing-halls-and-flats.pdf" tabindex="-1" target="_blank">
-            <paper-button>
+          <h2 class="download-block__title">Hall Regulations</h2>
+          <a class="download-block__button-link" href$="[[rootPath]]data/regulations-governing-halls-and-flats.pdf" tabindex="-1" target="_blank">
+            <paper-button class="download-block__button">
               <iron-icon icon="skylee:file-download"></iron-icon>Download
             </paper-button>
           </a>
         </div>
 
         <div class="padding-block download-block">
-          <h2>Hall Charges</h2>
-          <a href$="[[rootPath]]data/hall-charges-2016-2017.pdf" tabindex="-1" target="_blank">
-            <paper-button>
+          <h2 class="download-block__title">Hall Charges</h2>
+          <a class="download-block__button-link" href$="[[rootPath]]data/hall-charges-2016-2017.pdf" tabindex="-1" target="_blank">
+            <paper-button class="download-block__button">
               <iron-icon icon="skylee:file-download"></iron-icon>Download
             </paper-button>
           </a>
@@ -394,7 +425,7 @@
 
     <section>
       <div class="padding-block text-block">
-        <h2>Our History</h2>
+        <h2 class="text-block__title">Our History</h2>
         <p>Found in 1985, the development of Lee Hall was funded by a generous donation from the late Dr. Simon K. Y. Lee and therefore the hall was named after him. In 1986, the Students’ Association was formed.</p>
         <p>Through its over 20-year history, Lee Hall has developed into a vital and diversified hall. All hall mates participate in and contribute to the hall. “We are Skyers, Active and Sincere” has long been our slogan.</p>
       </div>

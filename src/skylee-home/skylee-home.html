@@ -1,13 +1,12 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../bower_components/polymer/lib/utils/debounce.html">
-<link rel="import" href="../../bower_components/shadycss/apply-shim.html">
 
-<link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
 <link rel="import" href="../../bower_components/curium-animated-pages/curium-animated-pages.html">
 <link rel="import" href="../../bower_components/curium-animated-pages/animations/curium-slideshow-animation-manager.html">
-<link rel="import" href="../../bower_components/curium-responsive-image/curium-responsive-image.html">
+
+<link rel="import" href="skylee-home-slide.html">
 
 <dom-module id="skylee-home">
   <template strip-whitespace>
@@ -16,150 +15,86 @@
         display: block;
         /* position: absolute already applied by curium-animated-pages*/
         overflow: hidden;
+        background-color: var(--skylee-background--dark-theme--primary_background-color);
       }
-
       #toolbar-background {
         position: absolute;
         top: 0px;
         right: 0px;
         left: 0px;
-        height: calc(var(--skylee-toolbar-height) * 2);
+        height: calc(var(--skylee-toolbar_height) * 2);
         z-index: 1;
-        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.75), transparent);
       }
-
       #slides {
         width: 100%;
         height: 100%;
         z-index: 0;
-      }
-      .slide {
-        /* position: absolute already applied by curium-animated-pages*/
-        overflow: hidden;
-        display: flex;
-        align-items: flex-end;
-      }
-      .slide > #image {
-        position: absolute;
-        top: 0px;
-        right: 0px;
-        bottom: 0px;
-        left: 0px;
-      }
-      .slide.iron-selected > #image {
-        /* animation will be re-applied everytime the slide is selected by the class .iron-selected */
-        animation: slide-animation 3s ease-out 0s 1 normal forwards;
-        /* Fix for IE11: IE does not support putting play-state into the animation property */
-        animation-play-state: running;
-      }
-      @keyframes slide-animation {
-        from {
-          transform: scale(1.1, 1.1);
-        }
-        to {
-          transform: scale(1, 1);
-        }
-      }
-      .slide > #caption-background {
-        position: relative; /* position caption so caption will overlay image according to the document order */
-        flex: 1 1 auto;
-        height: 200px;
-        background-image: linear-gradient(to top, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
-        display: flex;
-        justify-content: center;
-      }
-      .slide > #caption-background > #caption {
-        box-sizing: border-box;
-        flex: 0 1 var(--skylee-content-max-width);
-        padding: 20px;
-        display: flex;
-        align-items: flex-end;
-        @apply --skylee-display1-font;
-        color: white;
       }
     </style>
 
     <div id="toolbar-background"></div>
 
     <curium-slideshow-animation-manager id="slideshow-animation-manager"></curium-slideshow-animation-manager>
-    <curium-animated-pages id="slides"
-      selected="0" animation-manager="#slideshow-animation-manager" notify-resize-on-grandchildren>
+    <curium-animated-pages
+      id="slides"
+      selected="0"
+      animation-manager="#slideshow-animation-manager">
 
-      <div class="slide">
-        <curium-responsive-image id="image" sizing="cover" prevent-load
-          src-map="320w-180h [[rootPath]]images/featured/our-hall-320w.jpg,
-                   640w-360h [[rootPath]]images/featured/our-hall-640w.jpg,
-                   [[rootPath]]images/featured/our-hall-default.jpg">
-          <iron-image sizing="cover" preload fade></iron-image>
-        </curium-responsive-image>
-        <div id="caption-background"><div id="caption">Our Hall</div></div>
-      </div>
+      <skylee-home-slide
+        src-map="320w-180h [[rootPath]]images/featured/our-hall-320w.jpg,
+                 640w-360h [[rootPath]]images/featured/our-hall-640w.jpg,
+                 [[rootPath]]images/featured/our-hall-default.jpg"
+        caption="Our Hall">
+      </skylee-home-slide>
 
-      <div class="slide">
-        <curium-responsive-image id="image" sizing="cover" prevent-load
-          src-map="320w-214h [[rootPath]]images/featured/hall-photo-320w.jpg,
-                   640w-427h [[rootPath]]images/featured/hall-photo-640w.jpg,
-                   1280w-854h [[rootPath]]images/featured/hall-photo-1280w.jpg,
-                   [[rootPath]]images/featured/hall-photo-default.jpg">
-          <iron-image sizing="cover" preload fade></iron-image>
-        </curium-responsive-image>
-        <div id="caption-background"><div id="caption">Our Family</div></div>
-      </div>
+      <skylee-home-slide
+        src-map="320w-214h [[rootPath]]images/featured/hall-photo-320w.jpg,
+                 640w-427h [[rootPath]]images/featured/hall-photo-640w.jpg,
+                  1280w-854h [[rootPath]]images/featured/hall-photo-1280w.jpg,
+                  [[rootPath]]images/featured/hall-photo-default.jpg"
+        caption="Our Family">
+      </skylee-home-slide>
 
-      <div class="slide">
-        <curium-responsive-image id="image" sizing="cover" prevent-load
-          src-map="320w-180h [[rootPath]]images/featured/inheritance-320w.jpg,
-                   640w-360h [[rootPath]]images/featured/inheritance-640w.jpg,
-                   1280w-720h [[rootPath]]images/featured/inheritance-1280w.jpg,
-                   [[rootPath]]images/featured/inheritance-default.jpg">
-          <iron-image sizing="cover" preload fade></iron-image>
-        </curium-responsive-image>
-        <div id="caption-background"><div id="caption">Inheritance</div></div>
-      </div>
+      <skylee-home-slide
+        src-map="320w-180h [[rootPath]]images/featured/inheritance-320w.jpg,
+                 640w-360h [[rootPath]]images/featured/inheritance-640w.jpg,
+                 1280w-720h [[rootPath]]images/featured/inheritance-1280w.jpg,
+                 [[rootPath]]images/featured/inheritance-default.jpg"
+        caption="Inheritance">
+      </skylee-home-slide>
 
-      <div class="slide">
-        <curium-responsive-image id="image" sizing="cover" prevent-load
-          src-map="320w-180h [[rootPath]]images/featured/our-pride-320w.jpg,
-                   640w-360h [[rootPath]]images/featured/our-pride-640w.jpg,
-                   1280w-719h [[rootPath]]images/featured/our-pride-1280w.jpg,
-                   [[rootPath]]images/featured/our-pride-default.jpg">
-          <iron-image sizing="cover" preload fade></iron-image>
-        </curium-responsive-image>
-        <div id="caption-background"><div id="caption">Our Pride</div></div>
-      </div>
+      <skylee-home-slide
+        src-map="320w-180h [[rootPath]]images/featured/our-pride-320w.jpg,
+                 640w-360h [[rootPath]]images/featured/our-pride-640w.jpg,
+                 1280w-719h [[rootPath]]images/featured/our-pride-1280w.jpg,
+                 [[rootPath]]images/featured/our-pride-default.jpg"
+        caption="Our Pride">
+      </skylee-home-slide>
 
-      <div class="slide">
-        <curium-responsive-image id="image" sizing="cover" prevent-load
-          src-map="320w-180h [[rootPath]]images/featured/champion-dream-320w.jpg,
-                   640w-360h [[rootPath]]images/featured/champion-dream-640w.jpg,
-                   1280w-720h [[rootPath]]images/featured/champion-dream-1280w.jpg,
-                   [[rootPath]]images/featured/champion-dream-default.jpg">
-          <iron-image sizing="cover" preload fade></iron-image>
-        </curium-responsive-image>
-        <div id="caption-background"><div id="caption">Our Champion Dream</div></div>
-      </div>
+      <skylee-home-slide
+        src-map="320w-180h [[rootPath]]images/featured/champion-dream-320w.jpg,
+                 640w-360h [[rootPath]]images/featured/champion-dream-640w.jpg,
+                 1280w-720h [[rootPath]]images/featured/champion-dream-1280w.jpg,
+                 [[rootPath]]images/featured/champion-dream-default.jpg"
+        caption="Our Champion Dream">
+      </skylee-home-slide>
 
-      <div class="slide">
-        <curium-responsive-image id="image" sizing="cover" prevent-load
-          src-map="320w-180h [[rootPath]]images/featured/share-joy-320w.jpg,
-                   640w-360h [[rootPath]]images/featured/share-joy-640w.jpg,
-                   1280w-720h [[rootPath]]images/featured/share-joy-1280w.jpg,
-                   [[rootPath]]images/featured/share-joy-default.jpg">
-          <iron-image sizing="cover" preload fade></iron-image>
-        </curium-responsive-image>
-        <div id="caption-background"><div id="caption">Our Joy</div></div>
-      </div>
+      <skylee-home-slide
+        src-map="320w-180h [[rootPath]]images/featured/share-joy-320w.jpg,
+                 640w-360h [[rootPath]]images/featured/share-joy-640w.jpg,
+                 1280w-720h [[rootPath]]images/featured/share-joy-1280w.jpg,
+                 [[rootPath]]images/featured/share-joy-default.jpg"
+        caption="Our Joy">
+      </skylee-home-slide>
 
-      <div class="slide">
-        <curium-responsive-image id="image" sizing="cover" prevent-load
-          src-map="320w-180h [[rootPath]]images/featured/graduation-photo-320w.jpg,
-                   640w-360h [[rootPath]]images/featured/graduation-photo-640w.jpg,
-                   1280w-720h [[rootPath]]images/featured/graduation-photo-1280w.jpg,
-                   [[rootPath]]images/featured/graduation-photo-default.jpg">
-          <iron-image sizing="cover" preload fade></iron-image>
-        </curium-responsive-image>
-        <div id="caption-background"><div id="caption">Our Alumni</div></div>
-      </div>
+      <skylee-home-slide
+        src-map="320w-180h [[rootPath]]images/featured/graduation-photo-320w.jpg,
+                 640w-360h [[rootPath]]images/featured/graduation-photo-640w.jpg,
+                 1280w-720h [[rootPath]]images/featured/graduation-photo-1280w.jpg,
+                 [[rootPath]]images/featured/graduation-photo-default.jpg"
+        caption="Our Alumni">
+      </skylee-home-slide>
       
     </curium-animated-pages>
 
@@ -236,8 +171,7 @@
         let selectedIndex = slideList.indexOf(selectedSlide);
 
         for (let i = 0; i < 2 && i < slideList.length; ++i) {
-          let image = slideList[(selectedIndex + i) % slideList.length].querySelector('curium-responsive-image')
-          if (image) image.setProperties(properties);
+          let image = slideList[(selectedIndex + i) % slideList.length].setProperties(properties);
         }
       }
 
@@ -249,7 +183,5 @@
 
     }
     window.customElements.define(SkyleeHome.is, SkyleeHome);
-    window.Curium = window.Curium || {};
-    Curium.SkyleeHome = SkyleeHome;
   </script>
 </dom-module>

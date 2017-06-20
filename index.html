@@ -18,7 +18,7 @@
        * In Edge, CSS variables in global scope seems cannot be applied, bug?
        * So force using ShadyCSS in Edge.
        */
-      if (navigator.userAgent.indexOf('Edge') > -1) {
+      if (navigator.userAgent.match(/Edge/)) {
         // window.customElements && (window.customElements.forcePolyfill = true);
         // ShadyDOM = { force: true };
         ShadyCSS = { shimcssproperties: true };
