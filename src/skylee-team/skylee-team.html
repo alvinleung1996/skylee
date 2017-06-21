@@ -56,12 +56,16 @@
             value: 'Team',
             notify: true
           },
+          customScrollTop: {
+            type: Number,
+            value: 0,
+            observer: '_onCustomScrollTopChanged'
+          },
 
           _selectedTeamPageID: {
             type: String,
             computed: '_computeSelectedTeamPageID(_routeData.teamPageID)'
           },
-
           _teamPageTitle: {
             type: String
           }
@@ -72,7 +76,6 @@
         super();
         this._bindedOnTeamPageTitleChanged = e => this._teamPageTitle = e.detail.value;
         this._bindedOnTeamPageScroll = e => this._onTeamPageScroll(e);
-        this.customScrollTop = 0;
       }
 
       ready() {
@@ -142,20 +145,18 @@
         } else {
           this.customScrollTop = 0;
         }
-        this._dispatchCustomScrollEvent();
       }
 
       _onTeamPageScroll(evt) {
         this.customScrollTop = evt.target.scrollTop;
-        this._dispatchCustomScrollEvent();
       }
 
-      _dispatchCustomScrollEvent() {
+      _onCustomScrollTopChanged(customScrollTop) {
         this.dispatchEvent(new CustomEvent('custom-scroll', {
           bubbles: false,
           cancelable: false,
           detail: {
-            scrollTop: this.customScrollTop
+            customScrollTop: customScrollTop
           }
         }));
 
