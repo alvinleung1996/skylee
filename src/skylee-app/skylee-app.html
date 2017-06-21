@@ -396,7 +396,7 @@
       }
 
       _computeSelectedTabPageID(id) {
-        return id ? id : 'home';
+        return id || 'home';
       }
 
       _onToolbarSizeChanged(narrow, short) {
