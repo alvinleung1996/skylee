@@ -2,6 +2,7 @@
 <link rel="import" href="../../bower_components/shadycss/apply-shim.html">
 
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
 
 <link rel="import" href="../../bower_components/curium-responsive-image/curium-responsive-image.html">
 
@@ -9,19 +10,22 @@
   <template strip-whitespace>
     <style>
       :host {
+        display: flex;
+      }
+      #link {
+        flex: 1 1 auto;
         display: block;
         border-radius: 2px;
         overflow: hidden;
         position: relative;
-        cursor: pointer;
         -webkit-tap-highlight-color: transparent; /* for Android Chrome */
         @apply --skylee-shadow--elevation-2;
         transition: var(--skylee-shadow_transition);
         /* Safari Bug: transition cannot use var */
         -webkit-transition: var(--skylee-shadow_transition);
       }
-      :host(:hover) {
-        @apply --skylee-shadow--elevation-6;
+      #link:hover {
+        @apply --skylee-shadow--elevation-8;
         z-index: 10; /* Ensure shadow to be drawn on top of other divs */
       }
       #filling {
@@ -50,20 +54,32 @@
       #icon {
         width: 24px;
         height: 24px;
-        margin-right: 12px;
+        margin-right: 16px;
         image-rendering: -webkit-optimize-contrast; /* Chrome only look less blurry with this option */
+      }
+      #ripple {
+        color: var(--skylee-text--base_color);
+      }
+      #ripple:not([show]) {
+        display: none;
       }
     </style>
 
-    <div id="filling"></div>
+    <a id="link" href$="[[href]]">
 
-    <curium-responsive-image id="cover" src-map="[[coverSrcMap]]" sizing="cover">
-      <iron-image sizing="cover" preload fade></iron-image>
-    </curium-responsive-image>
+      <div id="filling"></div>
 
-    <div id="bannar">
-      <img id="icon" src$="[[iconSrc]]"></img>[[name]]
-    </div>
+      <curium-responsive-image id="cover" src-map="[[coverSrcMap]]" sizing="cover">
+        <iron-image sizing="cover" preload fade></iron-image>
+      </curium-responsive-image>
+
+      <div id="bannar">
+        <img id="icon" src$="[[iconSrc]]"></img>[[name]]
+      </div>
+
+      <paper-ripple id="ripple" show$="[[_isTruthy(href)]]"></paper-ripple>
+
+    </a>
 
   </template>
   <script>
@@ -75,9 +91,14 @@
 
         coverSrcMap: String,
         iconSrc: String,
-        name: String
+        name: String,
+        href: String,
 
       };}
+
+      _isTruthy(value) {
+        return !!value;
+      }
 
     }
     window.customElements.define(SkyleeTeamTile.is, SkyleeTeamTile);

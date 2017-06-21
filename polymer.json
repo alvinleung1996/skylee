@@ -32,23 +32,6 @@
         "minify": true,
         "compile": true
       }
-    },
-    {
-      "name": "edge",
-      "addServiceWorker": false,
-      "addPushManifest": false,
-      "insertPrefetchLinks": true,
-      "bundle": false,
-      "html": {
-        "minify": true
-      },
-      "css": {
-        "minify": true
-      },
-      "js": {
-        "minify": true,
-        "compile": true
-      }
     }
   ],
   "lint": {

@@ -288,7 +288,7 @@
 
       <skylee-home class="tab-pages__tab-page" tab-page-id="home"></skylee-home> <!-- element already imported -->
       <skylee-event class="tab-pages__tab-page" tab-page-id="event" element-path$="[[rootPath]]src/skylee-event/skylee-event.html"></skylee-event>
-      <skylee-team class="tab-pages__tab-page" tab-page-id="team" element-path$="[[rootPath]]src/skylee-team/skylee-team.html"></skylee-team>
+      <skylee-team class="tab-pages__tab-page" tab-page-id="team" element-path$="[[rootPath]]src/skylee-team/skylee-team.html" route="{{_subroute}}"></skylee-team>
       <skylee-about class="tab-pages__tab-page" tab-page-id="about" element-path$="[[rootPath]]src/skylee-about/skylee-about.html"></skylee-about>
       <skylee-404 class="tab-pages__tab-page" tab-page-id="404" element-path$="[[rootPath]]src/skylee-404/skylee-404.html"></skylee-404>
 
@@ -348,13 +348,13 @@
             type: Boolean,
             value: false
           },
-          _showToolbarShadow: {
-            type: Boolean,
-            value: false
-          },
           _toolbarBackButtonUrl: {
             type: String,
             value: ''
+          },
+          _showToolbarShadow: {
+            type: Boolean,
+            value: false
           },
           _showToolbarBackButton: {
             type: Boolean,
@@ -369,16 +369,15 @@
 
       constructor() {
         super();
-
         this._bindedOnTabPageTitleChanged = e => this._tabPageTitle = e.detail.value;
         this._bindedOnTransparentToolbarChanged = e => this._transparentToolbar = e.detail.value;
         this._bindedOnToolbarBackButtonUrlChanged = e => this._toolbarBackButtonUrl = e.detail.value;
         this._bindedOnTabPageScroll = e => this._onTabPageScroll(e);
+        this._bindedOnTabPageCustomScroll = e => this._onTabPageCustomScroll(e);
       }
 
       ready() {
         super.ready();
-
         this.$['tab-pages'].addEventListener('iron-select', e => {
           if (e.target === this.$['tab-pages']) this._onTabPageSelectionChanged()
         });
@@ -444,16 +443,18 @@
           deselectedTabPage.removeEventListener('transparent-toolbar-changed', this._bindedOnTransparentToolbarChanged);
           deselectedTabPage.removeEventListener('toolbar-back-button-url-changed', this._bindedOnToolbarBackButtonUrlChanged);
           deselectedTabPage.removeEventListener('scroll', this._bindedOnTabPageScroll);
+          deselectedTabPage.removeEventListener('custom-scroll', this._bindedOnTabPageCustomScroll);
         }
         if (selectedTabPage) {
           selectedTabPage.addEventListener('tab-page-title-changed', this._bindedOnTabPageTitleChanged);
           selectedTabPage.addEventListener('transparent-toolbar-changed', this._bindedOnTransparentToolbarChanged);
           selectedTabPage.addEventListener('toolbar-back-button-url-changed', this._bindedOnToolbarBackButtonUrlChanged);
           selectedTabPage.addEventListener('scroll', this._bindedOnTabPageScroll);
+          selectedTabPage.addEventListener('custom-scroll', this._bindedOnTabPageCustomScroll);
         }
       }
 
-      _syncTabPageProperties(selectedTabPage, forceShowToolbar) {
+      _syncTabPageProperties(selectedTabPage) {
         let tabPageTitle = '';
         if (selectedTabPage) {
           if (selectedTabPage.tabPageTitle) {
@@ -485,8 +486,12 @@
         this._setToolbarApperance(evt.target, false);
       }
 
+      _onTabPageCustomScroll(evt) {
+        this._setToolbarApperance(evt.target, false);
+      }
+
       _setToolbarApperance(selectedTabPage, forceShowToolbar) {
-        let newScrollTop = selectedTabPage ? selectedTabPage.scrollTop : 0;
+        let newScrollTop = this._getScrollTop(selectedTabPage);
         let oldScrollTop = this._prevTabPageScrollTop || 0;
 
         this._prevTabPageScrollTop = newScrollTop;
@@ -497,9 +502,22 @@
         this._showToolbarShadow = !this._transparentToolbar && newScrollTop > 0;
       }
 
+      _getScrollTop(element) {
+        if (element) {
+          if (this._isInteger(element.customScrollTop)) {
+            return element.customScrollTop;
+          } else {
+            return element.scrollTop;
+          }
+        } else {
+          return 0;
+        }
+      }
+
       _computeShowToolbarBackButton(url) {
         return !!url;
       }
+
 
       _isStringEqual(a, b) {
         return a === b;
@@ -507,6 +525,13 @@
 
       _enableIf(condition, a, b) {
         return condition ? a : b;
+      }
+
+      _isInteger(value) {
+        return Number.isInteger ? Number.isInteger :
+               (typeof value === 'number' && 
+               window.isFinite(value) && 
+               Math.floor(value) === value);
       }
 
     }
