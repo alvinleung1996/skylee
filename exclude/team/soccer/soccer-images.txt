@@ -1,0 +1,39 @@
+ src="[[rootPath]]images/team/soccer/soccer-0.jpg" srcWidth="2048" srcHeight="1365"
+src: `${Polymer.rootPath}images/team/soccer/soccer-0.jpg`, srcWidth: 2048, srcHeight: 1365
+
+ src="[[rootPath]]images/team/soccer/soccer-1.jpg" srcWidth="960" srcHeight="640"
+src: `${Polymer.rootPath}images/team/soccer/soccer-1.jpg`, srcWidth: 960, srcHeight: 640
+
+ src="[[rootPath]]images/team/soccer/soccer-10.jpg" srcWidth="960" srcHeight="640"
+src: `${Polymer.rootPath}images/team/soccer/soccer-10.jpg`, srcWidth: 960, srcHeight: 640
+
+ src="[[rootPath]]images/team/soccer/soccer-11.jpg" srcWidth="768" srcHeight="960"
+src: `${Polymer.rootPath}images/team/soccer/soccer-11.jpg`, srcWidth: 768, srcHeight: 960
+
+ src="[[rootPath]]images/team/soccer/soccer-12.jpg" srcWidth="960" srcHeight="540"
+src: `${Polymer.rootPath}images/team/soccer/soccer-12.jpg`, srcWidth: 960, srcHeight: 540
+
+ src="[[rootPath]]images/team/soccer/soccer-2.jpg" srcWidth="960" srcHeight="640"
+src: `${Polymer.rootPath}images/team/soccer/soccer-2.jpg`, srcWidth: 960, srcHeight: 640
+
+ src="[[rootPath]]images/team/soccer/soccer-3.jpg" srcWidth="960" srcHeight="640"
+src: `${Polymer.rootPath}images/team/soccer/soccer-3.jpg`, srcWidth: 960, srcHeight: 640
+
+ src="[[rootPath]]images/team/soccer/soccer-4.jpg" srcWidth="960" srcHeight="540"
+src: `${Polymer.rootPath}images/team/soccer/soccer-4.jpg`, srcWidth: 960, srcHeight: 540
+
+ src="[[rootPath]]images/team/soccer/soccer-5.jpg" srcWidth="960" srcHeight="539"
+src: `${Polymer.rootPath}images/team/soccer/soccer-5.jpg`, srcWidth: 960, srcHeight: 539
+
+ src="[[rootPath]]images/team/soccer/soccer-6.jpg" srcWidth="960" srcHeight="540"
+src: `${Polymer.rootPath}images/team/soccer/soccer-6.jpg`, srcWidth: 960, srcHeight: 540
+
+ src="[[rootPath]]images/team/soccer/soccer-7.jpg" srcWidth="960" srcHeight="540"
+src: `${Polymer.rootPath}images/team/soccer/soccer-7.jpg`, srcWidth: 960, srcHeight: 540
+
+ src="[[rootPath]]images/team/soccer/soccer-8.jpg" srcWidth="960" srcHeight="540"
+src: `${Polymer.rootPath}images/team/soccer/soccer-8.jpg`, srcWidth: 960, srcHeight: 540
+
+ src="[[rootPath]]images/team/soccer/soccer-9.jpg" srcWidth="2048" srcHeight="1365"
+src: `${Polymer.rootPath}images/team/soccer/soccer-9.jpg`, srcWidth: 2048, srcHeight: 1365
+

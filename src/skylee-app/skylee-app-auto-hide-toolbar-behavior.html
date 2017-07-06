@@ -1,0 +1,72 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<script>
+  function SkyleeAppAutoHideToolbarBehavior(superClass) {
+    return class extends superClass {
+
+      static get properties() { return {
+        toolbarHeight: {
+          type: Number,
+          observer: '_onToolbarHeightChanged'
+        },
+
+        hideToolbar: {
+          type: Boolean,
+          value: false,
+          readOnly: true,
+          notify: true
+        },
+        showToolbarShadow: {
+          type: Boolean,
+          value: false,
+          readOnly: true,
+          notify: true
+        }
+      };}
+
+      ready() {
+        super.ready();
+        this.addEventListener('scroll', e => this._onScroll(e));
+      }
+
+      _onToolbarHeightChanged(toolbarHeight) {
+        this._computeToolbarStyle();
+      }
+
+      _onScroll(evt) {
+        this._computeToolbarStyle();
+      }
+
+      _computeToolbarStyle() {
+        let toolbarHeight = this.toolbarHeight;
+        let scrollTop = this.scrollTop;
+
+        let prevScrollTop = this._prevScrollTop;
+        let prevPrevScrollTop = this._prevPrevScrollTop;
+
+        let newScrollTop, oldScrollTop;
+        if (scrollTop === prevScrollTop) {
+          newScrollTop = prevScrollTop;
+          oldScrollTop = prevPrevScrollTop;
+        } else {
+          newScrollTop = scrollTop;
+          oldScrollTop = prevScrollTop;
+          this._prevPrevScrollTop = prevScrollTop;
+          this._prevScrollTop = scrollTop;
+        }
+        newScrollTop = newScrollTop || 0;
+        oldScrollTop = oldScrollTop || 0;
+
+        let hideToolbar = Number.isInteger(toolbarHeight) && newScrollTop > oldScrollTop && newScrollTop >= toolbarHeight;
+        let showToolbarShadow = newScrollTop > 0;
+        this.setProperties({
+          hideToolbar: hideToolbar,
+          showToolbarShadow: showToolbarShadow
+        }, true);
+      }
+
+    }
+  }
+  window.Skylee = window.Skylee || {};
+  Skylee.SkyleeAppAutoHideToolbarBehavior = SkyleeAppAutoHideToolbarBehavior;
+</script>

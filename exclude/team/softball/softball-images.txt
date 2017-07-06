@@ -1,0 +1,54 @@
+ src="[[rootPath]]images/team/softball/softball-0.jpg" srcWidth="1054" srcHeight="593"
+src: `${Polymer.rootPath}images/team/softball/softball-0.jpg`, srcWidth: 1054, srcHeight: 593
+
+ src="[[rootPath]]images/team/softball/softball-1.jpg" srcWidth="640" srcHeight="960"
+src: `${Polymer.rootPath}images/team/softball/softball-1.jpg`, srcWidth: 640, srcHeight: 960
+
+ src="[[rootPath]]images/team/softball/softball-10.jpg" srcWidth="2048" srcHeight="1365"
+src: `${Polymer.rootPath}images/team/softball/softball-10.jpg`, srcWidth: 2048, srcHeight: 1365
+
+ src="[[rootPath]]images/team/softball/softball-11.jpg" srcWidth="2048" srcHeight="1365"
+src: `${Polymer.rootPath}images/team/softball/softball-11.jpg`, srcWidth: 2048, srcHeight: 1365
+
+ src="[[rootPath]]images/team/softball/softball-12.jpg" srcWidth="2048" srcHeight="1365"
+src: `${Polymer.rootPath}images/team/softball/softball-12.jpg`, srcWidth: 2048, srcHeight: 1365
+
+ src="[[rootPath]]images/team/softball/softball-13.jpg" srcWidth="640" srcHeight="960"
+src: `${Polymer.rootPath}images/team/softball/softball-13.jpg`, srcWidth: 640, srcHeight: 960
+
+ src="[[rootPath]]images/team/softball/softball-14.jpg" srcWidth="2048" srcHeight="1365"
+src: `${Polymer.rootPath}images/team/softball/softball-14.jpg`, srcWidth: 2048, srcHeight: 1365
+
+ src="[[rootPath]]images/team/softball/softball-15.jpg" srcWidth="2048" srcHeight="1366"
+src: `${Polymer.rootPath}images/team/softball/softball-15.jpg`, srcWidth: 2048, srcHeight: 1366
+
+ src="[[rootPath]]images/team/softball/softball-16.jpg" srcWidth="2048" srcHeight="1367"
+src: `${Polymer.rootPath}images/team/softball/softball-16.jpg`, srcWidth: 2048, srcHeight: 1367
+
+ src="[[rootPath]]images/team/softball/softball-17.jpg" srcWidth="960" srcHeight="945"
+src: `${Polymer.rootPath}images/team/softball/softball-17.jpg`, srcWidth: 960, srcHeight: 945
+
+ src="[[rootPath]]images/team/softball/softball-2.jpg" srcWidth="2048" srcHeight="1365"
+src: `${Polymer.rootPath}images/team/softball/softball-2.jpg`, srcWidth: 2048, srcHeight: 1365
+
+ src="[[rootPath]]images/team/softball/softball-3.jpg" srcWidth="2048" srcHeight="1365"
+src: `${Polymer.rootPath}images/team/softball/softball-3.jpg`, srcWidth: 2048, srcHeight: 1365
+
+ src="[[rootPath]]images/team/softball/softball-4.jpg" srcWidth="2048" srcHeight="1365"
+src: `${Polymer.rootPath}images/team/softball/softball-4.jpg`, srcWidth: 2048, srcHeight: 1365
+
+ src="[[rootPath]]images/team/softball/softball-5.jpg" srcWidth="2048" srcHeight="1367"
+src: `${Polymer.rootPath}images/team/softball/softball-5.jpg`, srcWidth: 2048, srcHeight: 1367
+
+ src="[[rootPath]]images/team/softball/softball-6.jpg" srcWidth="2048" srcHeight="1367"
+src: `${Polymer.rootPath}images/team/softball/softball-6.jpg`, srcWidth: 2048, srcHeight: 1367
+
+ src="[[rootPath]]images/team/softball/softball-7.jpg" srcWidth="2048" srcHeight="1367"
+src: `${Polymer.rootPath}images/team/softball/softball-7.jpg`, srcWidth: 2048, srcHeight: 1367
+
+ src="[[rootPath]]images/team/softball/softball-8.jpg" srcWidth="2048" srcHeight="1365"
+src: `${Polymer.rootPath}images/team/softball/softball-8.jpg`, srcWidth: 2048, srcHeight: 1365
+
+ src="[[rootPath]]images/team/softball/softball-9.jpg" srcWidth="2048" srcHeight="1365"
+src: `${Polymer.rootPath}images/team/softball/softball-9.jpg`, srcWidth: 2048, srcHeight: 1365
+

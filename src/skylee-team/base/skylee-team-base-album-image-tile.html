@@ -1,0 +1,87 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../../../bower_components/iron-image/iron-image.html">
+
+<link rel="import" href="../../skylee-responsive-image/skylee-responsive-image.html">
+
+<dom-module id="skylee-team-base-album-image-tile">
+  <template strip-whitespace>
+    <style>
+      :host {
+        display: block;
+      }
+      #link {
+        display: block;
+        border-radius: 2px;
+        overflow: hidden;
+        @apply --skylee-shadow--elevation-2;
+        transition: var(--skylee-shadow_transition);
+        -webkit-transition: var(--skylee-shadow_transition); /* Fix for Safari */
+        position: relative;
+      }
+      #link:hover {
+        @apply --skylee-shadow--elevation-6;
+        z-index: 10;
+      }
+      #filling {
+        width: 100%;
+        padding-bottom: 100%;
+      }
+      #responsive-image {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        bottom: 0px;
+        left: 0px;
+      }
+      #bannar {
+        position: absolute;
+        left: 0px;
+        bottom: 0px;
+        right: 0px;
+        background-color: var(--skylee-background--primary_background-color);
+        padding: 16px;
+        @apply --skylee-text--subheading_font;
+        color: var(--skylee-text--primary_color);
+      }
+      #bannar:not([show]) {
+        display: none;
+      }
+    </style>
+
+    <a id="link" href$="[[href]]">
+
+      <div id="filling"></div>
+
+      <skylee-responsive-image id="responsive-image" src="[[src]]" src-width="[[srcWidth]]" src-height="[[srcHeight]]" sizing="cover">
+        <iron-image id="image" sizing="cover" preload fade></iron-image>
+      </skylee-responsive-image>
+
+      <div id="bannar" show$="[[_isTruthy(name)]]">
+        [[name]]
+      </div>
+
+    </a>
+
+  </template>
+  <script>
+    class SkyleeTeamBaseAlbumImageTile extends Polymer.Element {
+
+      static get is() { return 'skylee-team-base-album-image-tile'; }
+
+      static get properties() { return {
+        src: String,
+        srcWidth: Number,
+        srcHeight: Number,
+        name: String,
+        href: String
+      };}
+
+      _isTruthy(value) {
+        return Boolean(value);
+      }
+
+    }
+    window.customElements.define(SkyleeTeamBaseAlbumImageTile.is, SkyleeTeamBaseAlbumImageTile);
+  </script>
+</dom-module>

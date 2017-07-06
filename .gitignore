@@ -1,2 +1,5 @@
 bower_components*
 build*
+tools/imagebuilder/*
+!tools/imagebuilder/imagebuilder.cpp
+exclude/imagebuilder

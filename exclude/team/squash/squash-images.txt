@@ -1,0 +1,12 @@
+ src="[[rootPath]]images/team/squash/squash-0.jpg" srcWidth="2048" srcHeight="1367"
+src: `${Polymer.rootPath}images/team/squash/squash-0.jpg`, srcWidth: 2048, srcHeight: 1367
+
+ src="[[rootPath]]images/team/squash/squash-1.jpg" srcWidth="637" srcHeight="960"
+src: `${Polymer.rootPath}images/team/squash/squash-1.jpg`, srcWidth: 637, srcHeight: 960
+
+ src="[[rootPath]]images/team/squash/squash-2.jpg" srcWidth="309" srcHeight="206"
+src: `${Polymer.rootPath}images/team/squash/squash-2.jpg`, srcWidth: 309, srcHeight: 206
+
+ src="[[rootPath]]images/team/squash/squash-3.jpg" srcWidth="960" srcHeight="641"
+src: `${Polymer.rootPath}images/team/squash/squash-3.jpg`, srcWidth: 960, srcHeight: 641
+

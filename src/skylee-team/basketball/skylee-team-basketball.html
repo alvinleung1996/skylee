@@ -1,0 +1,55 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../base/skylee-team-base.html">
+
+<dom-module id="skylee-team-basketball">
+  <script>
+    class SkyleeTeamBasketball extends SkyleeTeamBase {
+
+      static get is() { return 'skylee-team-basketball'; }
+
+      static get properties() {
+        return {
+          teamPageTitle: {
+            type: String,
+            value: 'Basketball Team',
+            readOnly: true,
+            notify: true
+          },
+
+          iconSrc: {
+            value: `${Polymer.rootPath}images/team/basketball/basketball-symbol.png`
+          },
+          name: {
+            value: 'Basketball Team'
+          },
+          description: {
+            value: 'men\'s and women\'s team'
+          },
+          albumList: {
+            value: () => { return [
+              {
+                name: 'Photos',
+                imageList: [
+                  { src: `${Polymer.rootPath}images/team/basketball/basketball-0.jpg`, srcWidth: 1325, srcHeight: 746 },
+                  { src: `${Polymer.rootPath}images/team/basketball/basketball-1.jpg`, srcWidth: 640, srcHeight: 960 },
+                  { src: `${Polymer.rootPath}images/team/basketball/basketball-2.jpg`, srcWidth: 2048, srcHeight: 1365 },
+                  { src: `${Polymer.rootPath}images/team/basketball/basketball-3.jpg`, srcWidth: 2048, srcHeight: 1365 },
+                  { src: `${Polymer.rootPath}images/team/basketball/basketball-4.jpg`, srcWidth: 2048, srcHeight: 1365 },
+                  { src: `${Polymer.rootPath}images/team/basketball/basketball-5.jpg`, srcWidth: 2048, srcHeight: 1365 },
+                  { src: `${Polymer.rootPath}images/team/basketball/basketball-6.jpg`, srcWidth: 960, srcHeight: 640 },
+                  { src: `${Polymer.rootPath}images/team/basketball/basketball-7.jpg`, srcWidth: 640, srcHeight: 960 },
+                  { src: `${Polymer.rootPath}images/team/basketball/basketball-8.jpg`, srcWidth: 2048, srcHeight: 1367 },
+                  { src: `${Polymer.rootPath}images/team/basketball/basketball-9.jpg`, srcWidth: 960, srcHeight: 640 },
+                  { src: `${Polymer.rootPath}images/team/basketball/basketball-10.jpg`, srcWidth: 2048, srcHeight: 1365 }
+                ]
+              }
+            ];}
+          }
+        };
+      }
+
+    }
+    window.customElements.define(SkyleeTeamBasketball.is, SkyleeTeamBasketball);
+  </script>
+</dom-module>

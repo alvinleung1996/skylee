@@ -2,13 +2,14 @@
 <link rel="import" href="../../bower_components/polymer/lib/utils/debounce.html">
 <link rel="import" href="../../bower_components/shadycss/apply-shim.html">
 
-<link rel="import" href="../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
 <link rel="import" href="../../bower_components/curium-animated-pages/curium-animated-pages.html">
 <link rel="import" href="../../bower_components/curium-animated-pages/animations/curium-scene-animation-manager.html">
+<link rel="import" href="../../bower_components/curium-route/curium-route.html">
 
-<link rel="import" href="skylee-team-all.html">
+<link rel="import" href="../skylee-property-binder-behavior/skylee-property-binder-behavior.html">
+<link rel="import" href="all/skylee-team-all.html">
 
 <dom-module id="skylee-team">
   <template strip-whitespace>
@@ -24,11 +25,13 @@
       }
     </style>
 
-    <app-route
+    <curium-route
       route="{{route}}"
-      pattern="/:teamPageID"
-      data="{{_routeData}}">
-    </app-route>
+      prefix-pattern="/team"
+      data-pattern="/teamPageID"
+      data="{{_routeData}}"
+      tail="{{_subroute}}">
+    </curium-route>
 
     <curium-scene-animation-manager id="team-page-animation-manager" duration="330"></curium-scene-animation-manager>
     <curium-animated-pages
@@ -37,29 +40,50 @@
       selected="[[_selectedTeamPageID]]"
       animation-manager="#team-page-animation-manager">
 
-      <skylee-team-all team-page-id="all"></skylee-team-all> <!-- element already imported -->
+      <skylee-team-all team-page-id="all" toolbar-height="[[toolbarHeight]]"></skylee-team-all> <!-- element already imported -->
+
+      <skylee-team-badminton level="1" team-page-id="badminton"
+        element-path$="[[rootPath]]src/skylee-team/badminton/skylee-team-badminton.html"
+        toolbar-height="[[toolbarHeight]]" route="[[_subroute]]"></skylee-team-badminton>
+
+      <skylee-team-basketball level="1" team-page-id="basketball"
+        element-path$="[[rootPath]]src/skylee-team/basketball/skylee-team-basketball.html"
+        toolbar-height="[[toolbarHeight]]" route="[[_subroute]]"></skylee-team-badminton>
 
     </curium-animated-pages>
 
   </template>
   <script>
-    class SkyleeTeam extends Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element) {
+    class SkyleeTeam extends Skylee.SkyleePropertyBinderBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
       
       static get is() { return 'skylee-team'; }
 
       static get properties() {
         return {
           route: Object,
+          toolbarHeight: Number,
 
           tabPageTitle: {
             type: String,
-            value: 'Team',
+            computed: '_computeTabPageTitle(_teamPageTitle)',
             notify: true
           },
-          customScrollTop: {
-            type: Number,
-            value: 0,
-            observer: '_onCustomScrollTopChanged'
+          hideToolbar: {
+            type: Boolean,
+            value: false,
+            readOnly: true,
+            notify: true
+          },
+          showToolbarShadow: {
+            type: Boolean,
+            value: false,
+            readOnly: true,
+            notify: true
+          },
+          toolbarBackButtonUrl: {
+            type: String,
+            readOnly: true,
+            notify: true
           },
 
           _selectedTeamPageID: {
@@ -72,12 +96,6 @@
         };
       }
 
-      constructor() {
-        super();
-        this._bindedOnTeamPageTitleChanged = e => this._teamPageTitle = e.detail.value;
-        this._bindedOnTeamPageScroll = e => this._onTeamPageScroll(e);
-      }
-
       ready() {
         super.ready();
         this.$['team-pages'].addEventListener('iron-select', e => {
@@ -86,6 +104,10 @@
         this.$['team-pages'].addEventListener('iron-deselect', e => {
           if (e.target === this.$['team-pages']) this._onTeamPageSelectionChanged();
         })
+      }
+
+      _computeTabPageTitle(teamPageTitle) {
+        return teamPageTitle ? teamPageTitle : 'Team';
       }
 
       _computeSelectedTeamPageID(id) {
@@ -97,11 +119,11 @@
 
           let selectedTeamPage = this.$['team-pages'].selectedItem;
           let deselectedTeamPage = this._prevSelectedTeamPage;
+
           this._prevSelectedTeamPage = selectedTeamPage;
 
           this._loadTeamPage(selectedTeamPage);
-          this._observeTeamPageProperties(deselectedTeamPage, selectedTeamPage);
-          this._syncTeamPageProperties(selectedTeamPage);
+          this._bindTeamPageProperties(selectedTeamPage);
         });
       }
 
@@ -117,50 +139,16 @@
           }
         }
       }
-      
-      _observeTeamPageProperties(deselectedTeamPage, selectedTeamPage) {
-        if (deselectedTeamPage) {
-          deselectedTeamPage.removeEventListener('team-page-title-changed', this._bindedOnTeamPageTitleChanged);
-          deselectedTeamPage.removeEventListener('scroll', this._bindedOnTeamPageScroll);
-        }
-        if (selectedTeamPage) {
-          selectedTeamPage.addEventListener('team-page-title-changed', this._bindedOnTeamPageTitleChanged);
-          selectedTeamPage.addEventListener('scroll', this._bindedOnTeamPageScroll);
-        }
+
+      _bindTeamPageProperties(selectedTeamPage) {
+        this._bindProperties({
+          _teamPageTitle: 'teamPageTitle',
+          hideToolbar: 'hideToolbar',
+          showToolbarShadow: 'showToolbarShadow',
+          toolbarBackButtonUrl: 'toolbarBackButtonUrl'
+        }, selectedTeamPage);
       }
 
-      _syncTeamPageProperties(selectedTeamPage) {
-        if (selectedTeamPage) {
-          if (selectedTeamPage.hasAttribute('team-page-title')) {
-            this._teamPageTitle =selectedTeamPage.getAttribute('team-page-title');
-          } else if (selectedTeamPage.teamPageTitle) {
-            this._teamPageTitle = selectedTeamPage.teamPageTitle;
-          } else {
-            this._teamPageTitle = '';
-          }
-        }
-
-        if (selectedTeamPage) {
-          this.customScrollTop = selectedTeamPage.scrollTop;
-        } else {
-          this.customScrollTop = 0;
-        }
-      }
-
-      _onTeamPageScroll(evt) {
-        this.customScrollTop = evt.target.scrollTop;
-      }
-
-      _onCustomScrollTopChanged(customScrollTop) {
-        this.dispatchEvent(new CustomEvent('custom-scroll', {
-          bubbles: false,
-          cancelable: false,
-          detail: {
-            customScrollTop: customScrollTop
-          }
-        }));
-
-      }
     }
     window.customElements.define(SkyleeTeam.is, SkyleeTeam);
   </script>

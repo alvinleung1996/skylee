@@ -1,0 +1,9 @@
+ src="[[rootPath]]images/team/bridge/bridge-0.jpg" srcWidth="2048" srcHeight="1366"
+src: `${Polymer.rootPath}images/team/bridge/bridge-0.jpg`, srcWidth: 2048, srcHeight: 1366
+
+ src="[[rootPath]]images/team/bridge/bridge-1.jpg" srcWidth="960" srcHeight="540"
+src: `${Polymer.rootPath}images/team/bridge/bridge-1.jpg`, srcWidth: 960, srcHeight: 540
+
+ src="[[rootPath]]images/team/bridge/bridge-2.jpg" srcWidth="960" srcHeight="640"
+src: `${Polymer.rootPath}images/team/bridge/bridge-2.jpg`, srcWidth: 960, srcHeight: 640
+

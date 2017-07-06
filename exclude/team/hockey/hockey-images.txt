@@ -1,0 +1,51 @@
+ src="[[rootPath]]images/team/hockey/hockey-0.jpg" srcWidth="2048" srcHeight="1365"
+src: `${Polymer.rootPath}images/team/hockey/hockey-0.jpg`, srcWidth: 2048, srcHeight: 1365
+
+ src="[[rootPath]]images/team/hockey/hockey-1.jpg" srcWidth="2048" srcHeight="1365"
+src: `${Polymer.rootPath}images/team/hockey/hockey-1.jpg`, srcWidth: 2048, srcHeight: 1365
+
+ src="[[rootPath]]images/team/hockey/hockey-10.jpg" srcWidth="2048" srcHeight="1367"
+src: `${Polymer.rootPath}images/team/hockey/hockey-10.jpg`, srcWidth: 2048, srcHeight: 1367
+
+ src="[[rootPath]]images/team/hockey/hockey-11.jpg" srcWidth="2048" srcHeight="1367"
+src: `${Polymer.rootPath}images/team/hockey/hockey-11.jpg`, srcWidth: 2048, srcHeight: 1367
+
+ src="[[rootPath]]images/team/hockey/hockey-12.jpg" srcWidth="2048" srcHeight="1367"
+src: `${Polymer.rootPath}images/team/hockey/hockey-12.jpg`, srcWidth: 2048, srcHeight: 1367
+
+ src="[[rootPath]]images/team/hockey/hockey-13.jpg" srcWidth="2048" srcHeight="1367"
+src: `${Polymer.rootPath}images/team/hockey/hockey-13.jpg`, srcWidth: 2048, srcHeight: 1367
+
+ src="[[rootPath]]images/team/hockey/hockey-14.jpg" srcWidth="2048" srcHeight="1367"
+src: `${Polymer.rootPath}images/team/hockey/hockey-14.jpg`, srcWidth: 2048, srcHeight: 1367
+
+ src="[[rootPath]]images/team/hockey/hockey-15.jpg" srcWidth="2048" srcHeight="1367"
+src: `${Polymer.rootPath}images/team/hockey/hockey-15.jpg`, srcWidth: 2048, srcHeight: 1367
+
+ src="[[rootPath]]images/team/hockey/hockey-16.jpg" srcWidth="2048" srcHeight="1367"
+src: `${Polymer.rootPath}images/team/hockey/hockey-16.jpg`, srcWidth: 2048, srcHeight: 1367
+
+ src="[[rootPath]]images/team/hockey/hockey-2.jpg" srcWidth="960" srcHeight="540"
+src: `${Polymer.rootPath}images/team/hockey/hockey-2.jpg`, srcWidth: 960, srcHeight: 540
+
+ src="[[rootPath]]images/team/hockey/hockey-3.jpg" srcWidth="960" srcHeight="540"
+src: `${Polymer.rootPath}images/team/hockey/hockey-3.jpg`, srcWidth: 960, srcHeight: 540
+
+ src="[[rootPath]]images/team/hockey/hockey-4.jpg" srcWidth="960" srcHeight="540"
+src: `${Polymer.rootPath}images/team/hockey/hockey-4.jpg`, srcWidth: 960, srcHeight: 540
+
+ src="[[rootPath]]images/team/hockey/hockey-5.jpg" srcWidth="960" srcHeight="540"
+src: `${Polymer.rootPath}images/team/hockey/hockey-5.jpg`, srcWidth: 960, srcHeight: 540
+
+ src="[[rootPath]]images/team/hockey/hockey-6.jpg" srcWidth="960" srcHeight="540"
+src: `${Polymer.rootPath}images/team/hockey/hockey-6.jpg`, srcWidth: 960, srcHeight: 540
+
+ src="[[rootPath]]images/team/hockey/hockey-7.jpg" srcWidth="2048" srcHeight="1152"
+src: `${Polymer.rootPath}images/team/hockey/hockey-7.jpg`, srcWidth: 2048, srcHeight: 1152
+
+ src="[[rootPath]]images/team/hockey/hockey-8.jpg" srcWidth="2048" srcHeight="1152"
+src: `${Polymer.rootPath}images/team/hockey/hockey-8.jpg`, srcWidth: 2048, srcHeight: 1152
+
+ src="[[rootPath]]images/team/hockey/hockey-9.jpg" srcWidth="2048" srcHeight="1367"
+src: `${Polymer.rootPath}images/team/hockey/hockey-9.jpg`, srcWidth: 2048, srcHeight: 1367
+

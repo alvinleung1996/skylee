@@ -1,0 +1,9 @@
+ src="[[rootPath]]images/team/badminton/badminton-0.jpg" srcWidth="2048" srcHeight="1367"
+src: `${Polymer.rootPath}images/team/badminton/badminton-0.jpg`, srcWidth: 2048, srcHeight: 1367
+
+ src="[[rootPath]]images/team/badminton/badminton-1.jpg" srcWidth="960" srcHeight="640"
+src: `${Polymer.rootPath}images/team/badminton/badminton-1.jpg`, srcWidth: 960, srcHeight: 640
+
+ src="[[rootPath]]images/team/badminton/badminton-2.jpg" srcWidth="960" srcHeight="638"
+src: `${Polymer.rootPath}images/team/badminton/badminton-2.jpg`, srcWidth: 960, srcHeight: 638
+

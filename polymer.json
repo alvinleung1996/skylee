@@ -4,6 +4,8 @@
   "fragments": [
     "src/skylee-event/skylee-event.html",
     "src/skylee-team/skylee-team.html",
+      "src/skylee-team/badminton/skylee-team-badminton.html",
+      "src/skylee-team/basketball/skylee-team-basketball.html",
     "src/skylee-about/skylee-about.html",
     "src/skylee-404/skylee-404.html"
   ],
@@ -12,6 +14,7 @@
     "images/**/*",
     "data/**/*",
     "index.html",
+    "polyfill.js",
     "manifest.json",
     ".htaccess"
   ],

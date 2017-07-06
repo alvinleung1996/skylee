@@ -1,0 +1,18 @@
+ src="[[rootPath]]images/team/handball/handball-0.jpg" srcWidth="2048" srcHeight="1366"
+src: `${Polymer.rootPath}images/team/handball/handball-0.jpg`, srcWidth: 2048, srcHeight: 1366
+
+ src="[[rootPath]]images/team/handball/handball-1.jpg" srcWidth="640" srcHeight="960"
+src: `${Polymer.rootPath}images/team/handball/handball-1.jpg`, srcWidth: 640, srcHeight: 960
+
+ src="[[rootPath]]images/team/handball/handball-2.jpg" srcWidth="640" srcHeight="960"
+src: `${Polymer.rootPath}images/team/handball/handball-2.jpg`, srcWidth: 640, srcHeight: 960
+
+ src="[[rootPath]]images/team/handball/handball-3.jpg" srcWidth="960" srcHeight="539"
+src: `${Polymer.rootPath}images/team/handball/handball-3.jpg`, srcWidth: 960, srcHeight: 539
+
+ src="[[rootPath]]images/team/handball/handball-4.jpg" srcWidth="960" srcHeight="640"
+src: `${Polymer.rootPath}images/team/handball/handball-4.jpg`, srcWidth: 960, srcHeight: 640
+
+ src="[[rootPath]]images/team/handball/handball-5.jpg" srcWidth="960" srcHeight="640"
+src: `${Polymer.rootPath}images/team/handball/handball-5.jpg`, srcWidth: 960, srcHeight: 640
+

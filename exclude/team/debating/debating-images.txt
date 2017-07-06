@@ -1,0 +1,3 @@
+ src="[[rootPath]]images/team/debating/debating-0.jpg" srcWidth="2048" srcHeight="1357"
+src: `${Polymer.rootPath}images/team/debating/debating-0.jpg`, srcWidth: 2048, srcHeight: 1357
+

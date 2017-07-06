@@ -1,0 +1,12 @@
+ src="[[rootPath]]images/team/drama/drama-0.jpg" srcWidth="2048" srcHeight="1365"
+src: `${Polymer.rootPath}images/team/drama/drama-0.jpg`, srcWidth: 2048, srcHeight: 1365
+
+ src="[[rootPath]]images/team/drama/drama-1.jpg" srcWidth="960" srcHeight="640"
+src: `${Polymer.rootPath}images/team/drama/drama-1.jpg`, srcWidth: 960, srcHeight: 640
+
+ src="[[rootPath]]images/team/drama/drama-2.jpg" srcWidth="960" srcHeight="640"
+src: `${Polymer.rootPath}images/team/drama/drama-2.jpg`, srcWidth: 960, srcHeight: 640
+
+ src="[[rootPath]]images/team/drama/drama-3.jpg" srcWidth="960" srcHeight="640"
+src: `${Polymer.rootPath}images/team/drama/drama-3.jpg`, srcWidth: 960, srcHeight: 640
+

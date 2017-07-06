@@ -9,6 +9,7 @@
 
 <link rel="import" href="../../bower_components/curium-responsive-image/curium-responsive-image.html">
 
+<link rel="import" href="../skylee-app/skylee-app-auto-hide-toolbar-behavior.html">
 <link rel="import" href="../skylee-icons/skylee-icons.html">
 
 <dom-module id="skylee-about">
@@ -399,7 +400,7 @@
       </div>
     </section>
 
-    <section>
+    <!--<section>
       <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-reverse-layout')]]">
 
         <div class="padding-block download-block">
@@ -421,7 +422,7 @@
         </div>
 
       </div>
-    </section>
+    </section>-->
 
     <section>
       <div class="padding-block text-block">
@@ -433,7 +434,7 @@
 
   </template>
   <script>
-    class SkyleeAbout extends Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element) {
+    class SkyleeAbout extends Skylee.SkyleeAppAutoHideToolbarBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
 
       static get is() { return 'skylee-about'; }
 

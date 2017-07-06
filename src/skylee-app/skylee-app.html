@@ -3,7 +3,6 @@
 <link rel="import" href="../../bower_components/shadycss/apply-shim.html">
 
 <link rel="import" href="../../bower_components/app-route/app-location.html">
-<link rel="import" href="../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
@@ -12,7 +11,9 @@
 
 <link rel="import" href="../../bower_components/curium-animated-pages/curium-animated-pages.html">
 <link rel="import" href="../../bower_components/curium-animated-pages/animations/curium-tab-page-animation-manager.html">
+<link rel="import" href="../../bower_components/curium-route/curium-route.html">
 
+<link rel="import" href="../skylee-property-binder-behavior/skylee-property-binder-behavior.html">
 <link rel="import" href="../skylee-styles/skylee-styles.html">
 <link rel="import" href="../skylee-icons/skylee-icons.html">
 <link rel="import" href="../skylee-home/skylee-home.html">
@@ -241,12 +242,12 @@
     <iron-media-query query="not all and (min-height: 450px)" query-matches="{{_shortToolbar}}" full></iron-media-query>
 
     <app-location route="{{_route}}"></app-location>
-    <app-route
+    <curium-route
       route="{{_route}}"
-      pattern="/:tabPageID"
+      data-pattern="/tabPageID"
       data="{{_routeData}}"
       tail="{{_subroute}}">
-    </app-route>
+    </curium-route>
 
     <div id="toolbar"
       narrow$="[[_narrowToolbar]]"
@@ -254,7 +255,7 @@
       hide$="[[_hideToolbar]]"
       transparent$="[[_transparentToolbar]]"
       shadow$="[[_showToolbarShadow]]"
-      show-back-button$="[[_showToolbarBackButton]]">
+      show-back-button$="[[_isTruthy(_toolbarBackButtonUrl)]]">
       <div id="toolbar__content">
 
         <a id="toolbar__back-button-link" href$="[[_toolbarBackButtonUrl]]" tabindex="-1">
@@ -287,10 +288,22 @@
       animation-manager="#tab-page-animation-manager">
 
       <skylee-home class="tab-pages__tab-page" tab-page-id="home"></skylee-home> <!-- element already imported -->
-      <skylee-event class="tab-pages__tab-page" tab-page-id="event" element-path$="[[rootPath]]src/skylee-event/skylee-event.html"></skylee-event>
-      <skylee-team class="tab-pages__tab-page" tab-page-id="team" element-path$="[[rootPath]]src/skylee-team/skylee-team.html" route="{{_subroute}}"></skylee-team>
-      <skylee-about class="tab-pages__tab-page" tab-page-id="about" element-path$="[[rootPath]]src/skylee-about/skylee-about.html"></skylee-about>
-      <skylee-404 class="tab-pages__tab-page" tab-page-id="404" element-path$="[[rootPath]]src/skylee-404/skylee-404.html"></skylee-404>
+
+      <skylee-event class="tab-pages__tab-page"
+        tab-page-id="event" element-path$="[[rootPath]]src/skylee-event/skylee-event.html"
+        toolbar-height="[[_toolbarHeight]]"></skylee-event>
+
+      <skylee-team class="tab-pages__tab-page" tab-page-id="team"
+        element-path$="[[rootPath]]src/skylee-team/skylee-team.html"
+        toolbar-height="[[_toolbarHeight]]" route="{{_subroute}}"></skylee-team>
+
+      <skylee-about class="tab-pages__tab-page" tab-page-id="about"
+        element-path$="[[rootPath]]src/skylee-about/skylee-about.html"
+        toolbar-height="[[_toolbarHeight]]"></skylee-about>
+
+      <skylee-404 class="tab-pages__tab-page" tab-page-id="404"
+        element-path$="[[rootPath]]src/skylee-404/skylee-404.html"
+        toolbar-height="[[_toolbarHeight]]"></skylee-404>
 
     </curium-animated-pages>
   </template>
@@ -300,7 +313,7 @@
      * @customElement
      * @polymer
      */
-    class SkyleeApp extends Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element) {
+    class SkyleeApp extends Skylee.SkyleePropertyBinderBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
 
       static get is() { return 'skylee-app'; }
 
@@ -309,16 +322,16 @@
           appTitle: {
             type: String,
             computed: '_computeAppTitle(_tabPageTitle)',
-            observer: '_onAppTitleChanged',
-            notify: true
-          },
-          _selectedTabPageID: {
-            type: String,
-            computed: '_computeSelectedTabPageID(_routeData.tabPageID)'
+            observer: '_onAppTitleChanged'
           },
           _tabPageTitle: {
             type: String,
             value: ''
+          },
+
+          _selectedTabPageID: {
+            type: String,
+            computed: '_computeSelectedTabPageID(_routeData.tabPageID)'
           },
 
           routePrefix: {
@@ -339,41 +352,27 @@
             type: Boolean,
             reflectToAttribute: true
           },
-          _transparentToolbar: {
-            type: Boolean,
-            value: false,
-            observer: '_onTransparentToolbarChanged'
+          _toolbarHeight: {
+            type: Number,
+            computed: '_computeToolbarHeight(_narrowToolbar, _shortToolbar)'
           },
           _hideToolbar: {
+            type: Boolean,
+            value: false
+          },
+          _showToolbarShadow: {
+            type: Boolean,
+            value: false
+          },
+          _transparentToolbar: {
             type: Boolean,
             value: false
           },
           _toolbarBackButtonUrl: {
             type: String,
             value: ''
-          },
-          _showToolbarShadow: {
-            type: Boolean,
-            value: false
-          },
-          _showToolbarBackButton: {
-            type: Boolean,
-            computed: '_computeShowToolbarBackButton(_toolbarBackButtonUrl)'
           }
         };
-      }
-
-      static get observers() { return [
-        '_onToolbarSizeChanged(_narrowToolbar, _shortToolbar)' /* Fix for ShadyCSS */
-      ];}
-
-      constructor() {
-        super();
-        this._bindedOnTabPageTitleChanged = e => this._tabPageTitle = e.detail.value;
-        this._bindedOnTransparentToolbarChanged = e => this._transparentToolbar = e.detail.value;
-        this._bindedOnToolbarBackButtonUrlChanged = e => this._toolbarBackButtonUrl = e.detail.value;
-        this._bindedOnTabPageScroll = e => this._onTabPageScroll(e);
-        this._bindedOnTabPageCustomScroll = e => this._onTabPageCustomScroll(e);
       }
 
       ready() {
@@ -398,15 +397,17 @@
         return id || 'home';
       }
 
-      _onToolbarSizeChanged(narrow, short) {
+      _computeToolbarHeight(narrow, short) {
+        let toolbarHeight = narrow ? 96 : (short ? 48 : 64);
         /* Fix for ShadyCSS */
         if (window.ShadyCSS && !window.ShadyCSS.nativeCss) {
           let stylesToUpdate = {
-            '--skylee-toolbar_height': narrow ? '96px' : (short ? '48px' : '64px')
+            '--skylee-toolbar_height': toolbarHeight + 'px'
           };
           this.updateStyles(stylesToUpdate);
           this.$['tab-pages'].items.filter(n => n instanceof Polymer.Element).forEach(n => n.updateStyles(stylesToUpdate));
         }
+        return toolbarHeight;
       }
 
       _onTabPageSelectionChanged() {
@@ -418,9 +419,7 @@
           this._prevSelectedTabPage = selectedTabPage;
 
           this._loadTabPage(selectedTabPage);
-          this._observeTabPageProperties(deselectedTabPage, selectedTabPage);
-          this._syncTabPageProperties(selectedTabPage);
-          this._setToolbarApperance(selectedTabPage, true);
+          this._bindTabPageProperties(selectedTabPage);
         });
       }
 
@@ -437,105 +436,23 @@
         }
       }
 
-      _observeTabPageProperties(deselectedTabPage, selectedTabPage) {
-        if (deselectedTabPage) {
-          deselectedTabPage.removeEventListener('tab-page-title-changed', this._bindedOnTabPageTitleChanged);
-          deselectedTabPage.removeEventListener('transparent-toolbar-changed', this._bindedOnTransparentToolbarChanged);
-          deselectedTabPage.removeEventListener('toolbar-back-button-url-changed', this._bindedOnToolbarBackButtonUrlChanged);
-          deselectedTabPage.removeEventListener('scroll', this._bindedOnTabPageScroll);
-          deselectedTabPage.removeEventListener('custom-scroll', this._bindedOnTabPageCustomScroll);
-        }
-        if (selectedTabPage) {
-          selectedTabPage.addEventListener('tab-page-title-changed', this._bindedOnTabPageTitleChanged);
-          selectedTabPage.addEventListener('transparent-toolbar-changed', this._bindedOnTransparentToolbarChanged);
-          selectedTabPage.addEventListener('toolbar-back-button-url-changed', this._bindedOnToolbarBackButtonUrlChanged);
-          selectedTabPage.addEventListener('scroll', this._bindedOnTabPageScroll);
-          selectedTabPage.addEventListener('custom-scroll', this._bindedOnTabPageCustomScroll);
-        }
+      _bindTabPageProperties(selectedTabPage) {
+        this._bindProperties({
+          _tabPageTitle: 'tabPageTitle',
+          _hideToolbar: 'hideToolbar',
+          _showToolbarShadow: 'showToolbarShadow',
+          _transparentToolbar: 'transparentToolbar',
+          _toolbarBackButtonUrl: 'toolbarBackButtonUrl'
+        }, selectedTabPage);
       }
 
-      _syncTabPageProperties(selectedTabPage) {
-        let tabPageTitle = '';
-        if (selectedTabPage) {
-          if (selectedTabPage.tabPageTitle) {
-            tabPageTitle = selectedTabPage.tabPageTitle;
-          } else if (selectedTabPage.hasAttribute('tab-page-title')) {
-            tabPageTitle = selectedTabPage.getAttribute('tab-page-title');
-          }
-        }
-        this._tabPageTitle = tabPageTitle;
-        
-        this._transparentToolbar = selectedTabPage && (selectedTabPage.hasAttribute('transparent-toolbar') || selectedTabPage.transparentToolbar);
-        
-        if (selectedTabPage) {
-          if (selectedTabPage.hasAttribute('toolbar-back-button-url')) {
-            this._toolbarBackButtonUrl = selectedTabPage.getAttribute('toolbar-back-button-url');
-          } else if (selectedTabPage.toolbarBackButtonUrl) {
-            this._toolbarBackButtonUrl = selectedTabPage.toolbarBackButtonUrl;
-          } else {
-            this._toolbarBackButtonUrl = '';
-          }
-        }
-      }
+      
 
-      _onTransparentToolbarChanged(transparent) {
-        this._setToolbarApperance(this.$['tab-pages'].selectedItem, false);
-      }
-
-      _onTabPageScroll(evt) {
-        this._setToolbarApperance(evt.target, false);
-      }
-
-      _onTabPageCustomScroll(evt) {
-        this._setToolbarApperance(evt.target, false);
-      }
-
-      _setToolbarApperance(selectedTabPage, forceShowToolbar) {
-        let newScrollTop = this._getScrollTop(selectedTabPage);
-        let oldScrollTop = this._prevTabPageScrollTop || 0;
-
-        this._prevTabPageScrollTop = newScrollTop;
-
-        let toolbarHeight = this._narrowToolbar ? 96 : (this._shortToolbar ? 48 : 64);
-       
-        this._hideToolbar = !this._transparentToolbar && !forceShowToolbar && newScrollTop >= toolbarHeight && newScrollTop > oldScrollTop;
-        this._showToolbarShadow = !this._transparentToolbar && newScrollTop > 0;
-      }
-
-      _getScrollTop(element) {
-        if (element) {
-          if (this._isInteger(element.customScrollTop)) {
-            return element.customScrollTop;
-          } else {
-            return element.scrollTop;
-          }
-        } else {
-          return 0;
-        }
-      }
-
-      _computeShowToolbarBackButton(url) {
-        return !!url;
-      }
-
-
-      _isStringEqual(a, b) {
-        return a === b;
-      }
-
-      _enableIf(condition, a, b) {
-        return condition ? a : b;
-      }
-
-      _isInteger(value) {
-        return Number.isInteger ? Number.isInteger :
-               (typeof value === 'number' && 
-               window.isFinite(value) && 
-               Math.floor(value) === value);
+      _isTruthy(value) {
+        return Boolean(value);
       }
 
     }
-
     window.customElements.define(SkyleeApp.is, SkyleeApp);
   </script>
 </dom-module>
