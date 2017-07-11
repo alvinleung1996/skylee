@@ -9,7 +9,7 @@
 
 <link rel="import" href="../../bower_components/curium-responsive-image/curium-responsive-image.html">
 
-<link rel="import" href="../skylee-app/skylee-app-auto-hide-toolbar-behavior.html">
+<link rel="import" href="../skylee-tab-pages/skylee-tab-page-auto-hide-toolbar-behavior.html">
 <link rel="import" href="../skylee-icons/skylee-icons.html">
 
 <dom-module id="skylee-about">
@@ -434,7 +434,7 @@
 
   </template>
   <script>
-    class SkyleeAbout extends Skylee.SkyleeAppAutoHideToolbarBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
+    class SkyleeAbout extends Skylee.SkyleeTabPageAutoHideToolbarBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
 
       static get is() { return 'skylee-about'; }
 

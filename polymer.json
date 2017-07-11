@@ -7,7 +7,9 @@
       "src/skylee-team/badminton/skylee-team-badminton.html",
       "src/skylee-team/basketball/skylee-team-basketball.html",
     "src/skylee-about/skylee-about.html",
-    "src/skylee-404/skylee-404.html"
+    "src/skylee-404/skylee-404.html",
+
+    "src/skylee-image-viewer/skylee-image-viewer.html"
   ],
   "sources": [
     "src/**/*",

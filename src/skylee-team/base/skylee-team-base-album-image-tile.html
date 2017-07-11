@@ -74,8 +74,20 @@
         srcWidth: Number,
         srcHeight: Number,
         name: String,
-        href: String
+        href: {
+          type: String,
+          computed: '_computeHref(src)'
+        }
       };}
+
+      _computeHref(src) {
+        let matches = src.match(/^([\w\.\-\/]+)\.(\w+)$/);
+        if (matches !== null) {
+          return `/image-viewer${matches[1]}-1x.${matches[2]}`;
+        } else {
+          return null;
+        }
+      }
 
       _isTruthy(value) {
         return Boolean(value);

@@ -3,3 +3,4 @@ build*
 tools/imagebuilder/*
 !tools/imagebuilder/imagebuilder.cpp
 exclude/imagebuilder
+debug*

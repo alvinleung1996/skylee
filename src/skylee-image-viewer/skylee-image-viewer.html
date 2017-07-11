@@ -1,0 +1,459 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/shadycss/apply-shim.html">
+
+<!--<link rel="import" href="../../bower_components/iron-image/iron-image.html">-->
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+
+<link rel="import" href="../skylee-icons/skylee-icons.html">
+
+<dom-module id="skylee-image-viewer">
+  <template strip-whitespace>
+    <style>
+      :host {
+        display: block;
+        overflow: hidden;
+        background-color: black; /*var(--skylee-background--dark-theme--primary_background-color);*/
+        position: relative;
+
+        --skylee-toolbar_height: 48px;
+      }
+
+      #toolbar {
+        z-index: 10;
+        position: absolute;
+        width: 100%;
+        height: 48px;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+        display: flex;
+        align-items: center;
+        pointer-events: none;
+      }
+      #toolbar__back-button-link {
+        transform: translateX(calc((var(--skylee-toolbar_height) - 100%) / 2));
+        pointer-events: auto;
+        -webkit-tap-highlight-color: transparent;
+      }
+      #toolbar__back-button {
+        color: white;
+        --paper-icon-button-ink-color: white;
+      }
+
+      #img-wrapper {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        position: relative;
+        touch-action: none;
+      }
+      #img {
+        display: block;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        transform-origin: 0% 0%;
+        transition: transform 66ms ease-out 0ms;
+        -webkit-user-drag: none;
+      }
+      /*#canvas {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 10;
+      }*/
+    </style>
+
+    <div id="toolbar">
+      <a id="toolbar__back-button-link" href="javascript:window.history.back();" tabindex="-1">
+        <paper-icon-button id="toolbar__back-button" icon="skylee:arrow-back"></paper-icon-button>
+      </a>
+    </div>
+
+    <div id="img-wrapper">
+      <img id="img" src$="[[_imageSrc]]"></img>
+      <!--<canvas id="canvas" width="800" height="1160"></canvas>-->
+    </div>
+
+  </template>
+  <script>
+    class SkyleeImageViewer extends Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element) {
+
+      static get is() { return 'skylee-image-viewer'; }
+
+      static get properties() { return {
+        route: Object,
+
+        sceneTitle: {
+          type: String,
+          computed: '_computeTabPageTitle(_imageSrc)',
+          notify: true
+        },
+
+        _imgWrapperWidth: {
+          type: Number,
+        },
+        _imgWrapperHeight: {
+          type: Number
+        },
+
+        _imageSrc: {
+          type: String
+        },
+        _imageWidth: {
+          type: Number
+        },
+        _imageHeight: {
+          type: Number
+        },
+
+        _wrapperWheelEvent: {
+          type: Event
+        },
+
+        _imageFocusX: {
+          type: Number
+        },
+        _imageFocusY: {
+          type: Number
+        },
+        _imgScale: {
+          type: Number
+        }
+      };}
+
+      static get observers() { return [
+        '_onRoutePathChanged(route.path)',
+
+        '_onWheelChanged(_imgWrapperWidth, _imgWrapperHeight, _imageWidth, _imageHeight, _wrapperWheelEvent)',
+        '_onImgDisplayParamChanged(_imgWrapperWidth, _imgWrapperHeight, _imageWidth, _imageHeight, _imageFocusX, _imageFocusY, _imgScale)'
+      ];}
+
+      constructor() {
+        super();
+        this._activePointerEvents = [];
+      }
+
+      ready() {
+        super.ready();
+        this.addEventListener('iron-resize', e => this._onIronResize(e));
+
+        this.$.img.addEventListener('load', e => this._onImageLoaded(e));
+
+        this.$['img-wrapper'].addEventListener('wheel', e => this._onWheelRotate(e));
+
+        this.$['img-wrapper'].addEventListener('pointerdown', e => this._onPointerDown(e));
+        this.$['img-wrapper'].addEventListener('pointermove', e => this._onPointerMove(e));
+        this.$['img-wrapper'].addEventListener('pointerup', e => this._onPointerUp(e));
+        this.$['img-wrapper'].addEventListener('pointercancel', e => this._onPointerUp(e));
+        // this.$['img-wrapper'].addEventListener('pointerout', e => this._onPointerUp(e));
+        this.$['img-wrapper'].addEventListener('pointerleave', e => this._onPointerUp(e));
+      }
+
+      _computeTabPageTitle(src) {
+        let matches = src.match(/\/([\w\-]+\.\w+)(?:\?.*)?$/);
+        if (matches !== null) {
+          return matches[1];
+        } else {
+          return '';
+        }
+      }
+
+      _onIronResize(evt) {
+        this.setProperties({
+          _imgWrapperWidth: this.$['img-wrapper'].clientWidth,
+          _imgWrapperHeight: this.$['img-wrapper'].clientHeight
+        });
+      }
+
+      _onRoutePathChanged(routePath) {
+        let matches = routePath.match(/^\/image-viewer(.*)$/);
+        if (matches !== null) {
+          console.log('Load image: ' + matches[1]);
+          this._imageSrc = matches[1];
+        } else {
+          console.log('Reset');
+          this._reset();
+        }
+      }
+
+      _reset() {
+        this.setProperties({
+
+        });
+      }
+
+
+
+      _onImageLoaded(evt) {
+        console.log(`Image loaded: w: ${evt.target.naturalWidth}, h: ${evt.target.naturalHeight}`);
+        this.setProperties({
+          _imageWidth: evt.target.naturalWidth,
+          _imageHeight: evt.target.naturalHeight
+        });
+        this.setProperties({
+          _imageFocusX: evt.target.naturalWidth / 2,
+          _imageFocusY: evt.target.naturalHeight / 2,
+          _imgScale: this._getImgMinScale(this._imgWrapperWidth, this._imgWrapperHeight, this._imageWidth, this._imageHeight),
+        });
+      }
+
+
+
+      _onWheelRotate(evt) {
+        this._wrapperWheelEvent = evt;
+      }
+
+      _onWheelChanged(imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight, wrapperWheelEvent) {
+        if (this.__prevWrapperWheelEvent !== wrapperWheelEvent // wheel event occurred
+            && typeof imgWrapperWidth === 'number' && typeof imgWrapperHeight === 'number'
+            && typeof imageWidth === 'number' && typeof imageHeight === 'number'
+            && wrapperWheelEvent)
+        {
+          this.__prevWrapperWheelEvent = wrapperWheelEvent;
+
+          // Consume wheel event
+          
+          let imgRelativeRect = this._getImgRelativeRect();
+
+          let currScale = imgRelativeRect.width / imageWidth;
+          let nextScale = this._constraintImgScale(currScale + (-this._normalizeDelta(wrapperWheelEvent.deltaY, wrapperWheelEvent.deltaMode)) / 250,
+                                                  imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight);
+          
+          let nextImgX = wrapperWheelEvent.clientX - (((wrapperWheelEvent.clientX - imgRelativeRect.left) / currScale) * nextScale);
+          let nextImgY = wrapperWheelEvent.clientY - (((wrapperWheelEvent.clientY - imgRelativeRect.top) / currScale) * nextScale);
+
+          let nextImageFocusX = (imgWrapperWidth / 2 - nextImgX) / nextScale;
+          let nextImageFocusY = (imgWrapperHeight / 2 - nextImgY) / nextScale;
+
+          this.setProperties({
+            _imageFocusX: nextImageFocusX,
+            _imageFocusY: nextImageFocusY,
+            _imgScale: nextScale
+          });
+        }
+      }
+
+
+      _onPointerDown(evt) {
+        let imageWidth = this._imageWidth;
+        let imageHeight = this._imageHeight;
+
+        if (typeof imageWidth === 'number' && typeof imageHeight === 'number') {
+          let imgRelativeRect = this._getImgRelativeRect();
+          let imgScale = imgRelativeRect.width / imageWidth;
+
+          let wrapperX = evt.clientX;
+          let wrapperY = evt.clientY;
+          let imageX = (evt.clientX - imgRelativeRect.left) / imgScale;
+          let imageY = (evt.clientY - imgRelativeRect.top) / imgScale;
+          this._activePointerEvents.push({
+            event: evt,
+            initImgWrapperX: wrapperX,
+            initImgWrapperY: wrapperY,
+            initImageX: imageX,
+            initImageY: imageY
+          });
+        }
+      }
+
+      _onPointerMove(evt) {
+        for (let i = 0; i < this._activePointerEvents.length; ++i) {
+          if (this._activePointerEvents[i].event.pointerId === evt.pointerId) {
+            this._activePointerEvents[i].event = evt;
+            break;
+          }
+        }
+
+        if (!this.__scheduled_onPointerMove) {
+          this.__scheduled_onPointerMove = true;
+
+          setTimeout(() => {
+            this.__scheduled_onPointerMove = false;
+
+            let imgWrapperWidth = this._imgWrapperWidth;
+            let imgWrapperHeight = this._imgWrapperHeight;
+            let imageWidth = this._imageWidth;
+            let imageHeight = this._imageHeight;
+
+
+            let propsToSet = {};
+
+            if (this._activePointerEvents.length === 1) {
+              let eventData = this._activePointerEvents[0];
+
+              let imgRelativeRect = this._getImgRelativeRect();
+              let newImgScale = imgRelativeRect.width / imageWidth;
+              let newImgX = eventData.event.clientX - (eventData.initImageX * newImgScale);
+              let newImgY = eventData.event.clientY - (eventData.initImageY * newImgScale);
+
+              propsToSet._imageFocusX = (imgWrapperWidth / 2 - newImgX) / newImgScale;
+              propsToSet._imageFocusY = (imgWrapperHeight / 2 - newImgY) / newImgScale;
+              propsToSet._imgScale = newImgScale;
+
+            } else if (this._activePointerEvents.length == 2) {
+              let eventData0 = this._activePointerEvents[0];
+              let eventData1 = this._activePointerEvents[1];
+
+              let newImgScale = Math.sqrt((Math.pow(eventData0.event.clientX - eventData1.event.clientX, 2) + Math.pow(eventData0.event.clientY - eventData1.event.clientY, 2))
+                                           / (Math.pow(eventData0.initImageX - eventData1.initImageX, 2) + Math.pow(eventData0.initImageY - eventData1.initImageY, 2)));
+              
+              let imgWrapperMidPointX = (eventData0.event.clientX + eventData1.event.clientX) / 2;
+              let imgWrapperMidPointY = (eventData0.event.clientY + eventData1.event.clientY) / 2;
+              let imageAnchorX = (eventData0.initImageX + eventData1.initImageX) / 2;
+              let imageAnchorY = (eventData0.initImageY + eventData1.initImageY) / 2;
+              let newImgX = imgWrapperMidPointX - imageAnchorX * newImgScale;
+              let newImgY = imgWrapperMidPointY - imageAnchorY * newImgScale;
+              let newImageFocusX = (imgWrapperWidth / 2 - newImgX) / newImgScale;
+              let newImageFocusY = (imgWrapperHeight / 2 - newImgY) / newImgScale;
+
+              // this._debug(eventData0.initImageX, eventData0.initImageY, eventData1.initImageX, eventData1.initImageY, eventData0.event.clientX, eventData0.event.clientY, eventData1.event.clientX, eventData1.event.clientY);
+
+              propsToSet._imageFocusX = newImageFocusX;
+              propsToSet._imageFocusY = newImageFocusY;
+              propsToSet._imgScale = newImgScale;
+
+            } else {
+              return;
+            }
+
+            this.setProperties(propsToSet);
+          }, 20);
+        }
+        
+      }
+
+      _onPointerUp(evt) {
+        for (let i = 0; i < this._activePointerEvents.length; ++i) {
+          if (this._activePointerEvents[i].event.pointerId === evt.pointerId) {
+            this._activePointerEvents.splice(i, 1);
+            break;
+          }
+        }
+      }
+      
+      
+
+      _onImgDisplayParamChanged(imgWrapperWidth, imgWrapperHeight,
+                                imageWidth, imageHeight,
+                                imageFocusX, imageFocusY, imgScale)
+      {
+        if (typeof imgWrapperWidth === 'number' && typeof imgWrapperHeight === 'number'
+            && typeof imageWidth === 'number' && typeof imageHeight === 'number'
+            && typeof imageFocusX === 'number' && typeof imageFocusY === 'number' && typeof imgScale === 'number') {
+            
+          let imgX, imgY;
+
+          imgScale = this._constraintImgScale(imgScale, imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight);
+
+          if (imgScale <= (imgWrapperWidth / imageWidth)) {
+            imgX = (imgWrapperWidth - imageWidth * imgScale) / 2;
+          } else {
+            imgX = imgWrapperWidth / 2 - imageFocusX * imgScale;
+            
+            let left = imgX;
+            let right = imgX + imageWidth * imgScale;
+
+            if (left > 0 && right >= imgWrapperWidth) {
+              imgX = 0;
+            } else if (left <= 0 && right < imgWrapperWidth) {
+              imgX = imgWrapperWidth - imageWidth * imgScale;
+            }
+          }
+
+          if (imgScale <= (imgWrapperHeight / imageHeight)) {
+            imgY = (imgWrapperHeight - imageHeight * imgScale) / 2;
+          } else {
+            imgY = imgWrapperHeight / 2 - imageFocusY * imgScale;
+            
+            let top = imgY;
+            let bottom = imgY + imageHeight * imgScale;
+
+            if (top > 0 && bottom >= imgWrapperHeight) {
+              imgY = 0;
+            } else if (top <= 0 && bottom < imgWrapperHeight) {
+              imgY = imgWrapperHeight - imageHeight * imgScale;
+            }
+          }
+
+          this.$.img.style.transform = `translate(${imgX}px, ${imgY}px) scale(${imgScale}, ${imgScale})`;
+        }
+      }
+
+
+
+      _getImgMinScale(imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight) {
+        return Math.min(Math.min(imgWrapperWidth / imageWidth, imgWrapperHeight / imageHeight) * 3/4, 1);
+      }
+
+      _getImgMaxScale() {
+        return 3;
+      }
+
+      _constraintImgScale(scale, imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight) {
+        return this._constraintValue(scale, this._getImgMinScale(imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight), this._getImgMaxScale());
+      }
+
+      _constraintValue(value, min, max) {
+        return Math.min(Math.max(value, min), max);
+      }
+
+      _normalizeDelta(delta, mode) {
+        switch (mode) {
+          case WheelEvent.DOM_DELTA_PIXEL:
+            return delta;
+          case WheelEvent.DOM_DELTA_LINE: // 24 is an experimental value
+            return delta * 24;
+          case WheelEvent.DOM_DELTA_PAGE: // Not working yet
+            return delta;
+        }
+      }
+
+      _getImgRelativeRect(rect) {
+        rect = rect || {};
+        let wrapperRect = this.$['img-wrapper'].getBoundingClientRect();
+        let imgRect = this.$.img.getBoundingClientRect();
+        rect.left = imgRect.left - wrapperRect.left;
+        rect.top = imgRect.top - wrapperRect.top;
+        rect.right = imgRect.right - wrapperRect.left;
+        rect.bottom = imgRect.bottom - wrapperRect.top;
+        rect.width = imgRect.width;
+        rect.height = imgRect.height;
+        return rect;
+      }
+
+
+      // _debug(image0X, image0Y, image1X, image1Y, wrapper0X, wrapper0Y, wrapper1X, wrapper1Y) {
+      //   let canvas = this.$.canvas;
+      //   let ctx = canvas.getContext('2d');
+      //   ctx.clearRect(0, 0, canvas.width, canvas.height);
+      //   let rRect = this._getImgRelativeRect();
+      //   let scale = rRect.width / this._imageWidth;
+      //   ctx.strokeStyle = 'green';
+      //   ctx.lineWidth = 2;
+      //   ctx.beginPath();
+      //   ctx.moveTo(image0X * scale + rRect.left, image0Y * scale + rRect.top);
+      //   ctx.lineTo(image1X * scale + rRect.left, image1Y * scale + rRect.top);
+      //   ctx.stroke();
+
+      //   ctx.font = '24px Arial';
+      //   ctx.fillStyle = 'green';
+      //   ctx.fillText('1', image0X * scale + rRect.left, image0Y * scale + rRect.top);
+      //   ctx.fillText('2', image1X * scale + rRect.left, image1Y * scale + rRect.top);
+
+      //   ctx.strokeStyle = 'red';
+      //   ctx.beginPath();
+      //   ctx.moveTo(wrapper0X, wrapper0Y);
+      //   ctx.lineTo(wrapper1X, wrapper1Y);
+      //   ctx.stroke();
+
+      //   ctx.font = '24px Arial';
+      //   ctx.fillStyle = 'red';
+      //   ctx.fillText('1', wrapper0X, wrapper0Y);
+      //   ctx.fillText('2', wrapper1X, wrapper1Y);
+      // }
+
+    }
+    window.customElements.define(SkyleeImageViewer.is, SkyleeImageViewer);
+  </script>
+</dom-module>

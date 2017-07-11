@@ -5,7 +5,7 @@
 <link rel="import" href="../../../bower_components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
-<link rel="import" href="../../skylee-app/skylee-app-auto-hide-toolbar-behavior.html">
+<link rel="import" href="../../skylee-tab-pages/skylee-tab-page-auto-hide-toolbar-behavior.html">
 <link rel="import" href="skylee-team-tile.html">
 
 <dom-module id="skylee-team-all">
@@ -138,7 +138,7 @@
 
   </template>
   <script>
-    class SkyleeTeamAll extends Skylee.SkyleeAppAutoHideToolbarBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
+    class SkyleeTeamAll extends Skylee.SkyleeTabPageAutoHideToolbarBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
       
       static get is() { return 'skylee-team-all'; }
 

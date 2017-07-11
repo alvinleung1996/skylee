@@ -107,42 +107,51 @@
 
       static get properties() {
         return {
+          visibleScene: {
+            type: Boolean,
+            value: false
+          },
           visibleTabPage: {
             type: Boolean,
-            value: false,
-            observer: '_onTabPageVisibilityChanged'
+            value: false
           },
+
           tabPageTitle: {
             type: String,
             value: 'Home',
             notify: true
           },
-          transparentToolbar: {
-            type: Boolean,
-            value: true,
+          toolbarBackgroundColor: {
+            type: String,
+            value: 'transparent',
             notify: true
           }
         };
       }
 
+      static get observers() { return [
+        '_onVisibilityChanged(visibleScene, visibleTabPage)'
+      ];}
+
       ready() {
         super.ready();
-        
         this.$.slides.addEventListener('iron-resize', e => this._onSlidesResize(e));
         this.$.slides.addEventListener('iron-select', e => {
           if (e.target === this.$.slides) this._onSlidesSelectionChanged(e);
         });
       }
 
-      _onTabPageVisibilityChanged(visibleTabPage) {
-        if (visibleTabPage) {
-          if (!this._isInteger(this._slideshowTimerID)) {
+      _onVisibilityChanged(visibleScene, visibleTabPage) {
+        if (visibleScene && visibleTabPage) {
+          if (!Number.isInteger(this._slideshowTimerID)) {
+            console.log('slide start');
             this._slideshowTimerID = setInterval(() => {
               this.$.slides.selectNext();
             }, 5000);
           }
         } else {
-          if (this._isInteger(this._slideshowTimerID)) {
+          if (Number.isInteger(this._slideshowTimerID)) {
+            console.log('slide stop');
             clearInterval(this._slideshowTimerID);
             this._slideshowTimerID = null;
           }
@@ -174,12 +183,7 @@
         for (let i = 0; i < 2 && i < slideList.length; ++i) {
           let image = slideList[(selectedIndex + i) % slideList.length].setProperties(properties);
         }
-      }
-
-      /* polyfill for IE11 */
-      _isInteger(value) {
-        return Number.isInteger ? Number.isInteger(value) :
-               (typeof value === 'number' && window.isFinite(value) && Math.floor(value) === value);
+        //TODO: fix width == height == 0
       }
 
     }

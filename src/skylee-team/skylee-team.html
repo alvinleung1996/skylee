@@ -107,7 +107,7 @@
       }
 
       _computeTabPageTitle(teamPageTitle) {
-        return teamPageTitle ? teamPageTitle : 'Team';
+        return teamPageTitle || 'Team';
       }
 
       _computeSelectedTeamPageID(id) {

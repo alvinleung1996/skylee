@@ -9,7 +9,7 @@
 <link rel="imoprt" href="../../../bower_components/curium-animated-pages/curium-animated-pages.html">
 <link rel="import" href="../../../bower_components/curium-route/curium-route.html">
 
-<link rel="import" href="../../skylee-app/skylee-app-auto-hide-toolbar-behavior.html">
+<link rel="import" href="../../skylee-tab-pages/skylee-tab-page-auto-hide-toolbar-behavior.html">
 <link rel="import" href="skylee-team-base-album-image-tile.html">
 
 <dom-module id="skylee-team-base">
@@ -105,13 +105,6 @@
 
     <iron-media-query query="not all and (min-width: 300px)" query-matches="{{_narrowLayout}}" full></iron-media-query>
 
-    <curium-route
-      route="[[route]]"
-      prefix-pattern="/team/[[teamPageId]]"
-      data-pattern="/imageName"
-      data="{{_routeData}}">
-    </curium-route>
-
     <section class="background--primary">
 
       <header class="padding-block team-block">
@@ -152,7 +145,7 @@
 
   </template>
   <script>
-    class SkyleeTeamBase extends Skylee.SkyleeAppAutoHideToolbarBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
+    class SkyleeTeamBase extends Skylee.SkyleeTabPageAutoHideToolbarBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
     
       static get is() { return 'skylee-team-base'; }
 

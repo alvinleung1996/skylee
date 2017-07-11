@@ -1,5 +1,5 @@
 /*
- * Number.isInteger
+ * Number.isInteger()
  */
 Number.isInteger = Number.isInteger || function(value) {
   return typeof value === 'number' && 
@@ -19,3 +19,12 @@ Number.isInteger = Number.isInteger || function(value) {
 //   });
 //   window.addEventListener("test", null, options);
 // } catch (e) {}
+
+/*
+ * String.prototype.startsWith()
+ */
+if (!String.prototype.startsWith) {
+    String.prototype.startsWith = function(searchString, position){
+      return this.substr(position || 0, searchString.length) === searchString;
+  };
+}

@@ -1,309 +1,52 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../bower_components/polymer/lib/utils/debounce.html">
-<link rel="import" href="../../bower_components/shadycss/apply-shim.html">
 
 <link rel="import" href="../../bower_components/app-route/app-location.html">
-<link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
-<link rel="import" href="../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
 
 <link rel="import" href="../../bower_components/curium-animated-pages/curium-animated-pages.html">
-<link rel="import" href="../../bower_components/curium-animated-pages/animations/curium-tab-page-animation-manager.html">
+<link rel="import" href="../../bower_components/curium-animated-pages/animations/curium-scene-animation-manager.html">
 <link rel="import" href="../../bower_components/curium-route/curium-route.html">
 
 <link rel="import" href="../skylee-property-binder-behavior/skylee-property-binder-behavior.html">
 <link rel="import" href="../skylee-styles/skylee-styles.html">
-<link rel="import" href="../skylee-icons/skylee-icons.html">
-<link rel="import" href="../skylee-home/skylee-home.html">
+
+<link rel="import" href="../skylee-tab-pages/skylee-tab-pages.html">
 
 <dom-module id="skylee-app">
   <template strip-whitespace>
     <style>
       :host {
         display: block;
-        position: relative;
-        overflow: hidden;
-        --skylee-toolbar_height: var(--skylee-toolbar--normal_height);
-        --skylee-toolbar_transition_padding-top: padding-top 330ms ease-out 0ms;
-
-        /* layout styles */
-        --skylee-toolbar__back-button_size: 40px;
       }
-      :host([_narrow-toolbar]) {
-        --skylee-toolbar_height: var(--skylee-toolbar--narrow_height);
-      }
-      :host([_short-toolbar]:not([_narrow-toolbar])) {
-        --skylee-toolbar_height: var(--skylee-toolbar--short_height);
-      }
-
-      #toolbar {
-        position: absolute;
-        top: 0px;
-        left: 0px;
-        right: 0px;
-        height: var(--skylee-toolbar_height);
-        z-index: 100;
-        background-color: var(--skylee-background--app-theme--primary_background-color);
-        /* Safari bug: var cannot be used in transition and only work after disabling and re-enabling the property.
-         * -webkit-transition seems does not have this bug. */
-        transition: height 330ms ease-out 0ms,
-                    transform 330ms ease-out 0ms,
-                    background-color 330ms ease-out 0ms,
-                    var(--skylee-shadow_transition);
-        -webkit-transition: height 330ms ease-out 0ms,
-                            transform 330ms ease-out 0ms,
-                            background-color 330ms ease-out 0ms,
-                            var(--skylee-shadow_transition);
-        display: flex;
-        justify-content: center;
-      }
-      #toolbar[hide] {
-        transform: translateY(-100%);
-      }
-      #toolbar[transparent] {
-        background-color: transparent;
-      }
-      #toolbar[shadow] {
-        @apply --skylee-shadow--elevation-4;
-      }
-
-      #toolbar__content {
-        flex: 0 1 var(--skylee-content_max-width);
-        position: relative;
-        transition: opacity 330ms ease-out 0ms;
-      }
-      #toolbar[hide] #toolbar__content {
-        opacity: 0;
-      }
-
-      #toolbar__back-button-link {
-        position: absolute;
-        top: 0px;
-        left: 0px;
-        width: var(--skylee-toolbar__back-button_size);
-        height: var(--skylee-toolbar__back-button_size);
-        transform: translate(calc(0px - ((var(--skylee-toolbar_height) - 100%) / 2) - 100%),
-                             calc((var(--skylee-toolbar_height) - 100%) / 2));
-        -webkit-tap-highlight-color: transparent; /* for Android Chrome */
-        opacity: 0;
-        pointer-events: none;
-        transition: transform 330ms ease-out 0ms,
-                    opacity 330ms ease-out 0ms;
-      }
-      #toolbar[narrow] #toolbar__back-button-link {
-        transform: translate(calc(0px - (((var(--skylee-toolbar_height) / 2) - 100%) / 2) - 100%),
-                             calc(((var(--skylee-toolbar_height) / 2) - 100%) / 2));
-      }
-      #toolbar[show-back-button] #toolbar__back-button-link {
-        transform: translate(calc((var(--skylee-toolbar_height) - 100%) / 2),
-                             calc((var(--skylee-toolbar_height) - 100%) / 2));
-        opacity: 1;
-        pointer-events: initial;
-      }
-      #toolbar[show-back-button][narrow] #toolbar__back-button-link {
-        transform: translate(calc(((var(--skylee-toolbar_height) / 2) - 100%) / 2),
-                             calc(((var(--skylee-toolbar_height) / 2) - 100%) / 2));
-      }
-      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {
-        #toolbar__back-button-link {
-          /* IE11 bug:
-           * calc cannot be used in translate.
-           * transition don't work for left and top property with calc value.
-           * Solution: pre-compute value and substitute into translate function. */
-          transform: translate(-52px, 12px);
-        }
-        #toolbar[short] #toolbar__back-button-link {
-          transform: translate(-44px, 4px);
-        }
-        #toolbar[narrow] #toolbar__back-button-link {
-          transform: translate(-44px, 4px);
-        }
-        #toolbar[show-back-button] #toolbar__back-button-link {
-          transform: translate(12px, 12px);
-        }
-        #toolbar[show-back-button][short] #toolbar__back-button-link {
-          transform: translate(4px, 4px);
-        }
-        #toolbar[show-back-button][narrow] #toolbar__back-button-link {
-          transform: translate(4px, 4px);
-        }
-      }
-      #toolbar__back-button {
+      #scenes {
         width: 100%;
         height: 100%;
-        box-sizing: border-box;
-        color: var(--skylee-text--app-theme--primary_color);
-        --paper-icon-button-ink-color: var(--skylee-text--app-theme--primary_color);
-      }
-
-      #toolbar__home-button-link {
-        position: absolute;
-        top: 0px;
-        left: 0px;
-        height: var(--skylee-toolbar_height);
-        box-sizing: border-box;
-        display: flex;
-        -webkit-tap-highlight-color: transparent; /* for Android Chrome */
-        text-decoration: none;
-        transition: height 330ms ease-out 0ms,
-                    transform 330ms ease-out 0ms;
-      }
-      #toolbar[narrow] #toolbar__home-button-link {
-        height: calc(var(--skylee-toolbar_height) / 2);
-      }
-      #toolbar[show-back-button] #toolbar__home-button-link {
-        transform: translateX(var(--skylee-toolbar_height));
-      }
-      #toolbar[show-back-button][narrow] #toolbar__home-button-link {
-        transform: translateX(calc(var(--skylee-toolbar_height) / 2));
-      }
-      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {
-        #toolbar[narrow] #toolbar__home-button-link {
-          height: 48px;
-        }
-        #toolbar[show-back-button][narrow] #toolbar__home-button-link {
-          transform: translateX(48px);
-        }
-      }
-      @supports (-ms-ime-align: auto) {
-        /* Edge bug: height with calc value cannot perform transition */
-        #toolbar[narrow] #toolbar__home-button-link {
-          height: 48px;
-        }
-      }
-      #toolbar__home-button {
-        width: 100%;
-        height: 100%;
-        box-sizing: border-box;
-        margin: 0;
-        padding-top: 0;
-        padding-bottom: 0;
-        outline: none; /* for Safari */
-        @apply --skylee-text--headline_font;
-        color: var(--skylee-text--app-theme--primary_color);
-        text-transform: none;
-      }
-
-      #toolbar__tabs {
-        position: absolute;
-        height: var(--skylee-toolbar_height);
-        top: 0px;
-        right: 0px;
-        min-width: 0px; /* cannot perform transition from or to width: auto */
-        box-sizing: border-box;
-        --paper-tabs-selection-bar-color: var(--skylee-text--app-theme--primary_color);
-        transition: min-width 330ms ease-out 0ms,
-                    height 330ms ease-out 0ms,
-                    transform 330ms ease-out 0ms;
-      }
-      #toolbar[narrow] #toolbar__tabs {
-        min-width: 100%;
-        height: calc(var(--skylee-toolbar_height) / 2);
-        transform: translateY(calc(var(--skylee-toolbar_height) / 2));
-      }
-      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {
-        #toolbar[narrow] #toolbar__tabs {
-          height: 48px;
-          transform: translateY(48px);
-        }
-      }
-      @supports (-ms-ime-align: auto) {
-        #toolbar[narrow] #toolbar__tabs {
-          height: 48px;
-        }
-      }
-      .toolbar__tab {
-        --paper-tab-ink: var(--skylee-text--app-theme--primary_color);
-      }
-      .toolbar__tab-link {
-        padding-left: 12px;
-        padding-right: 12px;
-        outline: none; /* for Android Chrome */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        @apply --skylee-text--subheading_font;
-        color: var(--skylee-text--app-theme--primary_color);
-        text-decoration: none;
-      }
-
-      #tab-pages {
-        width: 100%;
-        height: 100%;
-      }
-      .tab-pages__tab-page[element-path]:not([element-loaded]) {
-        background-color: var(--skylee-background--secondary_background-color);
       }
     </style>
-
-    <iron-media-query query="not all and (min-width: 700px)" query-matches="{{_narrowToolbar}}" full></iron-media-query>
-    <iron-media-query query="not all and (min-height: 450px)" query-matches="{{_shortToolbar}}" full></iron-media-query>
 
     <app-location route="{{_route}}"></app-location>
     <curium-route
       route="{{_route}}"
-      data-pattern="/tabPageID"
-      data="{{_routeData}}"
-      tail="{{_subroute}}">
+      data-pattern="/sceneId"
+      data="{{_routeData}}">
     </curium-route>
 
-    <div id="toolbar"
-      narrow$="[[_narrowToolbar]]"
-      short$="[[_shortToolbar]]"
-      hide$="[[_hideToolbar]]"
-      transparent$="[[_transparentToolbar]]"
-      shadow$="[[_showToolbarShadow]]"
-      show-back-button$="[[_isTruthy(_toolbarBackButtonUrl)]]">
-      <div id="toolbar__content">
-
-        <a id="toolbar__back-button-link" href$="[[_toolbarBackButtonUrl]]" tabindex="-1">
-          <paper-icon-button id="toolbar__back-button" icon="skylee:arrow-back"></paper-icon-button>
-        </a>
-        
-        <a id="toolbar__home-button-link" href$="[[defaultPath]]" tabindex="-1">
-          <paper-button id="toolbar__home-button">Simon K. Y. Lee Hall</paper-button>
-        </a>
-
-        <paper-tabs id="toolbar__tabs" activate-event="" attr-for-selected="tab-id" selected="[[_selectedTabPageID]]"
-          scrollable="[[_narrowToolbar]]" fit-container hide-scroll-buttons>
-          <paper-tab class="toolbar__tab" tab-id="home" link><a class="toolbar__tab-link" href$="[[defaultPath]]" tabindex="-1">Home</a></paper-tab>
-          <paper-tab class="toolbar__tab" tab-id="event" link><a class="toolbar__tab-link" href$="[[rootPath]][[routePrefix]]event" tabindex="-1">Event</a></paper-tab>
-          <paper-tab class="toolbar__tab" tab-id="team" link><a class="toolbar__tab-link" href$="[[rootPath]][[routePrefix]]team" tabindex="-1">Team</a></paper-tab>
-          <paper-tab class="toolbar__tab" tab-id="about" link><a class="toolbar__tab-link" href$="[[rootPath]][[routePrefix]]about" tabindex="-1">About</a></paper-tab>
-          <paper-tab class="toolbar__tab" link><a class="toolbar__tab-link" href="https://www.facebook.com/skylee.hku" tabindex="-1" target="_blank">Facebook</a></paper-tab>
-        </paper-tabs>
-
-      </div>
-    </div>
-
-    <curium-tab-page-animation-manager id="tab-page-animation-manager" duration="330" no-intermediate-page></curium-tab-page-animation-manager>
+    <curium-scene-animation-manager id="scene-animation-manager" duration="330"></curium-scene-animation-manager>
     <curium-animated-pages
-      id="tab-pages"
-      attr-for-selected="tab-page-id"
-      selected="[[_selectedTabPageID]]"
-      fallback-selection="404"
-      selected-attribute="visible-tab-page"
-      animation-manager="#tab-page-animation-manager">
+      id="scenes"
+      attr-for-selected="scene-id"
+      selected="[[_selectedSceneId]]"
+      selected-attribute="visible-scene"
+      animation-manager="#scene-animation-manager">
 
-      <skylee-home class="tab-pages__tab-page" tab-page-id="home"></skylee-home> <!-- element already imported -->
+      <skylee-tab-pages
+        scene-id="tab-pages"
+        route="[[_route]]"></skylee-tab-pages> <!-- element already imported -->
 
-      <skylee-event class="tab-pages__tab-page"
-        tab-page-id="event" element-path$="[[rootPath]]src/skylee-event/skylee-event.html"
-        toolbar-height="[[_toolbarHeight]]"></skylee-event>
-
-      <skylee-team class="tab-pages__tab-page" tab-page-id="team"
-        element-path$="[[rootPath]]src/skylee-team/skylee-team.html"
-        toolbar-height="[[_toolbarHeight]]" route="{{_subroute}}"></skylee-team>
-
-      <skylee-about class="tab-pages__tab-page" tab-page-id="about"
-        element-path$="[[rootPath]]src/skylee-about/skylee-about.html"
-        toolbar-height="[[_toolbarHeight]]"></skylee-about>
-
-      <skylee-404 class="tab-pages__tab-page" tab-page-id="404"
-        element-path$="[[rootPath]]src/skylee-404/skylee-404.html"
-        toolbar-height="[[_toolbarHeight]]"></skylee-404>
+      <skylee-image-viewer level="1"
+        scene-id="image-viewer" element-path$="[[rootPath]]src/skylee-image-viewer/skylee-image-viewer.html"
+        route="[[_route]]"></skylee-image-viewer>
 
     </curium-animated-pages>
   </template>
@@ -321,135 +64,76 @@
         return {
           appTitle: {
             type: String,
-            computed: '_computeAppTitle(_tabPageTitle)',
+            computed: '_computeAppTitle(_sceneTitle)',
             observer: '_onAppTitleChanged'
           },
-          _tabPageTitle: {
+          _sceneTitle: {
             type: String,
             value: ''
           },
 
-          _selectedTabPageID: {
+          _selectedSceneId: {
             type: String,
-            computed: '_computeSelectedTabPageID(_routeData.tabPageID)'
+            computed: '_computeSelectedSceneId(_routeData.sceneId)'
           },
-
-          routePrefix: {
-            value: Skylee.routePrefix
-          },
-          defaultPath: {
-            value: Skylee.defaultPath
-          },
-
-          /*
-           * Toolbar
-           */
-          _narrowToolbar: {
-            type: Boolean,
-            reflectToAttribute: true
-          },
-          _shortToolbar: {
-            type: Boolean,
-            reflectToAttribute: true
-          },
-          _toolbarHeight: {
-            type: Number,
-            computed: '_computeToolbarHeight(_narrowToolbar, _shortToolbar)'
-          },
-          _hideToolbar: {
-            type: Boolean,
-            value: false
-          },
-          _showToolbarShadow: {
-            type: Boolean,
-            value: false
-          },
-          _transparentToolbar: {
-            type: Boolean,
-            value: false
-          },
-          _toolbarBackButtonUrl: {
-            type: String,
-            value: ''
+          _tabPagesRoute: {
+            type: Object
           }
         };
       }
 
       ready() {
         super.ready();
-        this.$['tab-pages'].addEventListener('iron-select', e => {
-          if (e.target === this.$['tab-pages']) this._onTabPageSelectionChanged()
+        this.$.scenes.addEventListener('iron-select', e => {
+          if (e.target === this.$.scenes) this._onSceneSelectionChanged()
         });
-        this.$['tab-pages'].addEventListener('iron-deselect', e => {
-          if (e.target === this.$['tab-pages']) this._onTabPageSelectionChanged()
+        this.$.scenes.addEventListener('iron-deselect', e => {
+          if (e.target === this.$.scenes) this._onSceneSelectionChanged()
         });
       }
 
-      _computeAppTitle(tabPageTitle) {
-        return (tabPageTitle ? (tabPageTitle + ' - ') : '') + 'Simon K. Y. Lee Hall';
+      _computeAppTitle(sceneTitle) {
+        return (sceneTitle ? (sceneTitle + ' - ') : '') + 'Simon K. Y. Lee Hall';
       }
 
       _onAppTitleChanged(appTitle) {
         document.title = appTitle;
       }
 
-      _computeSelectedTabPageID(id) {
-        return id || 'home';
+      _computeSelectedSceneId(id) {
+        return id === 'image-viewer' ? 'image-viewer' : 'tab-pages';
       }
 
-      _computeToolbarHeight(narrow, short) {
-        let toolbarHeight = narrow ? 96 : (short ? 48 : 64);
-        /* Fix for ShadyCSS */
-        if (window.ShadyCSS && !window.ShadyCSS.nativeCss) {
-          let stylesToUpdate = {
-            '--skylee-toolbar_height': toolbarHeight + 'px'
-          };
-          this.updateStyles(stylesToUpdate);
-          this.$['tab-pages'].items.filter(n => n instanceof Polymer.Element).forEach(n => n.updateStyles(stylesToUpdate));
-        }
-        return toolbarHeight;
-      }
+      _onSceneSelectionChanged() {
+        this._sceneSelectionDebouncer = Polymer.Debouncer.debounce(this._sceneSelectionDebouncer, Polymer.Async.microTask, () => {
 
-      _onTabPageSelectionChanged() {
-        this._tabPageSelectionDebouncer = Polymer.Debouncer.debounce(this._tabPageSelectionDebouncer, Polymer.Async.microTask, () => {
+          let selectedScene = this.$.scenes.selectedItem;
+          let deselectedScene = this._prevSelectedScene;
 
-          let selectedTabPage = this.$['tab-pages'].selectedItem;
-          let deselectedTabPage = this._prevSelectedTabPage;
+          this._prevSelectedScene = selectedScene;
 
-          this._prevSelectedTabPage = selectedTabPage;
-
-          this._loadTabPage(selectedTabPage);
-          this._bindTabPageProperties(selectedTabPage);
+          this._loadScene(selectedScene);
+          this._bindSceneProperties(selectedScene);
         });
       }
 
-      _loadTabPage(selectedTabPage) {
-        if (selectedTabPage) {
-          if (selectedTabPage.hasAttribute('element-path') && !selectedTabPage.hasAttribute('element-loading') && !selectedTabPage.hasAttribute('element-loaded')) {
-            let path = selectedTabPage.getAttribute('element-path');
-            selectedTabPage.setAttribute('element-loading', '');
+      _loadScene(selectedScene) {
+        if (selectedScene) {
+          if (selectedScene.hasAttribute('element-path') && !selectedScene.hasAttribute('element-loading') && !selectedScene.hasAttribute('element-loaded')) {
+            let path = selectedScene.getAttribute('element-path');
+            selectedScene.setAttribute('element-loading', '');
             Polymer.importHref(this.resolveUrl(path), () => {
-              selectedTabPage.removeAttribute('element-loading');
-              selectedTabPage.setAttribute('element-loaded', '');
+              selectedScene.removeAttribute('element-loading');
+              selectedScene.setAttribute('element-loaded', '');
             }, null, true);
           }
         }
       }
 
-      _bindTabPageProperties(selectedTabPage) {
+      _bindSceneProperties(selectedScene) {
         this._bindProperties({
-          _tabPageTitle: 'tabPageTitle',
-          _hideToolbar: 'hideToolbar',
-          _showToolbarShadow: 'showToolbarShadow',
-          _transparentToolbar: 'transparentToolbar',
-          _toolbarBackButtonUrl: 'toolbarBackButtonUrl'
-        }, selectedTabPage);
-      }
-
-      
-
-      _isTruthy(value) {
-        return Boolean(value);
+          _sceneTitle: 'sceneTitle'
+        }, selectedScene);
       }
 
     }
