@@ -1,7 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../bower_components/shadycss/apply-shim.html">
+<link rel="import" href="../../bower_components/polymer/lib/mixins/gesture-event-listeners.html">
 
-<!--<link rel="import" href="../../bower_components/iron-image/iron-image.html">-->
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 
@@ -13,10 +13,8 @@
       :host {
         display: block;
         overflow: hidden;
-        background-color: black; /*var(--skylee-background--dark-theme--primary_background-color);*/
+        background-color: black;
         position: relative;
-
-        --skylee-toolbar_height: 48px;
       }
 
       #toolbar {
@@ -28,15 +26,24 @@
         display: flex;
         align-items: center;
         pointer-events: none;
+        transition: opacity 330ms ease-out 0ms;
+      }
+      #toolbar[hide] {
+        opacity: 0;
       }
       #toolbar__back-button-link {
-        transform: translateX(calc((var(--skylee-toolbar_height) - 100%) / 2));
+        margin: 4px;
         pointer-events: auto;
-        -webkit-tap-highlight-color: transparent;
+        -webkit-tap-highlight-color: transparent; /* for Android Chrome */
       }
       #toolbar__back-button {
         color: white;
         --paper-icon-button-ink-color: white;
+      }
+      #toolbar__title {
+        margin: 0px;
+        @apply --skylee-text--subheading_font;
+        color: white;
       }
 
       #img-wrapper {
@@ -45,6 +52,11 @@
         overflow: hidden;
         position: relative;
         touch-action: none;
+        transition: opacity 200ms ease-out 0ms;
+      }
+      #img-wrapper:not([show]) {
+        opacity: 0;
+        pointer-events: none;
       }
       #img {
         display: block;
@@ -52,7 +64,7 @@
         top: 0px;
         left: 0px;
         transform-origin: 0% 0%;
-        transition: transform 66ms ease-out 0ms;
+        transition: transform 60ms ease-out 0ms;
         -webkit-user-drag: none;
       }
       /*#canvas {
@@ -62,32 +74,112 @@
         pointer-events: none;
         z-index: 10;
       }*/
+
+      #loading-message {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        bottom: 0px;
+        left: 0px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 330ms linear 0ms;
+      }
+      #loading-message:not([show]) {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #loading-message__text {
+        margin: 0px;
+        @apply --skylee-text--subheading_font;
+        color: white;
+        text-align: center;
+      }
+
+      #error-message {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        bottom: 0px;
+        left: 0px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 330ms linear 0ms;
+      }
+      #error-message:not([show]) {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #error-message__text {
+        margin: 0px;
+        @apply --skylee-text--subheading_font;
+        color: white;
+        text-align: center;
+      }
     </style>
 
-    <div id="toolbar">
+    <div id="toolbar" hide$="[[_hideToolbar]]">
       <a id="toolbar__back-button-link" href="javascript:window.history.back();" tabindex="-1">
         <paper-icon-button id="toolbar__back-button" icon="skylee:arrow-back"></paper-icon-button>
       </a>
+      <p id="toolbar__title">[[_imageFilename]]</p>
     </div>
 
-    <div id="img-wrapper">
-      <img id="img" src$="[[_imageSrc]]"></img>
+    <div id="img-wrapper" show$="[[_imageLoaded]]">
+      <img id="img"></img> <!-- src set by js -->
       <!--<canvas id="canvas" width="800" height="1160"></canvas>-->
+    </div>
+
+    <div id="loading-message" show$="[[_imageLoading]]">
+      <p id="loading-message__text">Loading<br>[[_imageSrc]]</p>
+    </div>
+
+    <div id="error-message" show$="[[_imageError]]">
+      <p id="error-message__text">Error in loading<br>[[_imageSrc]]</p>
     </div>
 
   </template>
   <script>
-    class SkyleeImageViewer extends Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element) {
+    class SkyleeImageViewer extends Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.GestureEventListeners(Polymer.Element)) {
 
       static get is() { return 'skylee-image-viewer'; }
 
       static get properties() { return {
         route: Object,
 
+        _hideToolbar: {
+          type: Boolean,
+          value: false
+        },
+
+        _imageSrc: {
+          type: String,
+          observer: '_onImageSrcChanged'
+        },
+        _imageFilename: {
+          type: String,
+          computed: '_computeImageFilename(_imageSrc)'
+        },
         sceneTitle: {
           type: String,
-          computed: '_computeTabPageTitle(_imageSrc)',
+          computed: '_computeTabPageTitle(_imageFilename)',
           notify: true
+        },
+        _imageLoading: {
+          type: Boolean,
+          value: false
+        },
+        _imageLoaded: {
+          type: Boolean,
+          value: false
+        },
+        _imageError: {
+          type: Boolean,
+          value: false
         },
 
         _imgWrapperWidth: {
@@ -97,18 +189,11 @@
           type: Number
         },
 
-        _imageSrc: {
-          type: String
-        },
         _imageWidth: {
           type: Number
         },
         _imageHeight: {
           type: Number
-        },
-
-        _wrapperWheelEvent: {
-          type: Event
         },
 
         _imageFocusX: {
@@ -125,8 +210,7 @@
       static get observers() { return [
         '_onRoutePathChanged(route.path)',
 
-        '_onWheelChanged(_imgWrapperWidth, _imgWrapperHeight, _imageWidth, _imageHeight, _wrapperWheelEvent)',
-        '_onImgDisplayParamChanged(_imgWrapperWidth, _imgWrapperHeight, _imageWidth, _imageHeight, _imageFocusX, _imageFocusY, _imgScale)'
+        '_onImgDisplayParamChanged(_imageLoaded, _imgWrapperWidth, _imgWrapperHeight, _imageWidth, _imageHeight, _imageFocusX, _imageFocusY, _imgScale)'
       ];}
 
       constructor() {
@@ -136,9 +220,13 @@
 
       ready() {
         super.ready();
-        this.addEventListener('iron-resize', e => this._onIronResize(e));
+
+        Polymer.Gestures.addListener(this.$['img-wrapper'], 'tap', e => this._onTap(e));
 
         this.$.img.addEventListener('load', e => this._onImageLoaded(e));
+        this.$.img.addEventListener('error', e => this._onImageError(e));
+
+        this.addEventListener('iron-resize', e => this._onIronResize(e));
 
         this.$['img-wrapper'].addEventListener('wheel', e => this._onWheelRotate(e));
 
@@ -150,7 +238,39 @@
         this.$['img-wrapper'].addEventListener('pointerleave', e => this._onPointerUp(e));
       }
 
-      _computeTabPageTitle(src) {
+
+
+      // _showToolbar(autoHide) {
+      //   if (typeof this._showToolbarTaskId === 'number') {
+      //     clearInterval(this._showToolbarTaskId);
+      //     this._showToolbarTaskId = undefined;
+      //   }
+      //   this._hideToolbar = false;
+      //   if (autoHide) {
+      //     this._showToolbarTaskId = setTimeout(() => {
+      //       this._hideToolbar = true;
+      //     }, 2000);
+      //   }
+      // }
+
+
+      _onTap(evt) {
+        this._hideToolbar = !this._hideToolbar;
+      }
+
+
+
+      _onRoutePathChanged(routePath) {
+        let matches = routePath.match(/^\/image-viewer(.*)$/);
+        if (matches !== null) {
+          console.log('Load image: ' + matches[1]);
+          this._imageSrc = matches[1];
+        } else {
+          this._imageSrc = '';
+        }
+      }
+
+      _computeImageFilename(src) {
         let matches = src.match(/\/([\w\-]+\.\w+)(?:\?.*)?$/);
         if (matches !== null) {
           return matches[1];
@@ -159,27 +279,30 @@
         }
       }
 
+      _computeTabPageTitle(filename) {
+        return filename;
+      }
+
+      _onImageSrcChanged(src) {
+        this.setProperties({
+          _imageLoading: Boolean(src),
+          _imageLoaded: false,
+          _imageError: false
+        });
+        
+        // Ensure load/error event will only be triggered after we have set the above property value
+        if (src) this.$.img.setAttribute('src', src);
+        else this.$.img.removeAttribute('src');
+
+        this._hideToolbar = false;
+      }
+
+
+
       _onIronResize(evt) {
         this.setProperties({
           _imgWrapperWidth: this.$['img-wrapper'].clientWidth,
           _imgWrapperHeight: this.$['img-wrapper'].clientHeight
-        });
-      }
-
-      _onRoutePathChanged(routePath) {
-        let matches = routePath.match(/^\/image-viewer(.*)$/);
-        if (matches !== null) {
-          console.log('Load image: ' + matches[1]);
-          this._imageSrc = matches[1];
-        } else {
-          console.log('Reset');
-          this._reset();
-        }
-      }
-
-      _reset() {
-        this.setProperties({
-
         });
       }
 
@@ -188,6 +311,9 @@
       _onImageLoaded(evt) {
         console.log(`Image loaded: w: ${evt.target.naturalWidth}, h: ${evt.target.naturalHeight}`);
         this.setProperties({
+          _imageLoading: false,
+          _imageLoaded: true,
+          _imageError: false,
           _imageWidth: evt.target.naturalWidth,
           _imageHeight: evt.target.naturalHeight
         });
@@ -198,22 +324,28 @@
         });
       }
 
-
-
-      _onWheelRotate(evt) {
-        this._wrapperWheelEvent = evt;
+      _onImageError(evt) {
+        console.log('image loading error');
+        this.setProperties({
+          _imageLoading: false,
+          _imageLoaded: false,
+          _imageError: true
+        });
       }
 
-      _onWheelChanged(imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight, wrapperWheelEvent) {
-        if (this.__prevWrapperWheelEvent !== wrapperWheelEvent // wheel event occurred
-            && typeof imgWrapperWidth === 'number' && typeof imgWrapperHeight === 'number'
-            && typeof imageWidth === 'number' && typeof imageHeight === 'number'
-            && wrapperWheelEvent)
-        {
-          this.__prevWrapperWheelEvent = wrapperWheelEvent;
 
-          // Consume wheel event
-          
+
+      _onWheelRotate(wrapperWheelEvent) {
+        let imageLoaded = this._imageLoaded;
+        let imgWrapperWidth = this._imgWrapperWidth;
+        let imgWrapperHeight = this._imgWrapperHeight;
+        let imageWidth = this._imageWidth;
+        let imageHeight = this._imageHeight;
+        
+        if (imageLoaded &&
+            typeof imgWrapperWidth === 'number' && typeof imgWrapperHeight === 'number' &&
+            typeof imageWidth === 'number' && typeof imageHeight === 'number')
+        {
           let imgRelativeRect = this._getImgRelativeRect();
 
           let currScale = imgRelativeRect.width / imageWidth;
@@ -235,11 +367,15 @@
       }
 
 
+
       _onPointerDown(evt) {
+        let imageLoaded = this._imageLoaded;
         let imageWidth = this._imageWidth;
         let imageHeight = this._imageHeight;
 
-        if (typeof imageWidth === 'number' && typeof imageHeight === 'number') {
+        if (imageLoaded &&
+            typeof imageWidth === 'number' && typeof imageHeight === 'number')
+        {
           let imgRelativeRect = this._getImgRelativeRect();
           let imgScale = imgRelativeRect.width / imageWidth;
 
@@ -271,53 +407,58 @@
           setTimeout(() => {
             this.__scheduled_onPointerMove = false;
 
+            let imageLoaded = this._imageLoaded;
             let imgWrapperWidth = this._imgWrapperWidth;
             let imgWrapperHeight = this._imgWrapperHeight;
             let imageWidth = this._imageWidth;
             let imageHeight = this._imageHeight;
 
+            if (imageLoaded &&
+                typeof imgWrapperWidth === 'number' && typeof imgWrapperHeight === 'number' &&
+                typeof imageWidth === 'number' && typeof imageHeight === 'number')
+            {
+              let propsToSet = {};
 
-            let propsToSet = {};
+              if (this._activePointerEvents.length === 1) {
+                let eventData = this._activePointerEvents[0];
 
-            if (this._activePointerEvents.length === 1) {
-              let eventData = this._activePointerEvents[0];
+                let imgRelativeRect = this._getImgRelativeRect();
+                let newImgScale = imgRelativeRect.width / imageWidth;
+                let newImgX = eventData.event.clientX - (eventData.initImageX * newImgScale);
+                let newImgY = eventData.event.clientY - (eventData.initImageY * newImgScale);
 
-              let imgRelativeRect = this._getImgRelativeRect();
-              let newImgScale = imgRelativeRect.width / imageWidth;
-              let newImgX = eventData.event.clientX - (eventData.initImageX * newImgScale);
-              let newImgY = eventData.event.clientY - (eventData.initImageY * newImgScale);
+                propsToSet._imageFocusX = (imgWrapperWidth / 2 - newImgX) / newImgScale;
+                propsToSet._imageFocusY = (imgWrapperHeight / 2 - newImgY) / newImgScale;
+                propsToSet._imgScale = newImgScale;
 
-              propsToSet._imageFocusX = (imgWrapperWidth / 2 - newImgX) / newImgScale;
-              propsToSet._imageFocusY = (imgWrapperHeight / 2 - newImgY) / newImgScale;
-              propsToSet._imgScale = newImgScale;
+              } else if (this._activePointerEvents.length == 2) {
+                let eventData0 = this._activePointerEvents[0];
+                let eventData1 = this._activePointerEvents[1];
 
-            } else if (this._activePointerEvents.length == 2) {
-              let eventData0 = this._activePointerEvents[0];
-              let eventData1 = this._activePointerEvents[1];
+                let newImgScale = Math.sqrt((Math.pow(eventData0.event.clientX - eventData1.event.clientX, 2) + Math.pow(eventData0.event.clientY - eventData1.event.clientY, 2))
+                                            / (Math.pow(eventData0.initImageX - eventData1.initImageX, 2) + Math.pow(eventData0.initImageY - eventData1.initImageY, 2)));
+                
+                let imgWrapperMidPointX = (eventData0.event.clientX + eventData1.event.clientX) / 2;
+                let imgWrapperMidPointY = (eventData0.event.clientY + eventData1.event.clientY) / 2;
+                let imageAnchorX = (eventData0.initImageX + eventData1.initImageX) / 2;
+                let imageAnchorY = (eventData0.initImageY + eventData1.initImageY) / 2;
+                let newImgX = imgWrapperMidPointX - imageAnchorX * newImgScale;
+                let newImgY = imgWrapperMidPointY - imageAnchorY * newImgScale;
+                let newImageFocusX = (imgWrapperWidth / 2 - newImgX) / newImgScale;
+                let newImageFocusY = (imgWrapperHeight / 2 - newImgY) / newImgScale;
 
-              let newImgScale = Math.sqrt((Math.pow(eventData0.event.clientX - eventData1.event.clientX, 2) + Math.pow(eventData0.event.clientY - eventData1.event.clientY, 2))
-                                           / (Math.pow(eventData0.initImageX - eventData1.initImageX, 2) + Math.pow(eventData0.initImageY - eventData1.initImageY, 2)));
-              
-              let imgWrapperMidPointX = (eventData0.event.clientX + eventData1.event.clientX) / 2;
-              let imgWrapperMidPointY = (eventData0.event.clientY + eventData1.event.clientY) / 2;
-              let imageAnchorX = (eventData0.initImageX + eventData1.initImageX) / 2;
-              let imageAnchorY = (eventData0.initImageY + eventData1.initImageY) / 2;
-              let newImgX = imgWrapperMidPointX - imageAnchorX * newImgScale;
-              let newImgY = imgWrapperMidPointY - imageAnchorY * newImgScale;
-              let newImageFocusX = (imgWrapperWidth / 2 - newImgX) / newImgScale;
-              let newImageFocusY = (imgWrapperHeight / 2 - newImgY) / newImgScale;
+                // this._debug(eventData0.initImageX, eventData0.initImageY, eventData1.initImageX, eventData1.initImageY, eventData0.event.clientX, eventData0.event.clientY, eventData1.event.clientX, eventData1.event.clientY);
 
-              // this._debug(eventData0.initImageX, eventData0.initImageY, eventData1.initImageX, eventData1.initImageY, eventData0.event.clientX, eventData0.event.clientY, eventData1.event.clientX, eventData1.event.clientY);
+                propsToSet._imageFocusX = newImageFocusX;
+                propsToSet._imageFocusY = newImageFocusY;
+                propsToSet._imgScale = newImgScale;
 
-              propsToSet._imageFocusX = newImageFocusX;
-              propsToSet._imageFocusY = newImageFocusY;
-              propsToSet._imgScale = newImgScale;
+              } else {
+                return;
+              }
 
-            } else {
-              return;
+              this.setProperties(propsToSet);
             }
-
-            this.setProperties(propsToSet);
           }, 20);
         }
         
@@ -334,49 +475,59 @@
       
       
 
-      _onImgDisplayParamChanged(imgWrapperWidth, imgWrapperHeight,
+      _onImgDisplayParamChanged(imageLoaded,
+                                imgWrapperWidth, imgWrapperHeight,
                                 imageWidth, imageHeight,
                                 imageFocusX, imageFocusY, imgScale)
       {
-        if (typeof imgWrapperWidth === 'number' && typeof imgWrapperHeight === 'number'
-            && typeof imageWidth === 'number' && typeof imageHeight === 'number'
-            && typeof imageFocusX === 'number' && typeof imageFocusY === 'number' && typeof imgScale === 'number') {
-            
-          let imgX, imgY;
 
-          imgScale = this._constraintImgScale(imgScale, imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight);
+        if (typeof imgWrapperWidth === 'number' && typeof imgWrapperHeight === 'number') {
+          let transformStyle;
 
-          if (imgScale <= (imgWrapperWidth / imageWidth)) {
-            imgX = (imgWrapperWidth - imageWidth * imgScale) / 2;
-          } else {
-            imgX = imgWrapperWidth / 2 - imageFocusX * imgScale;
-            
-            let left = imgX;
-            let right = imgX + imageWidth * imgScale;
+          if (imageLoaded && typeof imageWidth === 'number' && typeof imageHeight === 'number' &&
+              typeof imageFocusX === 'number' && typeof imageFocusY === 'number' && typeof imgScale === 'number')
+          {
+            let imgX, imgY;
 
-            if (left > 0 && right >= imgWrapperWidth) {
-              imgX = 0;
-            } else if (left <= 0 && right < imgWrapperWidth) {
-              imgX = imgWrapperWidth - imageWidth * imgScale;
+            imgScale = this._constraintImgScale(imgScale, imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight);
+
+            if (imgScale <= (imgWrapperWidth / imageWidth)) {
+              imgX = (imgWrapperWidth - imageWidth * imgScale) / 2;
+            } else {
+              imgX = imgWrapperWidth / 2 - imageFocusX * imgScale;
+              
+              let left = imgX;
+              let right = imgX + imageWidth * imgScale;
+
+              if (left > 0 && right >= imgWrapperWidth) {
+                imgX = 0;
+              } else if (left <= 0 && right < imgWrapperWidth) {
+                imgX = imgWrapperWidth - imageWidth * imgScale;
+              }
             }
+
+            if (imgScale <= (imgWrapperHeight / imageHeight)) {
+              imgY = (imgWrapperHeight - imageHeight * imgScale) / 2;
+            } else {
+              imgY = imgWrapperHeight / 2 - imageFocusY * imgScale;
+              
+              let top = imgY;
+              let bottom = imgY + imageHeight * imgScale;
+
+              if (top > 0 && bottom >= imgWrapperHeight) {
+                imgY = 0;
+              } else if (top <= 0 && bottom < imgWrapperHeight) {
+                imgY = imgWrapperHeight - imageHeight * imgScale;
+              }
+            }
+
+            transformStyle = `translate(${imgX}px, ${imgY}px) scale(${imgScale}, ${imgScale})`;
+
+          } else {
+            transformStyle = `translate(${imgWrapperWidth / 2}px, ${imgWrapperHeight / 2}px) scale(0, 0)`;
           }
 
-          if (imgScale <= (imgWrapperHeight / imageHeight)) {
-            imgY = (imgWrapperHeight - imageHeight * imgScale) / 2;
-          } else {
-            imgY = imgWrapperHeight / 2 - imageFocusY * imgScale;
-            
-            let top = imgY;
-            let bottom = imgY + imageHeight * imgScale;
-
-            if (top > 0 && bottom >= imgWrapperHeight) {
-              imgY = 0;
-            } else if (top <= 0 && bottom < imgWrapperHeight) {
-              imgY = imgWrapperHeight - imageHeight * imgScale;
-            }
-          }
-
-          this.$.img.style.transform = `translate(${imgX}px, ${imgY}px) scale(${imgScale}, ${imgScale})`;
+          this.$.img.style.transform = transformStyle;
         }
       }
 
