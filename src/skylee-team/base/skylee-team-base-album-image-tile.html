@@ -1,6 +1,7 @@
 <link rel="import" href="../../../bower_components/polymer/polymer-element.html">
 
 <link rel="import" href="../../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
 
 <link rel="import" href="../../skylee-responsive-image/skylee-responsive-image.html">
 
@@ -17,6 +18,7 @@
         @apply --skylee-shadow--elevation-2;
         transition: var(--skylee-shadow_transition);
         -webkit-transition: var(--skylee-shadow_transition); /* Fix for Safari */
+        -webkit-tap-highlight-color: transparent; /* for Android Chrome */
         position: relative;
       }
       #link:hover {
@@ -47,6 +49,12 @@
       #bannar:not([show]) {
         display: none;
       }
+      #ripple {
+        color: var(--skylee-text--base_color);
+      }
+      #ripple:not([show]) {
+        display: none;
+      }
     </style>
 
     <a id="link" href$="[[href]]">
@@ -60,6 +68,8 @@
       <div id="bannar" show$="[[_isTruthy(name)]]">
         [[name]]
       </div>
+
+      <paper-ripple id="ripple" show$="[[_isTruthy(href)]]"></paper-ripple>
 
     </a>
 

@@ -54,8 +54,8 @@
           if (prop in this._bindedPropertyEventListeners) {
             let data = this._bindedPropertyEventListeners[prop];
             data.target.removeEventListener(this.__propertyNameToEventName(data.name), data.listener);
+            propsToSet[prop] = undefined;
             delete this._bindedPropertyEventListeners[prop];
-            propsToSet = undefined;
           }
         }
         this.setProperties(propsToSet, true);

@@ -2,6 +2,7 @@
 <link rel="import" href="../../bower_components/shadycss/apply-shim.html">
 <link rel="import" href="../../bower_components/polymer/lib/mixins/gesture-event-listeners.html">
 
+<link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 
@@ -21,20 +22,28 @@
         z-index: 10;
         position: absolute;
         width: 100%;
-        height: 48px;
+        height: 64px;
         background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
         display: flex;
         align-items: center;
         pointer-events: none;
-        transition: opacity 330ms ease-out 0ms;
+        transition: opacity 330ms ease-out 0ms,
+                    height 330ms ease-out 0ms;
       }
       #toolbar[hide] {
         opacity: 0;
       }
+      #toolbar[short] {
+        height: 48px;
+      }
       #toolbar__back-button-link {
-        margin: 4px;
+        margin: 12px;
         pointer-events: auto;
         -webkit-tap-highlight-color: transparent; /* for Android Chrome */
+        transition: margin 330ms ease-out 0ms;
+      }
+      #toolbar[short] #toolbar__back-button-link {
+        margin: 4px;
       }
       #toolbar__back-button {
         color: white;
@@ -53,10 +62,22 @@
         position: relative;
         touch-action: none;
         transition: opacity 200ms ease-out 0ms;
+        -ms-user-select: none; /* Prevent wrapper being selected when double tap */
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        user-select: none;
+        cursor: auto;
+        cursor: -webkit-grab;
+        cursor: grab;
       }
       #img-wrapper:not([show]) {
         opacity: 0;
         pointer-events: none;
+      }
+      #img-wrapper[grabbing] {
+        cursor: move;
+        cursor: -webkit-grabbing;
+        cursor: grabbing;
       }
       #img {
         display: block;
@@ -64,16 +85,18 @@
         top: 0px;
         left: 0px;
         transform-origin: 0% 0%;
-        transition: transform 60ms ease-out 0ms;
-        -webkit-user-drag: none;
+        pointer-events: none; /* Prevent cross browser image dragging and ghost image */
       }
-      /*#canvas {
+      #img[smooth] {
+        transition: transform 60ms ease-out 0ms;
+      }
+      /* #canvas {
         position: absolute;
         width: 100%;
         height: 100%;
         pointer-events: none;
         z-index: 10;
-      }*/
+      }  */
 
       #loading-message {
         position: absolute;
@@ -122,24 +145,26 @@
       }
     </style>
 
-    <div id="toolbar" hide$="[[_hideToolbar]]">
+    <iron-media-query query="not all and (min-height: 500px)" query-matches="{{_shortToolbar}}" full></iron-media-query>
+
+    <div id="toolbar" hide$="[[_hideToolbar]]" short$="[[_shortToolbar]]">
       <a id="toolbar__back-button-link" href="javascript:window.history.back();" tabindex="-1">
         <paper-icon-button id="toolbar__back-button" icon="skylee:arrow-back"></paper-icon-button>
       </a>
       <p id="toolbar__title">[[_imageFilename]]</p>
     </div>
 
-    <div id="img-wrapper" show$="[[_imageLoaded]]">
-      <img id="img"></img> <!-- src set by js -->
-      <!--<canvas id="canvas" width="800" height="1160"></canvas>-->
+    <div id="img-wrapper" show$="[[_imageLoaded]]" grabbing$="[[_grabbingImg]]">
+      <img id="img"></img> <!-- src set by js, smooth set by js -->
+       <!-- <canvas id="canvas" width="800" height="1160"></canvas> -->
     </div>
 
     <div id="loading-message" show$="[[_imageLoading]]">
-      <p id="loading-message__text">Loading<br>[[_imageSrc]]</p>
+      <p id="loading-message__text">Loading...<!--<br>[[_imageSrc]]--></p>
     </div>
 
     <div id="error-message" show$="[[_imageError]]">
-      <p id="error-message__text">Error in loading<br>[[_imageSrc]]</p>
+      <p id="error-message__text">:(<br>Ops! The image cannot be displayed right now.<!--<br>[[_imageSrc]]--></p>
     </div>
 
   </template>
@@ -154,6 +179,9 @@
         _hideToolbar: {
           type: Boolean,
           value: false
+        },
+        _shortToolbar: {
+          type: Boolean
         },
 
         _imageSrc: {
@@ -196,26 +224,34 @@
           type: Number
         },
 
-        _imageFocusX: {
+        _imgX: {
           type: Number
         },
-        _imageFocusY: {
+        _imgY: {
           type: Number
         },
         _imgScale: {
           type: Number
+        },
+        _smoothImgTransform: {
+          type: Boolean,
+          value: false
+        },
+        _grabbingImg: {
+          type: Boolean,
+          value: false
         }
       };}
 
       static get observers() { return [
         '_onRoutePathChanged(route.path)',
 
-        '_onImgDisplayParamChanged(_imageLoaded, _imgWrapperWidth, _imgWrapperHeight, _imageWidth, _imageHeight, _imageFocusX, _imageFocusY, _imgScale)'
+        '_onImgDisplayParamChanged(_imgX, _imgY, _imgScale, _smoothImgTransform)'
       ];}
 
       constructor() {
         super();
-        this._activePointerEvents = [];
+        this._activePointerDataList = [];
       }
 
       ready() {
@@ -228,30 +264,30 @@
 
         this.addEventListener('iron-resize', e => this._onIronResize(e));
 
-        this.$['img-wrapper'].addEventListener('wheel', e => this._onWheelRotate(e));
+        this.$['img-wrapper'].addEventListener('wheel', e => this._onWheelRotate(e), window.eventPassiveSupported ? { passive: true } : false);
+        
+        if (window.PointerEvent) {
+          this.$['img-wrapper'].addEventListener('pointerdown', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'start')));
+          this.$['img-wrapper'].addEventListener('pointermove', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'move')));
+          this.$['img-wrapper'].addEventListener('pointerup', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'end')));
+          this.$['img-wrapper'].addEventListener('pointerleave', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'end')));
+          this.$['img-wrapper'].addEventListener('pointercancel', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'end')));
 
-        this.$['img-wrapper'].addEventListener('pointerdown', e => this._onPointerDown(e));
-        this.$['img-wrapper'].addEventListener('pointermove', e => this._onPointerMove(e));
-        this.$['img-wrapper'].addEventListener('pointerup', e => this._onPointerUp(e));
-        this.$['img-wrapper'].addEventListener('pointercancel', e => this._onPointerUp(e));
-        // this.$['img-wrapper'].addEventListener('pointerout', e => this._onPointerUp(e));
-        this.$['img-wrapper'].addEventListener('pointerleave', e => this._onPointerUp(e));
+        } else {
+          this.$['img-wrapper'].addEventListener('mousedown', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'start')));
+          this.$['img-wrapper'].addEventListener('mousemove', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'move')));
+          this.$['img-wrapper'].addEventListener('mouseup', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'end')));
+          this.$['img-wrapper'].addEventListener('mouseleave', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'end')));
+
+          if (window.TouchEvent) {
+            this.$['img-wrapper'].addEventListener('touchstart', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'start')), window.eventPassiveSupported ? { passive: true } : false);
+            this.$['img-wrapper'].addEventListener('touchmove', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'move')), window.eventPassiveSupported ? { passive: true } : false);
+            this.$['img-wrapper'].addEventListener('touchend', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'end')));
+            this.$['img-wrapper'].addEventListener('touchcancel', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'end')));
+          }
+        }
       }
 
-
-
-      // _showToolbar(autoHide) {
-      //   if (typeof this._showToolbarTaskId === 'number') {
-      //     clearInterval(this._showToolbarTaskId);
-      //     this._showToolbarTaskId = undefined;
-      //   }
-      //   this._hideToolbar = false;
-      //   if (autoHide) {
-      //     this._showToolbarTaskId = setTimeout(() => {
-      //       this._hideToolbar = true;
-      //     }, 2000);
-      //   }
-      // }
 
 
       _onTap(evt) {
@@ -263,7 +299,7 @@
       _onRoutePathChanged(routePath) {
         let matches = routePath.match(/^\/image-viewer(.*)$/);
         if (matches !== null) {
-          console.log('Load image: ' + matches[1]);
+          // console.log('Load image: ' + matches[1]);
           this._imageSrc = matches[1];
         } else {
           this._imageSrc = '';
@@ -304,12 +340,45 @@
           _imgWrapperWidth: this.$['img-wrapper'].clientWidth,
           _imgWrapperHeight: this.$['img-wrapper'].clientHeight
         });
+
+        let imageLoaded = this._imageLoaded;
+        let imgWrapperWidth = this._imgWrapperWidth;
+        let imgWrapperHeight = this._imgWrapperHeight;
+        let imageWidth = this._imageWidth;
+        let imageHeight = this._imageHeight;
+        let prevImgWrapperWidth = this.__prevImgWrapperWidth;
+        let prevImgWrapperHeight = this.__prevImgWrapperHeight;
+
+        this.__prevImgWrapperWidth = imgWrapperWidth;
+        this.__prevImgWrapperHeight = imgWrapperHeight;
+
+        if (imageLoaded && typeof imgWrapperWidth === 'number' && typeof imgWrapperHeight === 'number' &&
+            typeof imageWidth === 'number' && typeof imageHeight === 'number' &&
+            typeof prevImgWrapperWidth === 'number' && typeof prevImgWrapperHeight === 'number')
+        {
+          let imgRelativeRect = this._getImgRelativeRect();
+          let imgScale = imgRelativeRect.width / imageWidth;
+
+          let newImgScale = imgScale;
+          newImgScale = this._constraintImgScale(newImgScale, imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight);
+
+          let newImgX = imgWrapperWidth / 2 - ((prevImgWrapperWidth / 2 - imgRelativeRect.left) / imgScale) * newImgScale;
+          let newImgY = imgWrapperHeight / 2 - ((prevImgWrapperHeight / 2 - imgRelativeRect.top) / imgScale) * newImgScale;
+          ({imgX:newImgX, imgY:newImgY} = this._constraintImgXY(newImgX, newImgY, imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight, newImgScale));
+
+          this.setProperties({
+            _imgX: newImgX,
+            _imgY: newImgY,
+            _imgScale: newImgScale,
+            _smoothImgTransform: false
+          });
+        }
       }
 
 
 
       _onImageLoaded(evt) {
-        console.log(`Image loaded: w: ${evt.target.naturalWidth}, h: ${evt.target.naturalHeight}`);
+        // console.log(`Image loaded: w: ${evt.target.naturalWidth}, h: ${evt.target.naturalHeight}`);
         this.setProperties({
           _imageLoading: false,
           _imageLoaded: true,
@@ -317,10 +386,17 @@
           _imageWidth: evt.target.naturalWidth,
           _imageHeight: evt.target.naturalHeight
         });
+
+        let newImgScale = this._getImgMinScale(this._imgWrapperWidth, this._imgWrapperHeight, this._imageWidth, this._imageHeight);
+
+        let newImgX = (this._imgWrapperWidth - (this._imageWidth * newImgScale)) / 2;
+        let newImgY = (this._imgWrapperHeight - (this._imageHeight * newImgScale)) / 2;
+
         this.setProperties({
-          _imageFocusX: evt.target.naturalWidth / 2,
-          _imageFocusY: evt.target.naturalHeight / 2,
-          _imgScale: this._getImgMinScale(this._imgWrapperWidth, this._imgWrapperHeight, this._imageWidth, this._imageHeight),
+          _imgX: newImgX,
+          _imgY: newImgY,
+          _imgScale: newImgScale,
+          _smoothImgTransform: false
         });
       }
 
@@ -335,7 +411,7 @@
 
 
 
-      _onWheelRotate(wrapperWheelEvent) {
+      _onWheelRotate(evt) {
         let imageLoaded = this._imageLoaded;
         let imgWrapperWidth = this._imgWrapperWidth;
         let imgWrapperHeight = this._imgWrapperHeight;
@@ -348,205 +424,21 @@
         {
           let imgRelativeRect = this._getImgRelativeRect();
 
-          let currScale = imgRelativeRect.width / imageWidth;
-          let nextScale = this._constraintImgScale(currScale + (-this._normalizeDelta(wrapperWheelEvent.deltaY, wrapperWheelEvent.deltaMode)) / 250,
-                                                  imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight);
+          let imgScale = imgRelativeRect.width / imageWidth;
+          let newImgScale = imgScale + (-this._normalizeDelta(evt.deltaY, evt.deltaMode)) / 250;
+          newImgScale = this._constraintImgScale(newImgScale, imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight);
           
-          let nextImgX = wrapperWheelEvent.clientX - (((wrapperWheelEvent.clientX - imgRelativeRect.left) / currScale) * nextScale);
-          let nextImgY = wrapperWheelEvent.clientY - (((wrapperWheelEvent.clientY - imgRelativeRect.top) / currScale) * nextScale);
-
-          let nextImageFocusX = (imgWrapperWidth / 2 - nextImgX) / nextScale;
-          let nextImageFocusY = (imgWrapperHeight / 2 - nextImgY) / nextScale;
+          let newImgX = evt.clientX - (((evt.clientX - imgRelativeRect.left) / imgScale) * newImgScale);
+          let newImgY = evt.clientY - (((evt.clientY - imgRelativeRect.top) / imgScale) * newImgScale);
+          ({imgX:newImgX, imgY:newImgY} = this._constraintImgXY(newImgX, newImgY, imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight, newImgScale));
 
           this.setProperties({
-            _imageFocusX: nextImageFocusX,
-            _imageFocusY: nextImageFocusY,
-            _imgScale: nextScale
+            _imgX: newImgX,
+            _imgY: newImgY,
+            _imgScale: newImgScale,
+            _smoothImgTransform: true
           });
         }
-      }
-
-
-
-      _onPointerDown(evt) {
-        let imageLoaded = this._imageLoaded;
-        let imageWidth = this._imageWidth;
-        let imageHeight = this._imageHeight;
-
-        if (imageLoaded &&
-            typeof imageWidth === 'number' && typeof imageHeight === 'number')
-        {
-          let imgRelativeRect = this._getImgRelativeRect();
-          let imgScale = imgRelativeRect.width / imageWidth;
-
-          let wrapperX = evt.clientX;
-          let wrapperY = evt.clientY;
-          let imageX = (evt.clientX - imgRelativeRect.left) / imgScale;
-          let imageY = (evt.clientY - imgRelativeRect.top) / imgScale;
-          this._activePointerEvents.push({
-            event: evt,
-            initImgWrapperX: wrapperX,
-            initImgWrapperY: wrapperY,
-            initImageX: imageX,
-            initImageY: imageY
-          });
-        }
-      }
-
-      _onPointerMove(evt) {
-        for (let i = 0; i < this._activePointerEvents.length; ++i) {
-          if (this._activePointerEvents[i].event.pointerId === evt.pointerId) {
-            this._activePointerEvents[i].event = evt;
-            break;
-          }
-        }
-
-        if (!this.__scheduled_onPointerMove) {
-          this.__scheduled_onPointerMove = true;
-
-          setTimeout(() => {
-            this.__scheduled_onPointerMove = false;
-
-            let imageLoaded = this._imageLoaded;
-            let imgWrapperWidth = this._imgWrapperWidth;
-            let imgWrapperHeight = this._imgWrapperHeight;
-            let imageWidth = this._imageWidth;
-            let imageHeight = this._imageHeight;
-
-            if (imageLoaded &&
-                typeof imgWrapperWidth === 'number' && typeof imgWrapperHeight === 'number' &&
-                typeof imageWidth === 'number' && typeof imageHeight === 'number')
-            {
-              let propsToSet = {};
-
-              if (this._activePointerEvents.length === 1) {
-                let eventData = this._activePointerEvents[0];
-
-                let imgRelativeRect = this._getImgRelativeRect();
-                let newImgScale = imgRelativeRect.width / imageWidth;
-                let newImgX = eventData.event.clientX - (eventData.initImageX * newImgScale);
-                let newImgY = eventData.event.clientY - (eventData.initImageY * newImgScale);
-
-                propsToSet._imageFocusX = (imgWrapperWidth / 2 - newImgX) / newImgScale;
-                propsToSet._imageFocusY = (imgWrapperHeight / 2 - newImgY) / newImgScale;
-                propsToSet._imgScale = newImgScale;
-
-              } else if (this._activePointerEvents.length == 2) {
-                let eventData0 = this._activePointerEvents[0];
-                let eventData1 = this._activePointerEvents[1];
-
-                let newImgScale = Math.sqrt((Math.pow(eventData0.event.clientX - eventData1.event.clientX, 2) + Math.pow(eventData0.event.clientY - eventData1.event.clientY, 2))
-                                            / (Math.pow(eventData0.initImageX - eventData1.initImageX, 2) + Math.pow(eventData0.initImageY - eventData1.initImageY, 2)));
-                
-                let imgWrapperMidPointX = (eventData0.event.clientX + eventData1.event.clientX) / 2;
-                let imgWrapperMidPointY = (eventData0.event.clientY + eventData1.event.clientY) / 2;
-                let imageAnchorX = (eventData0.initImageX + eventData1.initImageX) / 2;
-                let imageAnchorY = (eventData0.initImageY + eventData1.initImageY) / 2;
-                let newImgX = imgWrapperMidPointX - imageAnchorX * newImgScale;
-                let newImgY = imgWrapperMidPointY - imageAnchorY * newImgScale;
-                let newImageFocusX = (imgWrapperWidth / 2 - newImgX) / newImgScale;
-                let newImageFocusY = (imgWrapperHeight / 2 - newImgY) / newImgScale;
-
-                // this._debug(eventData0.initImageX, eventData0.initImageY, eventData1.initImageX, eventData1.initImageY, eventData0.event.clientX, eventData0.event.clientY, eventData1.event.clientX, eventData1.event.clientY);
-
-                propsToSet._imageFocusX = newImageFocusX;
-                propsToSet._imageFocusY = newImageFocusY;
-                propsToSet._imgScale = newImgScale;
-
-              } else {
-                return;
-              }
-
-              this.setProperties(propsToSet);
-            }
-          }, 20);
-        }
-        
-      }
-
-      _onPointerUp(evt) {
-        for (let i = 0; i < this._activePointerEvents.length; ++i) {
-          if (this._activePointerEvents[i].event.pointerId === evt.pointerId) {
-            this._activePointerEvents.splice(i, 1);
-            break;
-          }
-        }
-      }
-      
-      
-
-      _onImgDisplayParamChanged(imageLoaded,
-                                imgWrapperWidth, imgWrapperHeight,
-                                imageWidth, imageHeight,
-                                imageFocusX, imageFocusY, imgScale)
-      {
-
-        if (typeof imgWrapperWidth === 'number' && typeof imgWrapperHeight === 'number') {
-          let transformStyle;
-
-          if (imageLoaded && typeof imageWidth === 'number' && typeof imageHeight === 'number' &&
-              typeof imageFocusX === 'number' && typeof imageFocusY === 'number' && typeof imgScale === 'number')
-          {
-            let imgX, imgY;
-
-            imgScale = this._constraintImgScale(imgScale, imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight);
-
-            if (imgScale <= (imgWrapperWidth / imageWidth)) {
-              imgX = (imgWrapperWidth - imageWidth * imgScale) / 2;
-            } else {
-              imgX = imgWrapperWidth / 2 - imageFocusX * imgScale;
-              
-              let left = imgX;
-              let right = imgX + imageWidth * imgScale;
-
-              if (left > 0 && right >= imgWrapperWidth) {
-                imgX = 0;
-              } else if (left <= 0 && right < imgWrapperWidth) {
-                imgX = imgWrapperWidth - imageWidth * imgScale;
-              }
-            }
-
-            if (imgScale <= (imgWrapperHeight / imageHeight)) {
-              imgY = (imgWrapperHeight - imageHeight * imgScale) / 2;
-            } else {
-              imgY = imgWrapperHeight / 2 - imageFocusY * imgScale;
-              
-              let top = imgY;
-              let bottom = imgY + imageHeight * imgScale;
-
-              if (top > 0 && bottom >= imgWrapperHeight) {
-                imgY = 0;
-              } else if (top <= 0 && bottom < imgWrapperHeight) {
-                imgY = imgWrapperHeight - imageHeight * imgScale;
-              }
-            }
-
-            transformStyle = `translate(${imgX}px, ${imgY}px) scale(${imgScale}, ${imgScale})`;
-
-          } else {
-            transformStyle = `translate(${imgWrapperWidth / 2}px, ${imgWrapperHeight / 2}px) scale(0, 0)`;
-          }
-
-          this.$.img.style.transform = transformStyle;
-        }
-      }
-
-
-
-      _getImgMinScale(imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight) {
-        return Math.min(Math.min(imgWrapperWidth / imageWidth, imgWrapperHeight / imageHeight) * 3/4, 1);
-      }
-
-      _getImgMaxScale() {
-        return 3;
-      }
-
-      _constraintImgScale(scale, imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight) {
-        return this._constraintValue(scale, this._getImgMinScale(imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight), this._getImgMaxScale());
-      }
-
-      _constraintValue(value, min, max) {
-        return Math.min(Math.max(value, min), max);
       }
 
       _normalizeDelta(delta, mode) {
@@ -560,8 +452,286 @@
         }
       }
 
-      _getImgRelativeRect(rect) {
-        rect = rect || {};
+
+
+      _toGestureEvent(evt, state) {
+        let trackEvent = {};
+        trackEvent.state = state;
+
+        /* These coordinates are assuming #img-wrapper
+         * is (0, 0) relative to the viewport
+         * and do not have any margin, border and padding.
+         */
+
+        if (window.PointerEvent && evt instanceof PointerEvent) {
+          // PointerEvent chould be checked before MouseEvent since PointerEvent is a subclass of MouseEvent
+          trackEvent.changedPointers = [{
+            pointerId: evt.pointerId,
+            x: evt.clientX,
+            y: evt.clientY
+          }];
+
+        } else if (window.MouseEvent && evt instanceof MouseEvent) {
+          trackEvent.changedPointers = [{
+            pointerId: 'm' + evt.button,
+            x: evt.clientX,
+            y: evt.clientY
+          }];
+
+        } else if (window.TouchEvent && evt instanceof TouchEvent) {
+          trackEvent.changedPointers = [];
+          for (let i = 0, touch; touch = evt.changedTouches[i]; ++i) {
+            trackEvent.changedPointers.push({
+              pointerId: 't' + touch.identifier,
+              x: touch.clientX,
+              y: touch.clientY
+            });
+          }
+        }
+
+        return trackEvent;
+      }
+
+      _onGestureEventOccurred(evt) {
+        if (evt.state === 'start') {
+          // console.log(pointerId + ' start');
+          let prevGestureType = this._getGestureType(this._activePointerDataList);
+          if (prevGestureType) this._scheduleHandleGesture(prevGestureType, 'end', this._activePointerDataList, true);
+
+          for (let i = 0, pointer; pointer = evt.changedPointers[i]; ++i) {
+            this._activePointerDataList.push({
+              pointerId: pointer.pointerId,
+              x: pointer.x,
+              y: pointer.y
+            });
+          }
+
+          let gestureType = this._getGestureType(this._activePointerDataList);
+          if (gestureType) this._scheduleHandleGesture(gestureType, 'start', this._activePointerDataList, true);
+
+        } else if (evt.state === 'move') {
+          // console.log(pointerId + ' move');
+          let updated = false;
+          for (let i = 0, pointer; pointer = evt.changedPointers[i]; ++i) {
+            for (let j = 0, data; data = this._activePointerDataList[j]; ++j) {
+              if (pointer.pointerId === data.pointerId) {
+                updated = true;
+                data.x = pointer.x;
+                data.y = pointer.y;
+                break;
+              }
+            }
+          }
+          
+          if (updated) {
+            let gestureType = this._getGestureType(this._activePointerDataList);
+            if (gestureType) this._scheduleHandleGesture(gestureType, 'move', this._activePointerDataList, false);
+          }
+
+        } else if (evt.state === 'end') {
+          // console.log(pointerId + ' end');
+          let updated = false;
+          for (let i = 0, pointer; pointer = evt.changedPointers[i]; ++i) {
+            for (let j = 0, data; data = this._activePointerDataList[j]; ++j) {
+              if (pointer.pointerId === data.pointerId) {
+                updated = true;
+                data.x = pointer.x;
+                data.y = pointer.y;
+                break;
+              }
+            }
+          }
+          if (updated) {
+            let prevGestureType = this._getGestureType(this._activePointerDataList);
+            if (prevGestureType) this._scheduleHandleGesture(prevGestureType, 'end', this._activePointerDataList, true);
+
+            for (let i = 0, pointer; pointer = evt.changedPointers[i]; ++i) {
+              for (let j = 0, data; data = this._activePointerDataList[j]; ++j) {
+                if (pointer.pointerId === data.pointerId) {
+                  this._activePointerDataList.splice(j, 1);
+                  break;
+                }
+              }
+            }
+
+            let gestureType = this._getGestureType(this._activePointerDataList);
+            if (gestureType) this._scheduleHandleGesture(gestureType, 'start', this._activePointerDataList, true);
+          }
+        }
+      }
+
+      _getGestureType(pointerDataList) {
+        switch (pointerDataList.length) {
+          case 1: return 'pan';
+          case 2: return 'zoom';
+          default: return '';
+        }
+      }
+
+      _scheduleHandleGesture(gestureType, state, pointerDataList, now) {
+        if (now) {
+          if (typeof this.__scheduled_handleGesture === 'number') {
+            clearInterval(this.__scheduled_handleGesture);
+            this.__scheduled_handleGesture = undefined;
+          }
+          this._handleGesture(gestureType, state, pointerDataList);
+        } else {
+          if (typeof this.__scheduled_handleGesture !== 'number') {
+            this.__scheduled_handleGesture = setTimeout(() => {
+              this.__scheduled_handleGesture = undefined;
+              this._handleGesture(gestureType, state, pointerDataList);
+            }, 20);
+          }
+        }
+      }
+
+      _handleGesture(gestureType, state, pointerDataList) {
+        switch (gestureType) {
+          case 'pan': this._handlePanGesture(state, pointerDataList); break;
+          case 'zoom': this._handleZoomGesture(state, pointerDataList); break;
+        }
+      }
+
+      _handlePanGesture(state, pointerDataList) {
+        // console.log('pan ' + state);
+        let pointerData = pointerDataList[0];
+
+        let imageLoaded = this._imageLoaded;
+        let imgWrapperWidth = this._imgWrapperWidth;
+        let imgWrapperHeight = this._imgWrapperHeight;
+        let imageWidth = this._imageWidth;
+        let imageHeight = this._imageHeight;
+
+        let pointerImageAnchorX = this.__panPointerImageAnchorX;
+        let pointerImageAnchorY = this.__panPointerImageAnchorY;
+
+        let propsToSet = {};
+
+        if (imageLoaded && typeof imgWrapperWidth === 'number' && typeof imgWrapperHeight === 'number' &&
+            typeof imageWidth === 'number' && typeof imageHeight === 'number')
+        {
+          let imgRelativeRect = this._getImgRelativeRect();
+          let imgScale = imgRelativeRect.width / imageWidth;
+
+          if (state === 'start') {
+            this.__panPointerImageAnchorX = (pointerData.x - imgRelativeRect.left) / imgScale;
+            this.__panPointerImageAnchorY = (pointerData.y - imgRelativeRect.top) / imgScale;
+
+            propsToSet._grabbingImg = true;
+
+          } else if ((state === 'move' || state === 'end') && typeof pointerImageAnchorX === 'number' && typeof pointerImageAnchorY === 'number') {
+            let newImgScale = imgScale;
+            let newImgX = pointerData.x - (pointerImageAnchorX * newImgScale);
+            let newImgY = pointerData.y - (pointerImageAnchorY * newImgScale);
+
+            ({imgX:newImgX, imgY:newImgY} = this._constraintImgXY(newImgX, newImgY, imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight, newImgScale));
+            this.__panPointerImageAnchorX = (pointerData.x - newImgX) / newImgScale;
+            this.__panPointerImageAnchorY = (pointerData.y - newImgY) / newImgScale;
+
+            propsToSet._imgX = newImgX;
+            propsToSet._imgY = newImgY;
+            propsToSet._imgScale = newImgScale;
+            propsToSet._smoothImgTransform = false;
+          }
+        }
+
+        if (state === 'end') {
+          this.__panPointerImageAnchorX = this.__panPointerImageAnchorY = undefined;
+          propsToSet._grabbingImg = false;
+        }
+
+        this.setProperties(propsToSet);
+      }
+
+      _handleZoomGesture(state, pointerDataList) {
+        // console.log('zoom ' + state);
+        let pointer0Data = pointerDataList[0];
+        let pointer1Data = pointerDataList[1];
+
+        let imageLoaded = this._imageLoaded;
+        let imgWrapperWidth = this._imgWrapperWidth;
+        let imgWrapperHeight = this._imgWrapperHeight;
+        let imageWidth = this._imageWidth;
+        let imageHeight = this._imageHeight;
+
+        let pointer0ImageAnchorX = this.__zoomPointer0ImageAnchorX;
+        let pointer0ImageAnchorY = this.__zoomPointer0ImageAnchorY;
+        let pointer1ImageAnchorX = this.__zoomPointer1ImageAnchorX;
+        let pointer1ImageAnchorY = this.__zoomPointer1ImageAnchorY;
+
+        let propsToSet = {};
+
+        if (imageLoaded && typeof imgWrapperWidth === 'number' && typeof imgWrapperHeight === 'number' &&
+            typeof imageWidth === 'number' && typeof imageHeight === 'number')
+        {
+          let imgRelativeRect = this._getImgRelativeRect();
+          let imgScale = imgRelativeRect.width / imageWidth;
+
+          if (state === 'start') {
+            this.__zoomPointer0ImageAnchorX = (pointer0Data.x - imgRelativeRect.left) / imgScale;
+            this.__zoomPointer0ImageAnchorY = (pointer0Data.y - imgRelativeRect.top) / imgScale;
+            this.__zoomPointer1ImageAnchorX = (pointer1Data.x - imgRelativeRect.left) / imgScale;
+            this.__zoomPointer1ImageAnchorY = (pointer1Data.y - imgRelativeRect.top) / imgScale;
+
+          } else if ((state === 'move' || state === 'end') &&
+                     typeof pointer0ImageAnchorX === 'number' && typeof pointer0ImageAnchorY === 'number' &&
+                     typeof pointer1ImageAnchorX === 'number' && typeof pointer1ImageAnchorY === 'number')
+          {
+            let newImgScale = this._distance(pointer0Data.x, pointer0Data.y, pointer1Data.x, pointer1Data.y)
+                              / this._distance(pointer0ImageAnchorX, pointer0ImageAnchorY, pointer1ImageAnchorX, pointer1ImageAnchorY);
+            newImgScale = this._constraintImgScale(newImgScale, imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight);
+            
+            let pointerMidX = (pointer0Data.x + pointer1Data.x) / 2;
+            let pointerMidY = (pointer0Data.y + pointer1Data.y) / 2;
+            let anchorImageX = (pointer0ImageAnchorX + pointer1ImageAnchorX) / 2;
+            let anchorImageY = (pointer0ImageAnchorY + pointer1ImageAnchorY) / 2;
+
+            let newImgX = pointerMidX - anchorImageX * newImgScale;
+            let newImgY = pointerMidY - anchorImageY * newImgScale;
+            ({imgX:newImgX, imgY:newImgY} = this._constraintImgXY(newImgX, newImgY, imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight, newImgScale));
+
+            this.__zoomPointer0ImageAnchorX = (pointer0Data.x - newImgX) / newImgScale;
+            this.__zoomPointer0ImageAnchorY = (pointer0Data.y - newImgY) / newImgScale;
+            this.__zoomPointer1ImageAnchorX = (pointer1Data.x - newImgX) / newImgScale;
+            this.__zoomPointer1ImageAnchorY = (pointer1Data.y - newImgY) / newImgScale;
+
+            // this._debug(pointerData0.anchorImageX, pointerData0.anchorImageY, pointerData1.anchorImageX, pointerData1.anchorImageY, pointerData0.clientX, pointerData0.clientY, pointerData1.clientX, pointerData1.clientY);
+
+            propsToSet._imgX = newImgX;
+            propsToSet._imgY = newImgY;
+            propsToSet._imgScale = newImgScale;
+            propsToSet._smoothImgTransform = false;
+          }
+        }
+
+        if (state === 'end') {
+          this.__zoomPointer0ImageAnchorX = undefined;
+          this.__zoomPointer0ImageAnchorY = undefined;
+          this.__zoomPointer1ImageAnchorX = undefined;
+          this.__zoomPointer1ImageAnchorY = undefined;
+        }
+
+        this.setProperties(propsToSet);
+      }
+
+      _distance(x0, y0, x1, y1) {
+        return Math.sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0));
+      }
+      
+
+
+      _onImgDisplayParamChanged(imgX, imgY, imgScale, smoothImgTransform) {
+        if (smoothImgTransform) this.$.img.setAttribute('smooth', '');
+        else this.$.img.removeAttribute('smooth');
+        if (typeof imgX === 'number' && typeof imgY === 'number' && typeof imgScale === 'number') {
+          this.$.img.style.transform = `translate(${imgX}px, ${imgY}px) scale(${imgScale}, ${imgScale})`;
+        }
+      }
+
+
+
+      _getImgRelativeRect() {
+        let rect = (this.__imgRelativeRect = this.__imgRelativeRect || {});
         let wrapperRect = this.$['img-wrapper'].getBoundingClientRect();
         let imgRect = this.$.img.getBoundingClientRect();
         rect.left = imgRect.left - wrapperRect.left;
@@ -572,6 +742,60 @@
         rect.height = imgRect.height;
         return rect;
       }
+
+      _constraintImgScale(scale, imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight) {
+        return this._constraintValue(scale, this._getImgMinScale(imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight), this._getImgMaxScale());
+      }
+
+      _getImgMinScale(imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight) {
+        return Math.min(Math.min(imgWrapperWidth / imageWidth, imgWrapperHeight / imageHeight) * 3/4, 1);
+      }
+
+      _getImgMaxScale() {
+        return 2;
+      }
+
+      _constraintValue(value, min, max) {
+        return Math.min(Math.max(value, min), max);
+      }
+      
+      _constraintImgXY(imgX, imgY,
+                       imgWrapperWidth, imgWrapperHeight,
+                       imageWidth, imageHeight, imgScale)
+      {
+        let returnValues = (this.__constraintImgPropertiesReturnValues = this.__constraintImgPropertiesReturnValues || {});
+
+        if (imgScale <= (imgWrapperWidth / imageWidth)) {
+          imgX = (imgWrapperWidth - imageWidth * imgScale) / 2;
+        } else {
+          let left = imgX;
+          let right = imgX + imageWidth * imgScale;
+
+          if (left > 0 && right >= imgWrapperWidth) {
+            imgX = 0;
+          } else if (left <= 0 && right < imgWrapperWidth) {
+            imgX = imgWrapperWidth - imageWidth * imgScale;
+          }
+        }
+
+        if (imgScale <= (imgWrapperHeight / imageHeight)) {
+          imgY = (imgWrapperHeight - imageHeight * imgScale) / 2;
+        } else {
+          let top = imgY;
+          let bottom = imgY + imageHeight * imgScale;
+
+          if (top > 0 && bottom >= imgWrapperHeight) {
+            imgY = 0;
+          } else if (top <= 0 && bottom < imgWrapperHeight) {
+            imgY = imgWrapperHeight - imageHeight * imgScale;
+          }
+        }
+
+        returnValues.imgX = imgX;
+        returnValues.imgY = imgY;
+        return returnValues;
+      }
+
 
 
       // _debug(image0X, image0Y, image1X, image1Y, wrapper0X, wrapper0Y, wrapper1X, wrapper1Y) {
