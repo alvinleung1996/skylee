@@ -1,0 +1,114 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
+
+<dom-module id="skylee-team-base-album-image-tile">
+  <template strip-whitespace>
+    <style>
+      :host {
+        display: flex;
+      }
+      #link {
+        flex: 1 1 auto;
+        display: block;
+        border-radius: 2px;
+        overflow: hidden;
+        @apply --skylee-shadow--elevation-2;
+        transition: var(--skylee-shadow_transition);
+        -webkit-transition: var(--skylee-shadow_transition); /* Fix for Safari */
+        -webkit-tap-highlight-color: transparent; /* for Android Chrome */
+        position: relative;
+      }
+      #link:hover {
+        @apply --skylee-shadow--elevation-6;
+        z-index: 10;
+      }
+      #filling {
+        width: 100%;
+        padding-bottom: 100%;
+      }
+      #image {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        bottom: 0px;
+        left: 0px;
+      }
+      #bannar {
+        position: absolute;
+        left: 0px;
+        bottom: 0px;
+        right: 0px;
+        background-color: var(--skylee-background--primary_background-color);
+        padding: 16px;
+        @apply --skylee-text--subheading_font;
+        color: var(--skylee-text--primary_color);
+      }
+      #bannar:not([show]) {
+        display: none;
+      }
+      #ripple {
+        color: var(--skylee-text--base_color);
+      }
+      #ripple:not([show]) {
+        display: none;
+      }
+    </style>
+
+    <a id="link" href$="[[_href]]">
+
+      <div id="filling"></div>
+
+      <iron-image id="image" src="[[_imgSrc]]" sizing="cover" preload fade></iron-image>
+
+      <div id="bannar" show$="[[_isTruthy(name)]]">[[name]]</div>
+
+      <paper-ripple id="ripple" show$="[[_isTruthy(_href)]]"></paper-ripple>
+
+    </a>
+
+  </template>
+  <script>
+    class SkyleeTeamBaseAlbumImageTile extends Polymer.Element {
+
+      static get is() { return 'skylee-team-base-album-image-tile'; }
+
+      static get properties() { return {
+        src: String,
+        name: String,
+
+        _href: {
+          type: String,
+          computed: '_computeHref(src)'
+        },
+        _imgSrc: {
+          type: String,
+          computed: '_computeImgSrc(src)'
+        }
+      };}
+
+      _computeHref(src) {
+        if (/^[\w\.\-\/]+\.\w+$/.test(src)) {
+          return '/image-viewer' + src;
+        } else {
+          return null;
+        }
+      }
+
+      _computeImgSrc(src) {
+        if (/^[\w\.\-\/]+\.\w+$/.test(src)) {
+          return src + '?w=300&h=300';
+        } else {
+          return null;
+        }
+      }
+
+      _isTruthy(value) {
+        return Boolean(value);
+      }
+
+    }
+    window.customElements.define(SkyleeTeamBaseAlbumImageTile.is, SkyleeTeamBaseAlbumImageTile);
+  </script>
+</dom-module>

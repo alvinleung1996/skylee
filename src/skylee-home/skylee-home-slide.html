@@ -1,0 +1,91 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/shadycss/apply-shim.html">
+
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+
+<link rel="import" href="../../bower_components/curium-responsive-image/curium-responsive-image.html">
+
+<dom-module id="skylee-home-slide">
+  <template strip-whitespace>
+    <style>
+      :host {
+        display: block;
+        /* position already absolute */
+        overflow: hidden;
+      }
+      #responsive-image {
+        width: 100%;
+        height: 100%;
+      }
+      :host(.iron-selected) #image {
+        /* animation will be re-applied everytime the slide is selected by the class .iron-selected */
+        animation: slide-animation 3s ease-out 0s 1 normal forwards;
+        /* Fix for IE11: IE does not support putting play-state into the animation property */
+        animation-play-state: running;
+      }
+      @keyframes slide-animation {
+        from {
+          transform: scale(1.1, 1.1);
+        }
+        to {
+          transform: scale(1, 1);
+        }
+      }
+      #overlay {
+        position: absolute;
+        left: 0px;
+        bottom: 0px;
+        right: 0px;
+        height: 200px;
+        background-image: linear-gradient(to top, rgba(0, 0, 0, 0.75), transparent);
+        display: flex;
+        justify-content: center;
+      }
+      #caption {
+        flex: 0 1 var(--skylee-content_max-width);
+        padding: 20px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: flex-end;
+        @apply --skylee-text--display1_font;
+        color: white;
+      }
+    </style>
+
+    <curium-responsive-image
+      id="responsive-image"
+      width="[[width]]"
+      height="[[height]]"
+      src-map="[[srcMap]]"
+      sizing="cover"
+      prevent-load="[[preventLoad]]">
+      <iron-image id="image" sizing="cover" preload fade></iron-image>
+    </curium-responsive-image>
+    <div id="overlay">
+      <div id="caption">[[caption]]</div>
+    </div>
+
+  </template>
+  <script>
+    class SkyleeHomeSlide extends Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element) {
+
+      static get is() { return 'skylee-home-slide'; }
+
+      static get properties() { return {
+        
+        width: Number,
+        height: Number,
+        srcMap: String,
+        preventLoad: {
+          type: Boolean,
+          value: true
+        },
+        caption: String
+
+      };}
+
+    }
+    window.customElements.define(SkyleeHomeSlide.is, SkyleeHomeSlide);
+  </script>
+</dom-module>

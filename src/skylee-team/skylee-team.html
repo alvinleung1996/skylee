@@ -1,311 +1,193 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/polymer/lib/utils/debounce.html">
 <link rel="import" href="../../bower_components/shadycss/apply-shim.html">
 
-<link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
-<link rel="import" href="../../bower_components/curium-proportional/curium-proportional.html">
-<link rel="import" href="../../bower_components/curium-responsive-layout/curium-responsive-layout.html">
+<link rel="import" href="../../bower_components/curium-animated-pages/curium-animated-pages.html">
+<link rel="import" href="../../bower_components/curium-animated-pages/animations/curium-scene-animation-manager.html">
+<link rel="import" href="../../bower_components/curium-route/curium-route.html">
+
+<link rel="import" href="../skylee-property-binder-behavior/skylee-property-binder-behavior.html">
+<link rel="import" href="all/skylee-team-all.html">
+<link rel="import" href="base/skylee-team-base.html">
 
 <dom-module id="skylee-team">
   <template strip-whitespace>
     <style>
       :host {
         display: block;
-        overflow-x: hidden;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-        padding-top: var(--skylee-toolbar-height);
-        background-color: var(--skylee-primary-background-color);
-      }
-
-      .section {
-        display: flex;
-        justify-content: center;
-      }
-      .section:not(:first-of-type) {
-        border-top: 1px solid var(--skylee-divider-color);
-      }
-      .section:nth-of-type(odd) {
-        background-color: var(--skylee-primary-background-color);
-      }
-      .section:nth-of-type(even) {
-        background-color: var(--skylee-secondary-background-color);
-      }
-      .section > * {
-        flex: 0 1 var(--skylee-content-max-width);
-        box-sizing: border-box;
-      }
-
-      [layout="vertical"] {
-        display: flex;
-        flex-direction: column;
-      }
-      [layout="vertical"] > * {
-        flex: 1 0 auto;
-      }
-
-      .padding-block {
-        padding: 20px;
-      }
-
-      .text-block {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: flex-start;
-      }
-      .text-block > :not(:first-child) {
-        margin-top: 16px;
-      }
-      .text-block > h2 {
-        margin: 0;
-        @apply --skylee-headline-font;
-        color: var(--skylee-primary-text-color);
-      }
-      .text-block > p {
-        margin: 0;
-        @apply --skylee-body1-font;
-        color: var(--skylee-secondary-text-color);
-        text-align: justify;
-      }
-
-      .teams-block[layout="narrow"] {
-        display: flex;
-        flex-direction: column;
-      }
-      .teams-block[layout="narrow"] > :not(:first-child) {
-        margin-top: 5px;
-      }
-      .teams-block[layout="normal"] {
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-      }
-      .teams-block[layout="normal"] > * {
-        flex: 0 0 250px;
-        margin: 5px;
-      }
-      @supports (display: grid) {
-        .teams-block[layout="normal"] {
-          justify-content: initial;
-          flex-wrap: initial;
-
-          display: grid;
-          /* chrome bug: the "250px" will make the row height locked at 250px
-            which ignore the children height (The children overflowed) */
-          grid-template-columns: repeat(auto-fill, minmax(250px, auto));
-          grid-auto-rows: auto;
-          grid-gap: 5px;
-        }
-        .teams-block[layout="normal"] > * {
-          flex-basis: initial;
-          margin: initial;
-        }
-      }
-
-      .team-block {
-        /* curium-proportional alreay relative positioned this element */
-        --curium-proportional-aspect-ratio: 100%;
         overflow: hidden;
-        border: 1px solid black;
-        transform: none;
+        background-color: var(--skylee-background--secondary_background-color);
       }
-      .team-block > #cover {
-        /* curium-proportional alreay absolute positioned this element */
-      }
-      .team-block > #overlay {
-        /* curium-proportional alreay absolute positioned this element */
-        padding: 10px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        background-color: rgba(0, 0, 0, 0.75);
-        opacity: 1;
-        transition: opacity 200ms ease-out 0ms;
-      }
-      .team-block:hover > #overlay {
-        opacity: 0;
-      }
-      .team-block > #overlay > h2 {
-        margin: 16px 0px 0px 0px;
-        @apply --skylee-headline-font;
-        color: white;
-      }
-      .team-block > #overlay > img {
-        width: 64px;
-        height: 64px;
-        image-rendering: -webkit-optimize-contrast; /* Chrome only look less blurry with this option */
+      #team-pages {
+        width: 100%;
+        height: 100%;
       }
     </style>
 
-    <div class="section">
-      <div layout="vertical">
+    <curium-route
+      route="{{route}}"
+      prefix-pattern="/team"
+      data-pattern="/teamPageID"
+      data="{{_routeData}}"
+      tail="{{_subroute}}">
+    </curium-route>
 
-        <div class="padding-block text-block">
-          <h2>Sports Teams</h2>
-        </div>
+    <curium-scene-animation-manager id="team-page-animation-manager" duration="330"></curium-scene-animation-manager>
+    <curium-animated-pages
+      id="team-pages"
+      attr-for-selected="team-page-id"
+      selected="[[_selectedTeamPageID]]"
+      animation-manager="#team-page-animation-manager">
 
-        <curium-responsive-layout class="padding-block teams-block" layout-map='{"0":"narrow","300":"normal"}'>
+      <skylee-team-all team-page-id="all" toolbar-height="[[toolbarHeight]]"></skylee-team-all> <!-- element already imported -->
 
-          <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/badminton/cover.jpg" sizing="cover" preload fade></iron-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/badminton/symbol.png"></img>
-              <h2>Badminton</h2>
-            </div>
-          </curium-proportional>
+       <skylee-team-badminton level="1" team-page-id="badminton" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/badminton/skylee-team-badminton.html"></skylee-team-badminton>
 
-          <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/basketball/cover.jpg" sizing="cover" preload fade></iron-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/basketball/symbol.png"></img>
-              <h2>Basketball</h2>
-            </div>
-          </curium-proportional>
+      <skylee-team-basketball level="1" team-page-id="basketball" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/basketball/skylee-team-basketball.html"></skylee-team-basketball>
 
-          <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/handball/cover.jpg" sizing="cover" preload fade></iron-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/handball/symbol.png"></img>
-              <h2>Handball</h2>
-            </div>
-          </curium-proportional>
+      <skylee-team-handball level="1" team-page-id="handball" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/handball/skylee-team-handball.html"></skylee-team-handball>
 
-          <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/hockey/cover.jpg" sizing="cover" preload fade></iron-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/hockey/symbol.png"></img>
-              <h2>Hockey</h2>
-            </div>
-          </curium-proportional>
+      <skylee-team-hockey level="1" team-page-id="hockey" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/hockey/skylee-team-hockey.html"></skylee-team-hockey>
 
-          <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/lacrosse/cover.jpg" sizing="cover" preload fade></iron-image>
-            <div id="overlay">
-              <h2>Lacrosse</h2>
-            </div>
-          </curium-proportional>
+      <skylee-team-lacrosse level="1" team-page-id="lacrosse" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/lacrosse/skylee-team-lacrosse.html"></skylee-team-lacrosse>
 
-          <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/soccer/cover.jpg" sizing="cover" preload fade></iron-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/soccer/symbol.png"></img>
-              <h2>Soccer</h2>
-            </div>
-          </curium-proportional>
+      <skylee-team-soccer level="1" team-page-id="soccer" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/soccer/skylee-team-soccer.html"></skylee-team-soccer>
 
-          <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/softball/cover.jpg" sizing="cover" preload fade></iron-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/softball/symbol.png"></img>
-              <h2>Softball</h2>
-            </div>
-          </curium-proportional>
+      <skylee-team-softball level="1" team-page-id="softball" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/softball/skylee-team-softball.html"></skylee-team-softball>
 
-          <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/squash/cover.jpg" sizing="cover" preload fade></iron-image>
-            <div id="overlay">
-              <h2>Squash</h2>
-            </div>
-          </curium-proportional>
+      <skylee-team-squash level="1" team-page-id="squash" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/squash/skylee-team-squash.html"></skylee-team-squash>
 
-          <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/table-tennis/cover.jpg" sizing="cover" preload fade></iron-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/table-tennis/symbol.png"></img>
-              <h2>Table Tennis</h2>
-            </div>
-          </curium-proportional>
+      <skylee-team-table-tennis level="1" team-page-id="table-tennis" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/table-tennis/skylee-team-table-tennis.html"></skylee-team-table-tennis>
 
-          <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/volleyball/cover.jpg" sizing="cover" preload fade></iron-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/volleyball/symbol.png"></img>
-              <h2>Volleyball</h2>
-            </div>
-          </curium-proportional>
+      <skylee-team-volleyball level="1" team-page-id="volleyball" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/volleyball/skylee-team-volleyball.html"></skylee-team-volleyball>
 
-        </curium-responsive-layout>
-      </div>
-    </div>
+      <skylee-team-band level="1" team-page-id="band" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/band/skylee-team-band.html"></skylee-team-band>
 
-    <div class="section">
-      <div layout="vertical">
+      <skylee-team-bridge level="1" team-page-id="bridge" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/bridge/skylee-team-bridge.html"></skylee-team-bridge>
 
-        <div class="padding-block text-block">
-          <h2>Cultural Teams</h2>
-        </div>
+      <skylee-team-choir level="1" team-page-id="choir" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/choir/skylee-team-choir.html"></skylee-team-choir>
 
-        <curium-responsive-layout class="padding-block teams-block" layout-map='{"0":"narrow","300":"normal"}'>
+      <skylee-team-dancing level="1" team-page-id="dancing" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/dancing/skylee-team-dancing.html"></skylee-team-dancing>
 
-          <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/band/cover.jpg" sizing="cover" preload fade></iron-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/band/symbol.png"></img>
-              <h2>Band</h2>
-            </div>
-          </curium-proportional>
+      <skylee-team-debating level="1" team-page-id="debating" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/debating/skylee-team-debating.html"></skylee-team-debating>
 
-          <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/bridge/cover.jpg" sizing="cover" preload fade></iron-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/bridge/symbol.png"></img>
-              <h2>Bridge</h2>
-            </div>
-          </curium-proportional>
+      <skylee-team-drama level="1" team-page-id="drama" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/drama/skylee-team-drama.html"></skylee-team-drama>
 
-          <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/choir/cover.jpg" sizing="cover" preload fade></iron-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/choir/symbol.png"></img>
-              <h2>Choir</h2>
-            </div>
-          </curium-proportional>
-
-          <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/dancing/cover.jpg" sizing="cover" preload fade></iron-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/dancing/symbol.png"></img>
-              <h2>Dancing</h2>
-            </div>
-          </curium-proportional>
-
-          <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/debating/cover.jpg" sizing="cover" preload fade></iron-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/debating/symbol.png"></img>
-              <h2>Debating</h2>
-            </div>
-          </curium-proportional>
-
-          <curium-proportional class="team-block">
-            <iron-image id="cover" src="[[rootPath]]images/team/drama/cover.jpg" sizing="cover" preload fade></iron-image>
-            <div id="overlay">
-              <img src$="[[rootPath]]images/team/drama/symbol.png"></img>
-              <h2>Drama</h2>
-            </div>
-          </curium-proportional>
-
-        </curium-responsive-layout>
-      </div>
-    </div>
+    </curium-animated-pages>
 
   </template>
   <script>
-    class SkyleeTeam extends Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element) {
+    class SkyleeTeam extends Skylee.SkyleePropertyBinderBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
       
       static get is() { return 'skylee-team'; }
 
       static get properties() {
         return {
+          route: Object,
+          toolbarHeight: Number,
+
           tabPageTitle: {
             type: String,
-            value: 'Team',
+            computed: '_computeTabPageTitle(_teamPageTitle)',
             notify: true
+          },
+          hideToolbar: {
+            type: Boolean,
+            value: false,
+            readOnly: true,
+            notify: true
+          },
+          showToolbarShadow: {
+            type: Boolean,
+            value: false,
+            readOnly: true,
+            notify: true
+          },
+          toolbarBackButtonUrl: {
+            type: String,
+            readOnly: true,
+            notify: true
+          },
+
+          _selectedTeamPageID: {
+            type: String,
+            computed: '_computeSelectedTeamPageID(_routeData.teamPageID)'
+          },
+          _teamPageTitle: {
+            type: String
           }
-        };
+        }
+      }
+
+      ready() {
+        super.ready();
+        this.$['team-pages'].addEventListener('iron-select', e => {
+          if (e.target === this.$['team-pages']) this._onTeamPageSelectionChanged();
+        })
+        this.$['team-pages'].addEventListener('iron-deselect', e => {
+          if (e.target === this.$['team-pages']) this._onTeamPageSelectionChanged();
+        })
+      }
+
+      _computeTabPageTitle(teamPageTitle) {
+        return teamPageTitle || 'Team';
+      }
+
+      _computeSelectedTeamPageID(id) {
+        return id || 'all';
+      }
+
+      _onTeamPageSelectionChanged() {
+        this._teamPageSelectionDebouncer = Polymer.Debouncer.debounce(this._teamPageSelectionDebouncer, Polymer.Async.microTask, () => {
+
+          let selectedTeamPage = this.$['team-pages'].selectedItem;
+          let deselectedTeamPage = this._prevSelectedTeamPage;
+
+          this._prevSelectedTeamPage = selectedTeamPage;
+
+          this._loadTeamPage(selectedTeamPage);
+          this._bindTeamPageProperties(selectedTeamPage);
+        });
+      }
+
+      _loadTeamPage(selectedTeamPage) {
+        if (selectedTeamPage) {
+          if (selectedTeamPage.hasAttribute('element-path') && !selectedTeamPage.hasAttribute('element-loading') && !selectedTeamPage.hasAttribute('element-loaded')) {
+            let path = this.resolveUrl(selectedTeamPage.getAttribute('element-path'));
+            selectedTeamPage.setAttribute('element-loading', '');
+            Polymer.importHref(path, () => {
+              selectedTeamPage.removeAttribute('element-loading');
+              selectedTeamPage.setAttribute('element-loaded', '');
+            }, null, true);
+          }
+        }
+      }
+
+      _bindTeamPageProperties(selectedTeamPage) {
+        this._bindProperties({
+          _teamPageTitle: 'teamPageTitle',
+          hideToolbar: 'hideToolbar',
+          showToolbarShadow: 'showToolbarShadow',
+          toolbarBackButtonUrl: 'toolbarBackButtonUrl'
+        }, selectedTeamPage);
       }
 
     }

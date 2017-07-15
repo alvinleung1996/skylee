@@ -1,0 +1,115 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/shadycss/apply-shim.html">
+
+<link rel="import" href="../../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
+
+<dom-module id="skylee-team-tile">
+  <template strip-whitespace>
+    <style>
+      :host {
+        display: flex;
+      }
+      #link {
+        flex: 1 1 auto;
+        display: block;
+        border-radius: 2px;
+        overflow: hidden;
+        position: relative;
+        -webkit-tap-highlight-color: transparent; /* for Android Chrome */
+        @apply --skylee-shadow--elevation-2;
+        transition: var(--skylee-shadow_transition);
+        /* Safari Bug: transition cannot use var */
+        -webkit-transition: var(--skylee-shadow_transition);
+      }
+      #link:hover {
+        @apply --skylee-shadow--elevation-8;
+        z-index: 10; /* Ensure shadow to be drawn on top of other divs */
+      }
+      #filling {
+        width: 100%;
+        padding-bottom: 100%;
+      }
+      #cover {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        bottom: 0px;
+        left: 0px;
+      }
+      #bannar {
+        position: absolute;
+        right: 0px;
+        bottom: 0px;
+        left: 0px;
+        background-color: var(--skylee-background--primary_background-color);
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        @apply --skylee-text--subheading_font;
+        color: var(--skylee-text--primary_color);
+      }
+      #icon {
+        width: 24px;
+        height: 24px;
+        margin-right: 16px;
+        image-rendering: -webkit-optimize-contrast; /* Chrome only look less blurry with this option */
+      }
+      #ripple {
+        color: var(--skylee-text--base_color);
+      }
+      #ripple:not([show]) {
+        display: none;
+      }
+    </style>
+
+    <a id="link" href$="[[href]]">
+
+      <div id="filling"></div>
+
+      <iron-image id="cover" src="[[_resizedCoverSrc]]" sizing="cover" preload fade></iron-image>
+
+      <div id="bannar">
+        <img id="icon" src$="[[iconSrc]]"></img>[[name]]
+      </div>
+
+      <paper-ripple id="ripple" show$="[[_isTruthy(href)]]"></paper-ripple>
+
+    </a>
+
+  </template>
+  <script>
+    class SkyleeTeamTile extends Polymer.Element {
+
+      static get is() { return 'skylee-team-tile'; }
+
+      static get properties() { return {
+
+        coverSrc: String,
+        iconSrc: String,
+        name: String,
+        href: String,
+
+        _resizedCoverSrc: {
+          type: String,
+          computed: '_computeResizedCoverSrc(coverSrc)'
+        }
+
+      };}
+
+      _computeResizedCoverSrc(src) {
+        if (/^[\w\.\-\/]+\.\w+$/.test(src)) {
+          return src + '?w=300&h=300';
+        } else {
+          return null;
+        }
+      }
+
+      _isTruthy(value) {
+        return Boolean(value);
+      }
+
+    }
+    window.customElements.define(SkyleeTeamTile.is, SkyleeTeamTile);
+  </script>
+</dom-module>

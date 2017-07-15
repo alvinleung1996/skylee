@@ -1,0 +1,834 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/shadycss/apply-shim.html">
+<link rel="import" href="../../bower_components/polymer/lib/mixins/gesture-event-listeners.html">
+
+<link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+
+<link rel="import" href="../skylee-icons/skylee-icons.html">
+
+<dom-module id="skylee-image-viewer">
+  <template strip-whitespace>
+    <style>
+      :host {
+        display: block;
+        overflow: hidden;
+        background-color: black;
+        position: relative;
+      }
+
+      #toolbar {
+        z-index: 10;
+        position: absolute;
+        width: 100%;
+        height: 64px;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+        display: flex;
+        align-items: center;
+        pointer-events: none;
+        transition: opacity 330ms ease-out 0ms,
+                    height 330ms ease-out 0ms;
+      }
+      #toolbar[hide] {
+        opacity: 0;
+      }
+      #toolbar[short] {
+        height: 48px;
+      }
+      #toolbar__back-button-link {
+        margin: 12px;
+        pointer-events: auto;
+        -webkit-tap-highlight-color: transparent; /* for Android Chrome */
+        transition: margin 330ms ease-out 0ms;
+      }
+      #toolbar[short] #toolbar__back-button-link {
+        margin: 4px;
+      }
+      #toolbar__back-button {
+        color: white;
+        --paper-icon-button-ink-color: white;
+      }
+      #toolbar__title {
+        margin: 0px;
+        @apply --skylee-text--subheading_font;
+        color: white;
+      }
+
+      #img-wrapper {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        position: relative;
+        touch-action: none;
+        transition: opacity 200ms ease-out 0ms;
+        -ms-user-select: none; /* Prevent wrapper being selected when double tap */
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        user-select: none;
+        cursor: auto;
+        cursor: -webkit-grab;
+        cursor: grab;
+      }
+      #img-wrapper:not([show]) {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #img-wrapper[grabbing] {
+        cursor: move;
+        cursor: -webkit-grabbing;
+        cursor: grabbing;
+      }
+      #img {
+        display: block;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        transform-origin: 0% 0%;
+        pointer-events: none; /* Prevent cross browser image dragging and ghost image */
+      }
+      #img[smooth] {
+        transition: transform 60ms ease-out 0ms;
+      }
+      /* #canvas {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 10;
+      }  */
+
+      #loading-message {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        bottom: 0px;
+        left: 0px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 330ms linear 0ms;
+      }
+      #loading-message:not([show]) {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #loading-message__text {
+        margin: 0px;
+        @apply --skylee-text--subheading_font;
+        color: white;
+        text-align: center;
+      }
+
+      #error-message {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        bottom: 0px;
+        left: 0px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 330ms linear 0ms;
+      }
+      #error-message:not([show]) {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #error-message__text {
+        margin: 0px;
+        @apply --skylee-text--subheading_font;
+        color: white;
+        text-align: center;
+      }
+    </style>
+
+    <iron-media-query query="not all and (min-height: 500px)" query-matches="{{_shortToolbar}}" full></iron-media-query>
+
+    <div id="toolbar" hide$="[[_hideToolbar]]" short$="[[_shortToolbar]]">
+      <a id="toolbar__back-button-link" href="javascript:window.history.back();" tabindex="-1">
+        <paper-icon-button id="toolbar__back-button" icon="skylee:arrow-back"></paper-icon-button>
+      </a>
+      <p id="toolbar__title">[[_imageFilename]]</p>
+    </div>
+
+    <div id="img-wrapper" show$="[[_imageLoaded]]" grabbing$="[[_grabbingImg]]">
+      <img id="img"></img> <!-- src set by js, smooth set by js -->
+       <!-- <canvas id="canvas" width="800" height="1160"></canvas> -->
+    </div>
+
+    <div id="loading-message" show$="[[_imageLoading]]">
+      <p id="loading-message__text">Loading...<!--<br>[[_imageSrc]]--></p>
+    </div>
+
+    <div id="error-message" show$="[[_imageError]]">
+      <p id="error-message__text">:(<br>Ops! The image cannot be displayed right now.<!--<br>[[_imageSrc]]--></p>
+    </div>
+
+  </template>
+  <script>
+    class SkyleeImageViewer extends Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.GestureEventListeners(Polymer.Element)) {
+
+      static get is() { return 'skylee-image-viewer'; }
+
+      static get properties() { return {
+        route: Object,
+
+        _hideToolbar: {
+          type: Boolean,
+          value: false
+        },
+        _shortToolbar: {
+          type: Boolean
+        },
+
+        _imageSrc: {
+          type: String,
+          observer: '_onImageSrcChanged'
+        },
+        _imageFilename: {
+          type: String,
+          computed: '_computeImageFilename(_imageSrc)'
+        },
+        sceneTitle: {
+          type: String,
+          computed: '_computeTabPageTitle(_imageFilename)',
+          notify: true
+        },
+        _imageLoading: {
+          type: Boolean,
+          value: false
+        },
+        _imageLoaded: {
+          type: Boolean,
+          value: false
+        },
+        _imageError: {
+          type: Boolean,
+          value: false
+        },
+
+        _imgWrapperWidth: {
+          type: Number,
+        },
+        _imgWrapperHeight: {
+          type: Number
+        },
+
+        _imageWidth: {
+          type: Number
+        },
+        _imageHeight: {
+          type: Number
+        },
+
+        _imgX: {
+          type: Number
+        },
+        _imgY: {
+          type: Number
+        },
+        _imgScale: {
+          type: Number
+        },
+        _smoothImgTransform: {
+          type: Boolean,
+          value: false
+        },
+        _grabbingImg: {
+          type: Boolean,
+          value: false
+        }
+      };}
+
+      static get observers() { return [
+        '_onRoutePathChanged(route.path)',
+
+        '_onImgDisplayParamChanged(_imgX, _imgY, _imgScale, _smoothImgTransform)'
+      ];}
+
+      constructor() {
+        super();
+        this._activePointerDataList = [];
+      }
+
+      ready() {
+        super.ready();
+
+        Polymer.Gestures.addListener(this.$['img-wrapper'], 'tap', e => this._onTap(e));
+
+        this.$.img.addEventListener('load', e => this._onImageLoaded(e));
+        this.$.img.addEventListener('error', e => this._onImageError(e));
+
+        this.addEventListener('iron-resize', e => this._onIronResize(e));
+
+        this.$['img-wrapper'].addEventListener('wheel', e => this._onWheelRotate(e), window.eventPassiveSupported ? { passive: true } : false);
+        
+        if (window.PointerEvent) {
+          this.$['img-wrapper'].addEventListener('pointerdown', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'start')));
+          this.$['img-wrapper'].addEventListener('pointermove', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'move')));
+          this.$['img-wrapper'].addEventListener('pointerup', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'end')));
+          this.$['img-wrapper'].addEventListener('pointerleave', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'end')));
+          this.$['img-wrapper'].addEventListener('pointercancel', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'end')));
+
+        } else {
+          this.$['img-wrapper'].addEventListener('mousedown', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'start')));
+          this.$['img-wrapper'].addEventListener('mousemove', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'move')));
+          this.$['img-wrapper'].addEventListener('mouseup', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'end')));
+          this.$['img-wrapper'].addEventListener('mouseleave', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'end')));
+
+          if (window.TouchEvent) {
+            this.$['img-wrapper'].addEventListener('touchstart', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'start')), window.eventPassiveSupported ? { passive: true } : false);
+            this.$['img-wrapper'].addEventListener('touchmove', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'move')), window.eventPassiveSupported ? { passive: true } : false);
+            this.$['img-wrapper'].addEventListener('touchend', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'end')));
+            this.$['img-wrapper'].addEventListener('touchcancel', e => this._onGestureEventOccurred(this._toGestureEvent(e, 'end')));
+          }
+        }
+      }
+
+
+
+      _onTap(evt) {
+        this._hideToolbar = !this._hideToolbar;
+      }
+
+
+
+      _onRoutePathChanged(routePath) {
+        let matches = routePath.match(/^\/image-viewer(.*)$/);
+        if (matches !== null) {
+          // console.log('Load image: ' + matches[1]);
+          this._imageSrc = matches[1];
+        } else {
+          this._imageSrc = '';
+        }
+      }
+
+      _computeImageFilename(src) {
+        let matches = src.match(/\/([\w\-]+\.\w+)(?:\?.*)?$/);
+        if (matches !== null) {
+          return matches[1];
+        } else {
+          return '';
+        }
+      }
+
+      _computeTabPageTitle(filename) {
+        return filename;
+      }
+
+      _onImageSrcChanged(src) {
+        this.setProperties({
+          _imageLoading: Boolean(src),
+          _imageLoaded: false,
+          _imageError: false
+        });
+        
+        // Ensure load/error event will only be triggered after we have set the above property value
+        if (src) this.$.img.setAttribute('src', src);
+        else this.$.img.removeAttribute('src');
+
+        this._hideToolbar = false;
+      }
+
+
+
+      _onIronResize(evt) {
+        this.setProperties({
+          _imgWrapperWidth: this.$['img-wrapper'].clientWidth,
+          _imgWrapperHeight: this.$['img-wrapper'].clientHeight
+        });
+
+        let imageLoaded = this._imageLoaded;
+        let imgWrapperWidth = this._imgWrapperWidth;
+        let imgWrapperHeight = this._imgWrapperHeight;
+        let imageWidth = this._imageWidth;
+        let imageHeight = this._imageHeight;
+        let prevImgWrapperWidth = this.__prevImgWrapperWidth;
+        let prevImgWrapperHeight = this.__prevImgWrapperHeight;
+
+        this.__prevImgWrapperWidth = imgWrapperWidth;
+        this.__prevImgWrapperHeight = imgWrapperHeight;
+
+        if (imageLoaded && typeof imgWrapperWidth === 'number' && typeof imgWrapperHeight === 'number' &&
+            typeof imageWidth === 'number' && typeof imageHeight === 'number' &&
+            typeof prevImgWrapperWidth === 'number' && typeof prevImgWrapperHeight === 'number')
+        {
+          let imgRelativeRect = this._getImgRelativeRect();
+          let imgScale = imgRelativeRect.width / imageWidth;
+
+          let newImgScale = imgScale;
+          newImgScale = this._constraintImgScale(newImgScale, imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight);
+
+          let newImgX = imgWrapperWidth / 2 - ((prevImgWrapperWidth / 2 - imgRelativeRect.left) / imgScale) * newImgScale;
+          let newImgY = imgWrapperHeight / 2 - ((prevImgWrapperHeight / 2 - imgRelativeRect.top) / imgScale) * newImgScale;
+          ({imgX:newImgX, imgY:newImgY} = this._constraintImgXY(newImgX, newImgY, imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight, newImgScale));
+
+          this.setProperties({
+            _imgX: newImgX,
+            _imgY: newImgY,
+            _imgScale: newImgScale,
+            _smoothImgTransform: false
+          });
+        }
+      }
+
+
+
+      _onImageLoaded(evt) {
+        // console.log(`Image loaded: w: ${evt.target.naturalWidth}, h: ${evt.target.naturalHeight}`);
+        this.setProperties({
+          _imageLoading: false,
+          _imageLoaded: true,
+          _imageError: false,
+          _imageWidth: evt.target.naturalWidth,
+          _imageHeight: evt.target.naturalHeight
+        });
+
+        let newImgScale = this._getImgMinScale(this._imgWrapperWidth, this._imgWrapperHeight, this._imageWidth, this._imageHeight);
+
+        let newImgX = (this._imgWrapperWidth - (this._imageWidth * newImgScale)) / 2;
+        let newImgY = (this._imgWrapperHeight - (this._imageHeight * newImgScale)) / 2;
+
+        this.setProperties({
+          _imgX: newImgX,
+          _imgY: newImgY,
+          _imgScale: newImgScale,
+          _smoothImgTransform: false
+        });
+      }
+
+      _onImageError(evt) {
+        console.log('image loading error');
+        this.setProperties({
+          _imageLoading: false,
+          _imageLoaded: false,
+          _imageError: true
+        });
+      }
+
+
+
+      _onWheelRotate(evt) {
+        let imageLoaded = this._imageLoaded;
+        let imgWrapperWidth = this._imgWrapperWidth;
+        let imgWrapperHeight = this._imgWrapperHeight;
+        let imageWidth = this._imageWidth;
+        let imageHeight = this._imageHeight;
+        
+        if (imageLoaded &&
+            typeof imgWrapperWidth === 'number' && typeof imgWrapperHeight === 'number' &&
+            typeof imageWidth === 'number' && typeof imageHeight === 'number')
+        {
+          let imgRelativeRect = this._getImgRelativeRect();
+
+          let imgScale = imgRelativeRect.width / imageWidth;
+          let newImgScale = imgScale + (-this._normalizeDelta(evt.deltaY, evt.deltaMode)) / 250;
+          newImgScale = this._constraintImgScale(newImgScale, imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight);
+          
+          let newImgX = evt.clientX - (((evt.clientX - imgRelativeRect.left) / imgScale) * newImgScale);
+          let newImgY = evt.clientY - (((evt.clientY - imgRelativeRect.top) / imgScale) * newImgScale);
+          ({imgX:newImgX, imgY:newImgY} = this._constraintImgXY(newImgX, newImgY, imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight, newImgScale));
+
+          this.setProperties({
+            _imgX: newImgX,
+            _imgY: newImgY,
+            _imgScale: newImgScale,
+            _smoothImgTransform: true
+          });
+        }
+      }
+
+      _normalizeDelta(delta, mode) {
+        switch (mode) {
+          case WheelEvent.DOM_DELTA_PIXEL:
+            return delta;
+          case WheelEvent.DOM_DELTA_LINE: // 24 is an experimental value
+            return delta * 24;
+          case WheelEvent.DOM_DELTA_PAGE: // Not working yet
+            return delta;
+        }
+      }
+
+
+
+      _toGestureEvent(evt, state) {
+        let trackEvent = {};
+        trackEvent.state = state;
+
+        /* These coordinates are assuming #img-wrapper
+         * is (0, 0) relative to the viewport
+         * and do not have any margin, border and padding.
+         */
+
+        if (window.PointerEvent && evt instanceof PointerEvent) {
+          // PointerEvent chould be checked before MouseEvent since PointerEvent is a subclass of MouseEvent
+          trackEvent.changedPointers = [{
+            pointerId: evt.pointerId,
+            x: evt.clientX,
+            y: evt.clientY
+          }];
+
+        } else if (window.MouseEvent && evt instanceof MouseEvent) {
+          trackEvent.changedPointers = [{
+            pointerId: 'm' + evt.button,
+            x: evt.clientX,
+            y: evt.clientY
+          }];
+
+        } else if (window.TouchEvent && evt instanceof TouchEvent) {
+          trackEvent.changedPointers = [];
+          for (let i = 0, touch; touch = evt.changedTouches[i]; ++i) {
+            trackEvent.changedPointers.push({
+              pointerId: 't' + touch.identifier,
+              x: touch.clientX,
+              y: touch.clientY
+            });
+          }
+        }
+
+        return trackEvent;
+      }
+
+      _onGestureEventOccurred(evt) {
+        if (evt.state === 'start') {
+          // console.log(pointerId + ' start');
+          let prevGestureType = this._getGestureType(this._activePointerDataList);
+          if (prevGestureType) this._scheduleHandleGesture(prevGestureType, 'end', this._activePointerDataList, true);
+
+          for (let i = 0, pointer; pointer = evt.changedPointers[i]; ++i) {
+            this._activePointerDataList.push({
+              pointerId: pointer.pointerId,
+              x: pointer.x,
+              y: pointer.y
+            });
+          }
+
+          let gestureType = this._getGestureType(this._activePointerDataList);
+          if (gestureType) this._scheduleHandleGesture(gestureType, 'start', this._activePointerDataList, true);
+
+        } else if (evt.state === 'move') {
+          // console.log(pointerId + ' move');
+          let updated = false;
+          for (let i = 0, pointer; pointer = evt.changedPointers[i]; ++i) {
+            for (let j = 0, data; data = this._activePointerDataList[j]; ++j) {
+              if (pointer.pointerId === data.pointerId) {
+                updated = true;
+                data.x = pointer.x;
+                data.y = pointer.y;
+                break;
+              }
+            }
+          }
+          
+          if (updated) {
+            let gestureType = this._getGestureType(this._activePointerDataList);
+            if (gestureType) this._scheduleHandleGesture(gestureType, 'move', this._activePointerDataList, false);
+          }
+
+        } else if (evt.state === 'end') {
+          // console.log(pointerId + ' end');
+          let updated = false;
+          for (let i = 0, pointer; pointer = evt.changedPointers[i]; ++i) {
+            for (let j = 0, data; data = this._activePointerDataList[j]; ++j) {
+              if (pointer.pointerId === data.pointerId) {
+                updated = true;
+                data.x = pointer.x;
+                data.y = pointer.y;
+                break;
+              }
+            }
+          }
+          if (updated) {
+            let prevGestureType = this._getGestureType(this._activePointerDataList);
+            if (prevGestureType) this._scheduleHandleGesture(prevGestureType, 'end', this._activePointerDataList, true);
+
+            for (let i = 0, pointer; pointer = evt.changedPointers[i]; ++i) {
+              for (let j = 0, data; data = this._activePointerDataList[j]; ++j) {
+                if (pointer.pointerId === data.pointerId) {
+                  this._activePointerDataList.splice(j, 1);
+                  break;
+                }
+              }
+            }
+
+            let gestureType = this._getGestureType(this._activePointerDataList);
+            if (gestureType) this._scheduleHandleGesture(gestureType, 'start', this._activePointerDataList, true);
+          }
+        }
+      }
+
+      _getGestureType(pointerDataList) {
+        switch (pointerDataList.length) {
+          case 1: return 'pan';
+          case 2: return 'zoom';
+          default: return '';
+        }
+      }
+
+      _scheduleHandleGesture(gestureType, state, pointerDataList, now) {
+        if (now) {
+          if (typeof this.__scheduled_handleGesture === 'number') {
+            clearInterval(this.__scheduled_handleGesture);
+            this.__scheduled_handleGesture = undefined;
+          }
+          this._handleGesture(gestureType, state, pointerDataList);
+        } else {
+          if (typeof this.__scheduled_handleGesture !== 'number') {
+            this.__scheduled_handleGesture = setTimeout(() => {
+              this.__scheduled_handleGesture = undefined;
+              this._handleGesture(gestureType, state, pointerDataList);
+            }, 20);
+          }
+        }
+      }
+
+      _handleGesture(gestureType, state, pointerDataList) {
+        switch (gestureType) {
+          case 'pan': this._handlePanGesture(state, pointerDataList); break;
+          case 'zoom': this._handleZoomGesture(state, pointerDataList); break;
+        }
+      }
+
+      _handlePanGesture(state, pointerDataList) {
+        // console.log('pan ' + state);
+        let pointerData = pointerDataList[0];
+
+        let imageLoaded = this._imageLoaded;
+        let imgWrapperWidth = this._imgWrapperWidth;
+        let imgWrapperHeight = this._imgWrapperHeight;
+        let imageWidth = this._imageWidth;
+        let imageHeight = this._imageHeight;
+
+        let pointerImageAnchorX = this.__panPointerImageAnchorX;
+        let pointerImageAnchorY = this.__panPointerImageAnchorY;
+
+        let propsToSet = {};
+
+        if (imageLoaded && typeof imgWrapperWidth === 'number' && typeof imgWrapperHeight === 'number' &&
+            typeof imageWidth === 'number' && typeof imageHeight === 'number')
+        {
+          let imgRelativeRect = this._getImgRelativeRect();
+          let imgScale = imgRelativeRect.width / imageWidth;
+
+          if (state === 'start') {
+            this.__panPointerImageAnchorX = (pointerData.x - imgRelativeRect.left) / imgScale;
+            this.__panPointerImageAnchorY = (pointerData.y - imgRelativeRect.top) / imgScale;
+
+            propsToSet._grabbingImg = true;
+
+          } else if ((state === 'move' || state === 'end') && typeof pointerImageAnchorX === 'number' && typeof pointerImageAnchorY === 'number') {
+            let newImgScale = imgScale;
+            let newImgX = pointerData.x - (pointerImageAnchorX * newImgScale);
+            let newImgY = pointerData.y - (pointerImageAnchorY * newImgScale);
+
+            ({imgX:newImgX, imgY:newImgY} = this._constraintImgXY(newImgX, newImgY, imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight, newImgScale));
+            this.__panPointerImageAnchorX = (pointerData.x - newImgX) / newImgScale;
+            this.__panPointerImageAnchorY = (pointerData.y - newImgY) / newImgScale;
+
+            propsToSet._imgX = newImgX;
+            propsToSet._imgY = newImgY;
+            propsToSet._imgScale = newImgScale;
+            propsToSet._smoothImgTransform = false;
+          }
+        }
+
+        if (state === 'end') {
+          this.__panPointerImageAnchorX = this.__panPointerImageAnchorY = undefined;
+          propsToSet._grabbingImg = false;
+        }
+
+        this.setProperties(propsToSet);
+      }
+
+      _handleZoomGesture(state, pointerDataList) {
+        // console.log('zoom ' + state);
+        let pointer0Data = pointerDataList[0];
+        let pointer1Data = pointerDataList[1];
+
+        let imageLoaded = this._imageLoaded;
+        let imgWrapperWidth = this._imgWrapperWidth;
+        let imgWrapperHeight = this._imgWrapperHeight;
+        let imageWidth = this._imageWidth;
+        let imageHeight = this._imageHeight;
+
+        let pointer0ImageAnchorX = this.__zoomPointer0ImageAnchorX;
+        let pointer0ImageAnchorY = this.__zoomPointer0ImageAnchorY;
+        let pointer1ImageAnchorX = this.__zoomPointer1ImageAnchorX;
+        let pointer1ImageAnchorY = this.__zoomPointer1ImageAnchorY;
+
+        let propsToSet = {};
+
+        if (imageLoaded && typeof imgWrapperWidth === 'number' && typeof imgWrapperHeight === 'number' &&
+            typeof imageWidth === 'number' && typeof imageHeight === 'number')
+        {
+          let imgRelativeRect = this._getImgRelativeRect();
+          let imgScale = imgRelativeRect.width / imageWidth;
+
+          if (state === 'start') {
+            this.__zoomPointer0ImageAnchorX = (pointer0Data.x - imgRelativeRect.left) / imgScale;
+            this.__zoomPointer0ImageAnchorY = (pointer0Data.y - imgRelativeRect.top) / imgScale;
+            this.__zoomPointer1ImageAnchorX = (pointer1Data.x - imgRelativeRect.left) / imgScale;
+            this.__zoomPointer1ImageAnchorY = (pointer1Data.y - imgRelativeRect.top) / imgScale;
+
+          } else if ((state === 'move' || state === 'end') &&
+                     typeof pointer0ImageAnchorX === 'number' && typeof pointer0ImageAnchorY === 'number' &&
+                     typeof pointer1ImageAnchorX === 'number' && typeof pointer1ImageAnchorY === 'number')
+          {
+            let newImgScale = this._distance(pointer0Data.x, pointer0Data.y, pointer1Data.x, pointer1Data.y)
+                              / this._distance(pointer0ImageAnchorX, pointer0ImageAnchorY, pointer1ImageAnchorX, pointer1ImageAnchorY);
+            newImgScale = this._constraintImgScale(newImgScale, imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight);
+            
+            let pointerMidX = (pointer0Data.x + pointer1Data.x) / 2;
+            let pointerMidY = (pointer0Data.y + pointer1Data.y) / 2;
+            let anchorImageX = (pointer0ImageAnchorX + pointer1ImageAnchorX) / 2;
+            let anchorImageY = (pointer0ImageAnchorY + pointer1ImageAnchorY) / 2;
+
+            let newImgX = pointerMidX - anchorImageX * newImgScale;
+            let newImgY = pointerMidY - anchorImageY * newImgScale;
+            ({imgX:newImgX, imgY:newImgY} = this._constraintImgXY(newImgX, newImgY, imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight, newImgScale));
+
+            this.__zoomPointer0ImageAnchorX = (pointer0Data.x - newImgX) / newImgScale;
+            this.__zoomPointer0ImageAnchorY = (pointer0Data.y - newImgY) / newImgScale;
+            this.__zoomPointer1ImageAnchorX = (pointer1Data.x - newImgX) / newImgScale;
+            this.__zoomPointer1ImageAnchorY = (pointer1Data.y - newImgY) / newImgScale;
+
+            // this._debug(pointerData0.anchorImageX, pointerData0.anchorImageY, pointerData1.anchorImageX, pointerData1.anchorImageY, pointerData0.clientX, pointerData0.clientY, pointerData1.clientX, pointerData1.clientY);
+
+            propsToSet._imgX = newImgX;
+            propsToSet._imgY = newImgY;
+            propsToSet._imgScale = newImgScale;
+            propsToSet._smoothImgTransform = false;
+          }
+        }
+
+        if (state === 'end') {
+          this.__zoomPointer0ImageAnchorX = undefined;
+          this.__zoomPointer0ImageAnchorY = undefined;
+          this.__zoomPointer1ImageAnchorX = undefined;
+          this.__zoomPointer1ImageAnchorY = undefined;
+        }
+
+        this.setProperties(propsToSet);
+      }
+
+      _distance(x0, y0, x1, y1) {
+        return Math.sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0));
+      }
+      
+
+
+      _onImgDisplayParamChanged(imgX, imgY, imgScale, smoothImgTransform) {
+        if (smoothImgTransform) this.$.img.setAttribute('smooth', '');
+        else this.$.img.removeAttribute('smooth');
+        if (typeof imgX === 'number' && typeof imgY === 'number' && typeof imgScale === 'number') {
+          this.$.img.style.transform = `translate(${imgX}px, ${imgY}px) scale(${imgScale}, ${imgScale})`;
+        }
+      }
+
+
+
+      _getImgRelativeRect() {
+        let rect = (this.__imgRelativeRect = this.__imgRelativeRect || {});
+        let wrapperRect = this.$['img-wrapper'].getBoundingClientRect();
+        let imgRect = this.$.img.getBoundingClientRect();
+        rect.left = imgRect.left - wrapperRect.left;
+        rect.top = imgRect.top - wrapperRect.top;
+        rect.right = imgRect.right - wrapperRect.left;
+        rect.bottom = imgRect.bottom - wrapperRect.top;
+        rect.width = imgRect.width;
+        rect.height = imgRect.height;
+        return rect;
+      }
+
+      _constraintImgScale(scale, imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight) {
+        return this._constraintValue(scale, this._getImgMinScale(imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight), this._getImgMaxScale());
+      }
+
+      _getImgMinScale(imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight) {
+        return Math.min(Math.min(imgWrapperWidth / imageWidth, imgWrapperHeight / imageHeight) * 3/4, 1);
+      }
+
+      _getImgMaxScale() {
+        return 2;
+      }
+
+      _constraintValue(value, min, max) {
+        return Math.min(Math.max(value, min), max);
+      }
+      
+      _constraintImgXY(imgX, imgY,
+                       imgWrapperWidth, imgWrapperHeight,
+                       imageWidth, imageHeight, imgScale)
+      {
+        let returnValues = (this.__constraintImgPropertiesReturnValues = this.__constraintImgPropertiesReturnValues || {});
+
+        if (imgScale <= (imgWrapperWidth / imageWidth)) {
+          imgX = (imgWrapperWidth - imageWidth * imgScale) / 2;
+        } else {
+          let left = imgX;
+          let right = imgX + imageWidth * imgScale;
+
+          if (left > 0 && right >= imgWrapperWidth) {
+            imgX = 0;
+          } else if (left <= 0 && right < imgWrapperWidth) {
+            imgX = imgWrapperWidth - imageWidth * imgScale;
+          }
+        }
+
+        if (imgScale <= (imgWrapperHeight / imageHeight)) {
+          imgY = (imgWrapperHeight - imageHeight * imgScale) / 2;
+        } else {
+          let top = imgY;
+          let bottom = imgY + imageHeight * imgScale;
+
+          if (top > 0 && bottom >= imgWrapperHeight) {
+            imgY = 0;
+          } else if (top <= 0 && bottom < imgWrapperHeight) {
+            imgY = imgWrapperHeight - imageHeight * imgScale;
+          }
+        }
+
+        returnValues.imgX = imgX;
+        returnValues.imgY = imgY;
+        return returnValues;
+      }
+
+
+
+      // _debug(image0X, image0Y, image1X, image1Y, wrapper0X, wrapper0Y, wrapper1X, wrapper1Y) {
+      //   let canvas = this.$.canvas;
+      //   let ctx = canvas.getContext('2d');
+      //   ctx.clearRect(0, 0, canvas.width, canvas.height);
+      //   let rRect = this._getImgRelativeRect();
+      //   let scale = rRect.width / this._imageWidth;
+      //   ctx.strokeStyle = 'green';
+      //   ctx.lineWidth = 2;
+      //   ctx.beginPath();
+      //   ctx.moveTo(image0X * scale + rRect.left, image0Y * scale + rRect.top);
+      //   ctx.lineTo(image1X * scale + rRect.left, image1Y * scale + rRect.top);
+      //   ctx.stroke();
+
+      //   ctx.font = '24px Arial';
+      //   ctx.fillStyle = 'green';
+      //   ctx.fillText('1', image0X * scale + rRect.left, image0Y * scale + rRect.top);
+      //   ctx.fillText('2', image1X * scale + rRect.left, image1Y * scale + rRect.top);
+
+      //   ctx.strokeStyle = 'red';
+      //   ctx.beginPath();
+      //   ctx.moveTo(wrapper0X, wrapper0Y);
+      //   ctx.lineTo(wrapper1X, wrapper1Y);
+      //   ctx.stroke();
+
+      //   ctx.font = '24px Arial';
+      //   ctx.fillStyle = 'red';
+      //   ctx.fillText('1', wrapper0X, wrapper0Y);
+      //   ctx.fillText('2', wrapper1X, wrapper1Y);
+      // }
+
+    }
+    window.customElements.define(SkyleeImageViewer.is, SkyleeImageViewer);
+  </script>
+</dom-module>

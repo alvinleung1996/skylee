@@ -1,0 +1,72 @@
+<link rel="import" href="../../bower_components/polymer/lib/utils/case-map.html">
+
+<script>
+  function SkyleePropertyBinderBehavior(superClass) {
+    return class extends superClass {
+
+      constructor() {
+        super();
+        this._bindedPropertyEventListeners = {};
+      }
+
+      _bindProperties(props, target) {
+        if (typeof props === 'string') {
+          let p = {};
+          p[props] = props;
+          props = p;
+        }
+
+        let propsToSet = {};
+        for (let prop in props) {
+          if (prop in this._bindedPropertyEventListeners) {
+            let data = this._bindedPropertyEventListeners[prop];
+            if (data.target === target && data.name === props[prop]) {
+              continue;
+            } else {
+              data.target.removeEventListener(this.__propertyNameToEventName(data.name), data.listener);
+              delete this._bindedPropertyEventListeners[prop];
+            }
+          }
+
+          if (target) {
+            let data = {
+              target: target,
+              name: props[prop],
+              listener: e => {
+                let p = {};
+                p[prop] = e.detail.value;
+                this.setProperties(p, true);
+              }
+            };
+            this._bindedPropertyEventListeners[prop] = data;
+            data.target.addEventListener(this.__propertyNameToEventName(data.name), data.listener);
+            propsToSet[prop] = data.target[props[prop]];
+          } else {
+            propsToSet[prop] = undefined;
+          }
+        }
+        this.setProperties(propsToSet, true);
+      }
+
+      _unbindProperties(props) {
+        let propsToSet = {};
+        for (let i = 0, prop; prop = props[i]; ++i) {
+          if (prop in this._bindedPropertyEventListeners) {
+            let data = this._bindedPropertyEventListeners[prop];
+            data.target.removeEventListener(this.__propertyNameToEventName(data.name), data.listener);
+            propsToSet[prop] = undefined;
+            delete this._bindedPropertyEventListeners[prop];
+          }
+        }
+        this.setProperties(propsToSet, true);
+      }
+
+      __propertyNameToEventName(propName) {
+        return `${Polymer.CaseMap.camelToDashCase(propName)}-changed`;
+      }
+
+    }
+  }
+  window.Skylee = window.Skylee || {};
+  Skylee.SkyleePropertyBinderBehavior = SkyleePropertyBinderBehavior;
+</script>

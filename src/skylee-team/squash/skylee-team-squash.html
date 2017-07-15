@@ -1,0 +1,46 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../base/skylee-team-base.html">
+
+<script>
+  class SkyleeTeamSquash extends SkyleeTeamBase {
+
+    static get is() { return 'skylee-team-squash'; }
+
+    static get properties() {
+      return {
+        teamPageTitle: {
+          type: String,
+          value: 'Squash Team',
+          readOnly: true,
+          notify: true
+        },
+
+        // iconSrc: {
+        //   value: `${Polymer.rootPath}images/team/squash/squash-symbol.png`
+        // },
+        name: {
+          value: 'Squash Team'
+        },
+        description: {
+          value: 'men\'s and women\'s team'
+        },
+        albumList: {
+          value: () => { return [
+            {
+              name: 'Photos',
+              imageList: [
+                { src: `${Polymer.rootPath}images/team/squash/squash-0.jpg` },
+                { src: `${Polymer.rootPath}images/team/squash/squash-1.jpg` },
+                { src: `${Polymer.rootPath}images/team/squash/squash-2.jpg` },
+                { src: `${Polymer.rootPath}images/team/squash/squash-3.jpg` },
+              ]
+            }
+          ];}
+        }
+      };
+    }
+
+  }
+  window.customElements.define(SkyleeTeamSquash.is, SkyleeTeamSquash);
+</script>

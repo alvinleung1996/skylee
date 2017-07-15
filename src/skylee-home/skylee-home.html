@@ -1,12 +1,12 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
-<link rel="import" href="../../bower_components/shadycss/apply-shim.html">
+<link rel="import" href="../../bower_components/polymer/lib/utils/debounce.html">
 
-<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
 <link rel="import" href="../../bower_components/curium-animated-pages/curium-animated-pages.html">
 <link rel="import" href="../../bower_components/curium-animated-pages/animations/curium-slideshow-animation-manager.html">
 
-<!-- TODO: Image mipmap, only load the next photo but not all , screen flash when switching tab pages, test z-index -->
+<link rel="import" href="skylee-home-slide.html">
 
 <dom-module id="skylee-home">
   <template strip-whitespace>
@@ -15,106 +15,93 @@
         display: block;
         /* position: absolute already applied by curium-animated-pages*/
         overflow: hidden;
+        background-color: var(--skylee-background--dark-theme--primary_background-color);
       }
-
       #toolbar-background {
         position: absolute;
         top: 0px;
         right: 0px;
         left: 0px;
-        height: calc(var(--skylee-toolbar-height) * 2);
+        height: calc(var(--skylee-toolbar_height) * 2);
+        transition: height 330ms ease-out 0ms;
         z-index: 1;
-        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.75), transparent);
       }
-
       #slides {
         width: 100%;
         height: 100%;
         z-index: 0;
-      }
-      .slide {
-        /* position: absolute already applied by curium-animated-pages*/
-        overflow: hidden;
-        display: flex;
-        align-items: flex-end;
-      }
-      .slide > #image {
-        position: absolute;
-        top: 0px;
-        right: 0px;
-        bottom: 0px;
-        left: 0px;
-      }
-      #slides[play] > .slide.iron-selected > #image {
-        /* animation will be re-applied everytime the slide is selected by the class .iron-selected */
-        animation: slide-animation 3s ease-out 0s 1 normal forwards;
-        /* Fix for IE11: IE does not support putting play-state into the animation property */
-        animation-play-state: running;
-      }
-      @keyframes slide-animation {
-        from {
-          transform: scale(1.1, 1.1);
-        }
-        to {
-          transform: scale(1, 1);
-        }
-      }
-      .slide > #caption-background {
-        position: relative; /* position caption so caption will overlay image according to the document order */
-        flex: 1 1 auto;
-        height: 200px;
-        background-image: linear-gradient(to top, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
-        display: flex;
-        justify-content: center;
-      }
-      .slide > #caption-background > #caption {
-        box-sizing: border-box;
-        flex: 0 1 var(--skylee-content-max-width);
-        padding: 20px;
-        display: flex;
-        align-items: flex-end;
-        @apply --skylee-display1-font;
-        color: white;
       }
     </style>
 
     <div id="toolbar-background"></div>
 
     <curium-slideshow-animation-manager id="slideshow-animation-manager"></curium-slideshow-animation-manager>
-    <curium-animated-pages id="slides" selected="0" play$="[[_logicAnd(visibleScene, visibleTabPage)]]" animation-manager="#slideshow-animation-manager">
-      <div class="slide">
-        <iron-image id="image" src="[[rootPath]]images/featured/our-hall.jpg" sizing="cover"></iron-image>
-        <div id="caption-background"><div id="caption">Our Hall</div></div>
-      </div>
-      <div class="slide">
-        <iron-image id="image" src="[[rootPath]]images/featured/hall-photo.jpg" sizing="cover"></iron-image>
-        <div id="caption-background"><div id="caption">Our Family</div></div>
-      </div>
-      <div class="slide">
-        <iron-image id="image" src="[[rootPath]]images/featured/inheritance.jpg" sizing="cover"></iron-image>
-        <div id="caption-background"><div id="caption">Inheritance</div></div>
-      </div>
-      <div class="slide">
-        <iron-image id="image" src="[[rootPath]]images/featured/our-pride.jpg" sizing="cover"></iron-image>
-        <div id="caption-background"><div id="caption">Our Pride</div></div>
-      </div>
-      <div class="slide">
-        <iron-image id="image" src="[[rootPath]]images/featured/champion-dream.jpg" sizing="cover"></iron-image>
-        <div id="caption-background"><div id="caption">Our Champion Dream</div></div>
-      </div>
-      <div class="slide">
-        <iron-image id="image" src="[[rootPath]]images/featured/share-joy.jpg" sizing="cover"></iron-image>
-        <div id="caption-background"><div id="caption">Our Joy</div></div>
-      </div>
-      <div class="slide">
-        <iron-image id="image" src="[[rootPath]]images/featured/graduation-photo.jpg" sizing="cover"></iron-image>
-        <div id="caption-background"><div id="caption">Our Alumni</div></div>
-      </div>
+    <curium-animated-pages
+      id="slides"
+      selected="0"
+      animation-manager="#slideshow-animation-manager">
+
+      <skylee-home-slide
+        src-map="320w-180h [[rootPath]]images/featured/our-hall-320w.jpg,
+                 640w-360h [[rootPath]]images/featured/our-hall-640w.jpg,
+                 [[rootPath]]images/featured/our-hall-default.jpg"
+        caption="Our Hall">
+      </skylee-home-slide>
+
+      <skylee-home-slide
+        src-map="320w-214h [[rootPath]]images/featured/hall-photo-320w.jpg,
+                 640w-427h [[rootPath]]images/featured/hall-photo-640w.jpg,
+                  1280w-854h [[rootPath]]images/featured/hall-photo-1280w.jpg,
+                  [[rootPath]]images/featured/hall-photo-default.jpg"
+        caption="Our Family">
+      </skylee-home-slide>
+
+      <skylee-home-slide
+        src-map="320w-180h [[rootPath]]images/featured/inheritance-320w.jpg,
+                 640w-360h [[rootPath]]images/featured/inheritance-640w.jpg,
+                 1280w-720h [[rootPath]]images/featured/inheritance-1280w.jpg,
+                 [[rootPath]]images/featured/inheritance-default.jpg"
+        caption="Inheritance">
+      </skylee-home-slide>
+
+      <skylee-home-slide
+        src-map="320w-180h [[rootPath]]images/featured/our-pride-320w.jpg,
+                 640w-360h [[rootPath]]images/featured/our-pride-640w.jpg,
+                 1280w-719h [[rootPath]]images/featured/our-pride-1280w.jpg,
+                 [[rootPath]]images/featured/our-pride-default.jpg"
+        caption="Our Pride">
+      </skylee-home-slide>
+
+      <skylee-home-slide
+        src-map="320w-180h [[rootPath]]images/featured/champion-dream-320w.jpg,
+                 640w-360h [[rootPath]]images/featured/champion-dream-640w.jpg,
+                 1280w-720h [[rootPath]]images/featured/champion-dream-1280w.jpg,
+                 [[rootPath]]images/featured/champion-dream-default.jpg"
+        caption="Our Champion Dream">
+      </skylee-home-slide>
+
+      <skylee-home-slide
+        src-map="320w-180h [[rootPath]]images/featured/share-joy-320w.jpg,
+                 640w-360h [[rootPath]]images/featured/share-joy-640w.jpg,
+                 1280w-720h [[rootPath]]images/featured/share-joy-1280w.jpg,
+                 [[rootPath]]images/featured/share-joy-default.jpg"
+        caption="Our Joy">
+      </skylee-home-slide>
+
+      <skylee-home-slide
+        src-map="320w-180h [[rootPath]]images/featured/graduation-photo-320w.jpg,
+                 640w-360h [[rootPath]]images/featured/graduation-photo-640w.jpg,
+                 1280w-720h [[rootPath]]images/featured/graduation-photo-1280w.jpg,
+                 [[rootPath]]images/featured/graduation-photo-default.jpg"
+        caption="Our Alumni">
+      </skylee-home-slide>
+      
     </curium-animated-pages>
 
   </template>
   <script>
-    class SkyleeHome extends Polymer.Element {
+    class SkyleeHome extends Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element) {
 
       static get is() { return 'skylee-home'; }
 
@@ -128,53 +115,78 @@
             type: Boolean,
             value: false
           },
+
           tabPageTitle: {
             type: String,
             value: 'Home',
             notify: true
           },
-          transparentToolbar: {
-            type: Boolean,
-            value: true,
+          toolbarBackgroundColor: {
+            type: String,
+            value: 'transparent',
             notify: true
           }
         };
       }
 
-      static get observers() {
-        return [
-          '_onVisibleStateChanged(visibleScene, visibleTabPage)'
-        ];
+      static get observers() { return [
+        '_onVisibilityChanged(visibleScene, visibleTabPage)'
+      ];}
+
+      ready() {
+        super.ready();
+        this.$.slides.addEventListener('iron-resize', e => this._onSlidesResize(e));
+        this.$.slides.addEventListener('iron-select', e => {
+          if (e.target === this.$.slides) this._onSlidesSelectionChanged(e);
+        });
       }
 
-      _onVisibleStateChanged(visibleScene, visibleTabPage) {
+      _onVisibilityChanged(visibleScene, visibleTabPage) {
         if (visibleScene && visibleTabPage) {
-          if (!this._isInteger(this._slideshowTimerID)) {
+          if (!Number.isInteger(this._slideshowTimerID)) {
+            console.log('slide start');
             this._slideshowTimerID = setInterval(() => {
               this.$.slides.selectNext();
             }, 5000);
           }
         } else {
-          if (this._isInteger(this._slideshowTimerID)) {
+          if (Number.isInteger(this._slideshowTimerID)) {
+            console.log('slide stop');
             clearInterval(this._slideshowTimerID);
             this._slideshowTimerID = null;
           }
         }
       }
 
-      _logicAnd(a, b) {
-        return a && b;
+      _onSlidesResize(evt) {
+        this._slidesResizeDebouncer = Polymer.Debouncer.debounce(this._slidesResizeDebouncer, Polymer.Async.timeOut.after(100), () => {
+          this._updateSlideSrc();
+        });
       }
 
-      /* polyfil for IE 11 */
-      _isInteger(value) {
-        return Number.isInteger ? Number.isInteger(value) :
-               (typeof value === 'number' && window.isFinite(value) && Math.floor(value) === value);
+      _onSlidesSelectionChanged(evt) {
+        this._updateSlideSrc();
+      }
+
+      _updateSlideSrc() {
+        let slides = this.$.slides;
+        let slideList = slides.items;
+        let selectedSlide = slides.selectedItem;
+
+        let properties = {
+          width: slides.clientWidth,
+          height: slides.clientHeight,
+          preventLoad: false
+        };
+        let selectedIndex = slideList.indexOf(selectedSlide);
+
+        for (let i = 0; i < 2 && i < slideList.length; ++i) {
+          let image = slideList[(selectedIndex + i) % slideList.length].setProperties(properties);
+        }
+        //TODO: fix width == height == 0
       }
 
     }
     window.customElements.define(SkyleeHome.is, SkyleeHome);
-    window.Curium = window.Curium || {};
-    Curium.SkyleeHome = SkyleeHome;
   </script>
 </dom-module>

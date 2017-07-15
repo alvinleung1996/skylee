@@ -1,0 +1,8 @@
+ src="[[rootPath]]images/team/drama/drama-0.jpg"
+ src="[[rootPath]]images/team/drama/drama-1.jpg"
+ src="[[rootPath]]images/team/drama/drama-2.jpg"
+ src="[[rootPath]]images/team/drama/drama-3.jpg"
+{ src: `${Polymer.rootPath}images/team/drama/drama-0.jpg` },
+{ src: `${Polymer.rootPath}images/team/drama/drama-1.jpg` },
+{ src: `${Polymer.rootPath}images/team/drama/drama-2.jpg` },
+{ src: `${Polymer.rootPath}images/team/drama/drama-3.jpg` },

@@ -1,0 +1,26 @@
+RewriteEngine on
+
+# Debug
+# RewriteCond %{REQUEST_URI} ^/de$
+# RewriteRule ^.*$ /debug.php?HTTP_REFERER=%{HTTP_REFERER}&REQUEST_FILENAME=%{REQUEST_FILENAME}&REQUEST_URI=%{REQUEST_URI} [QSA,L]
+
+# Redirect to index.html if the uri is one of the page
+RewriteCond %{REQUEST_URI} ^\/(event|team(\/(badminton|basketball))?|about)?$ [OR]
+RewriteCond %{REQUEST_URI} ^\/image-viewer
+RewriteRule ^.*$ /index.html [L]
+
+# Redirect to index.html if the image is not loaded by our webpages (BUG: browser cache)
+RewriteCond %{REQUEST_URI} \.(?:gif|png|jpe?g)$
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteCond %{HTTP_REFERER} !^http:\/\/(?:www\.)?skylee\.hku\.hk
+RewriteCond %{HTTP_REFERER} !^http:\/\/localhost
+RewriteCond %{HTTP_REFERER} !^http:\/\/127\.0\.0\.1
+RewriteCond %{HTTP_REFERER} !^http:\/\/192\.168\.\d{1,3}\.\d{1,3}
+RewriteRule ^(.*)$ /image-viewer/$1 [R=301,L]
+
+RewriteCond %{REQUEST_URI} \.(?:gif|png|jpe?g)$
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ /php/resize-image.php [L]
+
+# Redirect to index.html and report 404 if the file does not exist
+ErrorDocument 404 /index.html

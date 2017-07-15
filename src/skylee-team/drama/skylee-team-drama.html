@@ -1,0 +1,46 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../base/skylee-team-base.html">
+
+<script>
+  class SkyleeTeamDrama extends SkyleeTeamBase {
+
+    static get is() { return 'skylee-team-drama'; }
+
+    static get properties() {
+      return {
+        teamPageTitle: {
+          type: String,
+          value: 'Drama Team',
+          readOnly: true,
+          notify: true
+        },
+
+        iconSrc: {
+          value: `${Polymer.rootPath}images/team/drama/drama-symbol.png`
+        },
+        name: {
+          value: 'Drama Team'
+        },
+        description: {
+          value: 'men\'s and women\'s team'
+        },
+        albumList: {
+          value: () => { return [
+            {
+              name: 'Photos',
+              imageList: [
+                { src: `${Polymer.rootPath}images/team/drama/drama-0.jpg` },
+                { src: `${Polymer.rootPath}images/team/drama/drama-1.jpg` },
+                { src: `${Polymer.rootPath}images/team/drama/drama-2.jpg` },
+                { src: `${Polymer.rootPath}images/team/drama/drama-3.jpg` },
+              ]
+            }
+          ];}
+        }
+      };
+    }
+
+  }
+  window.customElements.define(SkyleeTeamDrama.is, SkyleeTeamDrama);
+</script>

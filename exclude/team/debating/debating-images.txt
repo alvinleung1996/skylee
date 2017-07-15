@@ -1,0 +1,2 @@
+ src="[[rootPath]]images/team/debating/debating-0.jpg"
+{ src: `${Polymer.rootPath}images/team/debating/debating-0.jpg` },

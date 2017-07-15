@@ -1,0 +1,250 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/polymer/lib/elements/dom-repeat.html">
+<link rel="import" href="../../../bower_components/shadycss/apply-shim.html">
+
+<link rel="import" href="../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+
+<link rel="import" href="../../skylee-tab-pages/skylee-tab-page-auto-hide-toolbar-behavior.html">
+<link rel="import" href="skylee-team-tile.html">
+
+<dom-module id="skylee-team-all">
+  <template strip-whitespace>
+    <style>
+      :host {
+        display: block;
+        overflow-x: hidden;
+        overflow-y: auto;
+        padding-top: var(--skylee-toolbar_height);
+        transition: var(--skylee-toolbar_transition_padding-top);
+        /* Safari Bug: transition cannot use var */
+        -webkit-transition: var(--skylee-toolbar_transition_padding-top);
+        background-color: var(--skylee-background--secondary_background-color);
+        -webkit-overflow-scrolling: touch;
+      }
+
+      section {
+        border-bottom: 1px solid var(--skylee-divider_color);
+        display: flex;
+        justify-content: center;
+      }
+      section > * {
+        flex: 0 1 var(--skylee-content_max-width);
+        box-sizing: border-box;
+      }
+
+      .layout-vertical {
+        display: flex;
+        flex-direction: column;
+      }
+      .layout-vertical > * {
+        flex: 0 0 auto;
+      }
+
+      .padding-block {
+        padding: 20px;
+      }
+
+      .text-block {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+      }
+      .text-block > :not(:first-child) {
+        margin-top: 16px;
+      }
+      .text-block__title {
+        margin: 0;
+        @apply --skylee-text--headline_font;
+        color: var(--skylee-text--primary_color);
+      }
+      .text-block > p {
+        margin: 0;
+        @apply --skylee-text--body1_font;
+        color: var(--skylee-text--secondary_color);
+        text-align: justify;
+      }
+
+      .teams-block {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .teams-block > .teams-block__team-tile {
+        flex: 0 1 250px;
+        margin: 5px;
+      }
+      @supports (display: grid) {
+        .teams-block {
+          flex-wrap: initial;
+
+          display: grid;
+          /* chrome bug: the "250px" will make the row height locked at 250px
+             which ignore the children height (The children overflowed) */
+          grid-template-columns: repeat(auto-fill, minmax(250px, auto));
+          grid-auto-rows: auto;
+          grid-gap: 10px;
+        }
+        .teams-block > .teams-block__team-tile {
+          flex: initial;
+          margin: initial;
+        }
+      }
+    </style>
+
+    <template is="dom-repeat" items="[[_teamGroups]]" as="group">
+      <section>
+        <div class="layout-vertical">
+
+          <div class="padding-block text-block">
+            <h2 class="text-block__title">[[group.name]]</h2>
+          </div>
+
+          <div class="padding-block teams-block">
+
+            <template is="dom-repeat" items="[[group.teams]]" as="team">
+              <skylee-team-tile
+                class="teams-block__team-tile"
+                cover-src="[[team.coverSrc]]"
+                icon-src="[[team.iconSrc]]"
+                name="[[team.name]]"
+                href="[[team.href]]">
+              </skylee-team-tile>
+            </template>
+
+          </div>
+
+        </div>
+      </section>
+    </template>
+
+  </template>
+  <script>
+    class SkyleeTeamAll extends Skylee.SkyleeTabPageAutoHideToolbarBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
+      
+      static get is() { return 'skylee-team-all'; }
+
+      static get properties() { return {
+
+        teamPageTitle: {
+          type: String,
+          value: 'Team',
+          readOnly: true,
+          notify: true
+        },
+
+        _teamGroups: {
+          value: () => { return [
+            {
+              name: 'Sports Teams',
+              teams: [
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/badminton/badminton-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/badminton/badminton-symbol.png`,
+                  name: 'Badminton',
+                  href: `${Polymer.rootPath}team/badminton`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/basketball/basketball-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/basketball/basketball-symbol.png`,
+                  name: 'Basketball',
+                  href: `${Polymer.rootPath}team/basketball`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/handball/handball-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/handball/handball-symbol.png`,
+                  name: 'Handball',
+                  href: `${Polymer.rootPath}team/handball`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/hockey/hockey-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/hockey/hockey-symbol.png`,
+                  name: 'Hockey',
+                  href: `${Polymer.rootPath}team/hockey`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/lacrosse/lacrosse-0.jpg`,
+                  // iconSrc: `${Polymer.rootPath}images/team/lacrosse/lacrosse-symbol.png`,
+                  name: 'Lacrosse',
+                  href: `${Polymer.rootPath}team/lacrosse`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/soccer/soccer-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/soccer/soccer-symbol.png`,
+                  name: 'Soccer',
+                  href: `${Polymer.rootPath}team/soccer`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/softball/softball-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/softball/softball-symbol.png`,
+                  name: 'Softball',
+                  href: `${Polymer.rootPath}team/softball`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/squash/squash-0.jpg`,
+                  // iconSrc: `${Polymer.rootPath}images/team/squash/squash-symbol.png`,
+                  name: 'Squash',
+                  href: `${Polymer.rootPath}team/squash`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/table-tennis/table-tennis-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/table-tennis/table-tennis-symbol.png`,
+                  name: 'Table-tennis',
+                  href: `${Polymer.rootPath}team/table-tennis`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/volleyball/volleyball-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/volleyball/volleyball-symbol.png`,
+                  name: 'Volleyball',
+                  href: `${Polymer.rootPath}team/volleyball`
+                }
+              ]
+            },
+            {
+              name: 'Cultural Teams',
+              teams: [
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/band/band-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/band/band-symbol.png`,
+                  name: 'Band',
+                  href: `${Polymer.rootPath}team/band`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/bridge/bridge-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/bridge/bridge-symbol.png`,
+                  name: 'Bridge',
+                  href: `${Polymer.rootPath}team/bridge`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/choir/choir-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/choir/choir-symbol.png`,
+                  name: 'Choir',
+                  href: `${Polymer.rootPath}team/choir`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/dancing/dancing-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/dancing/dancing-symbol.png`,
+                  name: 'Dancing',
+                  href: `${Polymer.rootPath}team/dancing`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/debating/debating-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/debating/debating-symbol.png`,
+                  name: 'Debating',
+                  href: `${Polymer.rootPath}team/debating`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/drama/drama-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/drama/drama-symbol.png`,
+                  name: 'Drama',
+                  href: `${Polymer.rootPath}team/drama`
+                }
+              ]
+            }
+          ];}
+        }
+      };}
+
+    }
+    window.customElements.define(SkyleeTeamAll.is, SkyleeTeamAll);
+  </script>
+</dom-module>

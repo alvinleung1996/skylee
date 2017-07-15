@@ -1,0 +1,45 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../base/skylee-team-base.html">
+
+<script>
+  class SkyleeTeamBadminton extends SkyleeTeamBase {
+
+    static get is() { return 'skylee-team-badminton'; }
+
+    static get properties() {
+      return {
+        teamPageTitle: {
+          type: String,
+          value: 'Badminton Team',
+          readOnly: true,
+          notify: true
+        },
+
+        iconSrc: {
+          value: `${Polymer.rootPath}images/team/badminton/badminton-symbol.png`
+        },
+        name: {
+          value: 'Badminton Team'
+        },
+        description: {
+          value: 'men\'s and women\'s team'
+        },
+        albumList: {
+          value: () => { return [
+            {
+              name: 'Photos',
+              imageList: [
+                { src: `${Polymer.rootPath}images/team/badminton/badminton-0.jpg` },
+                { src: `${Polymer.rootPath}images/team/badminton/badminton-1.jpg` },
+                { src: `${Polymer.rootPath}images/team/badminton/badminton-2.jpg` },
+              ]
+            }
+          ];}
+        }
+      };
+    }
+
+  }
+  window.customElements.define(SkyleeTeamBadminton.is, SkyleeTeamBadminton);
+</script>

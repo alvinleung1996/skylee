@@ -1,0 +1,118 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/shadycss/apply-shim.html">
+
+<link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+
+<link rel="import" href="../skylee-tab-pages/skylee-tab-page-auto-hide-toolbar-behavior.html">
+<link rel="import" href="skylee-event-timeline-block.html">
+
+<dom-module id="skylee-event">
+  <template strip-whitespace>
+    <style>
+      :host {
+        display: block;
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-top: var(--skylee-toolbar_height);
+        transition: var(--skylee-toolbar_transition_padding-top);
+        -webkit-transition: var(--skylee-toolbar_transition_padding-top);
+        background-color: var(--skylee-background--secondary_background-color);
+      }
+
+      section {
+        display: flex;
+        justify-content: center;
+      }
+      section > * {
+        flex: 0 1 var(--skylee-content_max-width);
+        box-sizing: border-box;
+      }
+    </style>
+
+    <iron-media-query query="not all and (min-width: 700px)" query-matches="{{_narrowLayout}}" full></iron-media-query>
+
+    <section>
+      <skylee-event-timeline-block
+        time="8 - 9 July 2017"
+        name="Sky Camp 2017 天空任李行"
+        position="first"
+        narrow="[[_narrowLayout]]"
+        header-background-color="#87CEFA" header-theme="light">
+        <iframe style="height:315px" src="https://www.youtube.com/embed/urGSdarRvig" allowfullscreen></iframe>
+        <iframe style="height:687px;" src="https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fskylee.hku%2Fposts%2F878843898948147%3A0&width=auto&show_text=true&height=687&appId"></iframe>
+        <iframe style="height:406px;" src="https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fskylee.hku%2Fposts%2F886354301530440&width=auto&show_text=true&height=406&appId"></iframe>
+      </skylee-event-timeline-block>
+    </section>
+
+    <section>
+      <skylee-event-timeline-block
+        time="August 2017"
+        name="Registration Day"
+        narrow="[[_narrowLayout]]"
+        header-background-color="#f58e46" header-theme="light">
+        <p>Registration day gives you an opportunity to take a sneak peek of our hall.</p>
+      </skylee-event-timeline-block>
+    </section>
+
+    <section>
+      <skylee-event-timeline-block
+        time="August 2017"
+        name="Touch Camp"
+        narrow="[[_narrowLayout]]"
+        header-background-color="lightgreen" header-theme="light">
+        <p>Touch Camp allows you to have a taste of our hall culture.</p>
+      </skylee-event-timeline-block>
+    </section>
+
+    <section>
+      <skylee-event-timeline-block
+        time="August 2017"
+        name="Orientation Camp"
+        narrow="[[_narrowLayout]]"
+        header-background-color="#f7e77a" header-theme="light">
+        <p>Orientation Camp helps you to understand our hall comprehensively and build up a close relationship with our hall community.</p>
+      </skylee-event-timeline-block>
+    </section>
+
+    <section>
+      <skylee-event-timeline-block
+        time="September 2017"
+        name="Non-local Orientation Camp"
+        narrow="[[_narrowLayout]]"
+        header-background-color="#ce90ee" header-theme="light">
+        <p>Non-local orientation camp helps non-local students to adapt the life in Hong Kong and integrate to the local community.</p>
+      </skylee-event-timeline-block>
+    </section>
+
+    <section>
+      <skylee-event-timeline-block
+        time="November 2017"
+        name="Information Day"
+        no-content
+        position="last"
+        narrow="[[_narrowLayout]]">
+      </skylee-event-timeline-block>
+    </section>
+
+  </template>
+  <script>
+    class SkyleeEvent extends Skylee.SkyleeTabPageAutoHideToolbarBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
+
+      static get is() { return 'skylee-event'; }
+
+      static get properties() {
+        return {
+          tabPageTitle: {
+            type: String,
+            value: 'Event',
+            notify: true
+          }
+        };
+      }
+
+    }
+    window.customElements.define(SkyleeEvent.is, SkyleeEvent);
+  </script>
+</dom-module>

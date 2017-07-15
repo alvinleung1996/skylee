@@ -2,31 +2,38 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, height=device-height, minimum-scale=1, initial-scale=1, user-scalable=yes">
 
     <title>Simon K. Y. Lee Hall</title>
-    <meta name="description" content="skylee description">
+    <meta name="description" content="We are Skyers, Active and Sincere! Simon K. Y. Lee Hall is one of the campus halls located in the campus of The University of Hong Kong.">
+    <meta name="theme-color" content="#0047bb">
+    <link rel="icon" sizes="192x192" href="/images/icon-192x192.png">
+    <link rel="apple-touch-icon" href="/images/icon-192x192.png">
 
     <!-- See https://goo.gl/OOhYW5 -->
     <link rel="manifest" href="/manifest.json">
 
+    <script src="/polyfill.js"></script>
     <script>
       /*
        * In Edge, CSS variables in global scope seems cannot be applied, bug?
        * So force using ShadyCSS in Edge.
        */
-      if (navigator.userAgent.indexOf('Edge') > -1) {
+      if (navigator.userAgent.match(/Edge/)) {
         // window.customElements && (window.customElements.forcePolyfill = true);
         // ShadyDOM = { force: true };
         ShadyCSS = { shimcssproperties: true };
       }
+      // window.customElements && (window.customElements.forcePolyfill = true);
+      // ShadyDOM = { force: true };
+      // ShadyCSS = { shimcssproperties: true };
 
       window.Polymer = window.Polymer || {};
       Polymer.rootPath = '/';
 
       window.Skylee = window.Skylee || {};
-      Skylee.routePrefix = '#/';
-      Skylee.defaultPath = `${Polymer.rootPath}${Skylee.routePrefix}main/home`;
+      Skylee.routePrefix = '';
+      Skylee.defaultPath = `${Polymer.rootPath}${Skylee.routePrefix}`;
     </script>
 
     <script src="/bower_components/webcomponentsjs/webcomponents-loader.js"></script>

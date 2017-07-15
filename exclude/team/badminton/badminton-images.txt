@@ -1,0 +1,6 @@
+ src="[[rootPath]]images/team/badminton/badminton-0.jpg"
+ src="[[rootPath]]images/team/badminton/badminton-1.jpg"
+ src="[[rootPath]]images/team/badminton/badminton-2.jpg"
+{ src: `${Polymer.rootPath}images/team/badminton/badminton-0.jpg` },
+{ src: `${Polymer.rootPath}images/team/badminton/badminton-1.jpg` },
+{ src: `${Polymer.rootPath}images/team/badminton/badminton-2.jpg` },

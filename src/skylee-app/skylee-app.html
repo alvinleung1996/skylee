@@ -2,20 +2,22 @@
 <link rel="import" href="../../bower_components/polymer/lib/utils/debounce.html">
 
 <link rel="import" href="../../bower_components/app-route/app-location.html">
-<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
 <link rel="import" href="../../bower_components/curium-animated-pages/curium-animated-pages.html">
 <link rel="import" href="../../bower_components/curium-animated-pages/animations/curium-scene-animation-manager.html">
+<link rel="import" href="../../bower_components/curium-route/curium-route.html">
 
-<link rel="import" href="../skylee-main/skylee-main.html">
+<link rel="import" href="../skylee-property-binder-behavior/skylee-property-binder-behavior.html">
 <link rel="import" href="../skylee-styles/skylee-styles.html">
+
+<link rel="import" href="../skylee-tab-pages/skylee-tab-pages.html">
 
 <dom-module id="skylee-app">
   <template strip-whitespace>
     <style>
       :host {
         display: block;
-        overflow: hidden;
       }
       #scenes {
         width: 100%;
@@ -23,21 +25,30 @@
       }
     </style>
 
-    <app-location route="{{_route}}" use-hash-as-path></app-location>
-    <app-route
+    <app-location route="{{_route}}"></app-location>
+    <curium-route
       route="{{_route}}"
-      pattern="/:sceneID"
-      data="{{_routeData}}"
-      tail="{{_subroute}}">
-    </app-route>
+      data-pattern="/sceneId"
+      data="{{_routeData}}">
+    </curium-route>
 
-    <curium-scene-animation-manager id="scene-animation-manager"></curium-scene-animation-manager>
-    <curium-animated-pages id="scenes" selected-attribute="visible-scene" attr-for-selected="scene-id" selected="[[_selectedSceneID]]" animation-manager="#scene-animation-manager">
-      
-      <skylee-main scene-id="main" route="{{_subroute}}"></skylee-main> <!-- element already imported -->
+    <curium-scene-animation-manager id="scene-animation-manager" duration="330"></curium-scene-animation-manager>
+    <curium-animated-pages
+      id="scenes"
+      attr-for-selected="scene-id"
+      selected="[[_selectedSceneId]]"
+      selected-attribute="visible-scene"
+      animation-manager="#scene-animation-manager">
+
+      <skylee-tab-pages
+        scene-id="tab-pages"
+        route="[[_route]]"></skylee-tab-pages> <!-- element already imported -->
+
+      <skylee-image-viewer level="1"
+        scene-id="image-viewer" element-path$="[[rootPath]]src/skylee-image-viewer/skylee-image-viewer.html"
+        route="[[_route]]"></skylee-image-viewer>
 
     </curium-animated-pages>
-
   </template>
 
   <script>
@@ -45,13 +56,13 @@
      * @customElement
      * @polymer
      */
-    class SkyleeApp extends Polymer.Element {
+    class SkyleeApp extends Skylee.SkyleePropertyBinderBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
 
       static get is() { return 'skylee-app'; }
-      
+
       static get properties() {
         return {
-          _appTitle: {
+          appTitle: {
             type: String,
             computed: '_computeAppTitle(_sceneTitle)',
             observer: '_onAppTitleChanged'
@@ -61,32 +72,36 @@
             value: ''
           },
 
-          _selectedSceneID: {
+          _selectedSceneId: {
             type: String,
-            computed: '_computeSelectedSceneID(_routeData.sceneID)'
+            computed: '_computeSelectedSceneId(_routeData.sceneId)'
+          },
+          _tabPagesRoute: {
+            type: Object
           }
         };
       }
 
-      constructor() {
-        super();
-
-        this._bindedOnSceneTitleChanged = e => this._sceneTitle = e.detail.value;
-      }
-
       ready() {
         super.ready();
-
         this.$.scenes.addEventListener('iron-select', e => {
-          if (e.target === this.$.scenes) this._onSceneSelectionChanged();
+          if (e.target === this.$.scenes) this._onSceneSelectionChanged()
         });
         this.$.scenes.addEventListener('iron-deselect', e => {
-          if (e.target === this.$.scenes) this._onSceneSelectionChanged();
+          if (e.target === this.$.scenes) this._onSceneSelectionChanged()
         });
       }
 
-      _computeSelectedSceneID(id) {
-        return id ? id : 'main';
+      _computeAppTitle(sceneTitle) {
+        return (sceneTitle ? (sceneTitle + ' - ') : '') + 'Simon K. Y. Lee Hall';
+      }
+
+      _onAppTitleChanged(appTitle) {
+        document.title = appTitle;
+      }
+
+      _computeSelectedSceneId(id) {
+        return id === 'image-viewer' ? 'image-viewer' : 'tab-pages';
       }
 
       _onSceneSelectionChanged() {
@@ -98,54 +113,30 @@
           this._prevSelectedScene = selectedScene;
 
           this._loadScene(selectedScene);
-          this._observeSceneProperties(deselectedScene, selectedScene);
-          this._syncSceneProperties(selectedScene);
+          this._bindSceneProperties(selectedScene);
         });
       }
 
       _loadScene(selectedScene) {
         if (selectedScene) {
-          if (selectedScene.hasAttribute('element-path') && !selectedScene.hasAttribute('element-loaded')) {
+          if (selectedScene.hasAttribute('element-path') && !selectedScene.hasAttribute('element-loading') && !selectedScene.hasAttribute('element-loaded')) {
             let path = selectedScene.getAttribute('element-path');
-            Polymer.importHref(this.resolveUrl(path), null, null, true);
-            selectedScene.setAttribute('element-loaded', '');
+            selectedScene.setAttribute('element-loading', '');
+            Polymer.importHref(this.resolveUrl(path), () => {
+              selectedScene.removeAttribute('element-loading');
+              selectedScene.setAttribute('element-loaded', '');
+            }, null, true);
           }
         }
       }
 
-      _observeSceneProperties(deselectedScene, selectedScene) {
-        if (deselectedScene) {
-          deselectedScene.removeEventListener('scene-title-changed', this._bindedOnSceneTitleChanged);
-        }
-        if (selectedScene) {
-          selectedScene.addEventListener('scene-title-changed', this._bindedOnSceneTitleChanged);
-        }
-      }
-
-      _syncSceneProperties(selectedScene) {
-        let sceneTitle = '';
-        if (selectedScene) {
-          if (selectedScene.sceneTitle) {
-            sceneTitle = selectedScene.sceneTitle;
-          } else if (selectedScene.hasAttribute('scene-title')) {
-            sceneTitle = selectedScene.getAttribute('scene-title');
-          }
-        }
-        this._sceneTitle = sceneTitle;
-      }
-
-      _computeAppTitle(sceneTitle) {
-        return (sceneTitle ? (sceneTitle + ' - ') : '') + 'Simon K. Y. Lee Hall';
-      }
-
-      _onAppTitleChanged(appTitle) {
-        document.title = appTitle;
+      _bindSceneProperties(selectedScene) {
+        this._bindProperties({
+          _sceneTitle: 'sceneTitle'
+        }, selectedScene);
       }
 
     }
-
     window.customElements.define(SkyleeApp.is, SkyleeApp);
-    window.Skylee = window.Skylee || {};
-    Skylee.SkyleeApp = SkyleeApp;
   </script>
 </dom-module>

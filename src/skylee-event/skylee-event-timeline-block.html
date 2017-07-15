@@ -1,0 +1,292 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/shadycss/apply-shim.html">
+
+<dom-module id="skylee-event-timeline-block">
+  <template strip-whitespace>
+    <style>
+      :host {
+        --skylee-event-timeline-block_padding-top: 30px;
+        --skylee-event-timeline-block_padding-right: 20px;
+          --skylee-event-timeline-block--narrow_padding-right: 5px;
+        --skylee-event-timeline-block_padding-bottom: 30px;
+        --skylee-event-timeline-block_padding-left: 20px;
+          --skylee-event-timeline-block--narrow_padding-left: 5px;
+        
+        --skylee-event-timeline-block__timeline_width: 5px;
+        --skylee-event-timeline-block__timeline_color: rgba(var(--skylee-text--base_color_r),
+                                                              var(--skylee-text--base_color_g),
+                                                              var(--skylee-text--base_color_b),
+                                                              0.2);
+
+        --skylee-event-timeline-block__card_margin: var(--skylee-event-timeline-block_padding-left);
+        --skylee-event-timeline-block__card_padding: 20px;
+        --skylee-event-timeline-block__card_border-radius: 5px;
+        --skylee-event-timeline-block__card_box-shadow: var(--skylee-shadow--elevation-2_box-shadow);
+        --skylee-event-timeline-block__card--hover_box-shadow: var(--skylee-shadow--elevation-6_box-shadow);
+        --skylee-event-timeline-block__card_background-color: var(--skylee-background--primary_background-color);
+
+        --skylee-event-timeline-block__icon_size: 48px;
+        --skylee-event-timeline-block__icon_background-color: var(--skylee-background--primary_background-color);
+        --skylee-event-timeline-block__icon_box-shadow: var(--skylee-shadow--elevation-2_box-shadow);
+        --skylee-event-timeline-block__icon_background-color: var(--skylee-background--primary_background-color);
+
+        --skylee-event-timeline-block__arrow_size: 20px;
+
+        --skylee-event-timeline-block__header_background-color: var(--skylee-event-timeline-block__card_background-color);
+
+        display: block;
+        position: relative;
+        padding: var(--skylee-event-timeline-block_padding-top)
+                 var(--skylee-event-timeline-block_padding-right)
+                 var(--skylee-event-timeline-block_padding-bottom)
+                 var(--skylee-event-timeline-block_padding-left);
+        transition: padding 330ms ease-out 0ms;
+      }
+      :host([narrow]) {
+        padding-left: var(--skylee-event-timeline-block--narrow_padding-left);
+        padding-right: var(--skylee-event-timeline-block--narrow_padding-right);
+      }
+
+      #timeline {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        bottom: 0px;
+        width: var(--skylee-event-timeline-block__timeline_width);
+        transform: translateX(calc(var(--skylee-event-timeline-block_padding-left) + ((var(--skylee-event-timeline-block__icon_size) - 100%) / 2)));
+        z-index: -1;
+        background-color: var(--skylee-event-timeline-block__timeline_color);
+      }
+      #timeline[position="first"] {
+        background: linear-gradient(to bottom,
+                                    transparent,
+                                    var(--skylee-event-timeline-block__timeline_color) var(--skylee-event-timeline-block_padding-top),
+                                    var(--skylee-event-timeline-block__timeline_color));
+      }
+      #timeline[position="last"] {
+        background: linear-gradient(to top,
+                                    transparent,
+                                    var(--skylee-event-timeline-block__timeline_color) var(--skylee-event-timeline-block_padding-bottom),
+                                    var(--skylee-event-timeline-block__timeline_color));
+      }
+      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {  
+        /* Fix for IE11: does not support calc in translate */
+        #timeline {
+          transform: none;
+          left: calc(var(--skylee-event-timeline-block_padding-left) + ((var(--skylee-event-timeline-block__icon_size) - var(--skylee-event-timeline-block__timeline_width)) / 2));
+        }
+      }
+
+      #card {
+        margin-left: calc(var(--skylee-event-timeline-block__icon_size) + var(--skylee-event-timeline-block__card_margin));
+        transition: margin-left 330ms ease-out 0ms,
+                    margin-top 330ms ease-out 0ms,
+                    var(--skylee-shadow_transition);
+        /* Fix for Safari */
+        -webkit-transition: margin-left 330ms ease-out 0ms,
+                            margin-top 330ms ease-out 0ms,
+                            var(--skylee-shadow_transition);
+        border-radius: var(--skylee-event-timeline-block__card_border-radius);
+        box-shadow: var(--skylee-event-timeline-block__card_box-shadow);
+        background-color: var(--skylee-event-timeline-block__card_background-color);
+      }
+      #card:hover {
+        box-shadow: var(--skylee-event-timeline-block__card--hover_box-shadow);
+      }
+      :host([narrow]) #card {
+        margin-left: 0px;
+        margin-top: calc(var(--skylee-event-timeline-block__icon_size) + var(--skylee-event-timeline-block__card_margin));
+        /* IE11 and Edge Bug: transition cannot be performed with value calc() */
+      }
+
+      #top-bar {
+        position: relative;
+      }
+
+      #icon {
+        position: absolute;
+        z-index: 10;
+        top: 50%;
+        transform: translate(calc(0px - var(--skylee-event-timeline-block__card_margin) - 100%), -50%);
+        width: var(--skylee-event-timeline-block__icon_size);
+        height: var(--skylee-event-timeline-block__icon_size);
+        border-radius: 50%;
+        background-color: var(--skylee-event-timeline-block__icon_background-color);
+        box-shadow: var(--skylee-event-timeline-block__icon_box-shadow);
+        transition: top 330ms ease-out 0ms,
+                    transform 330ms ease-out 0ms;
+      }
+      :host([narrow]) #icon {
+        top: 0px;
+        transform: translate(calc(0px - var(--skylee-event-timeline-block--narrow_padding-left) + var(--skylee-event-timeline-block_padding-left)), calc(0px - var(--skylee-event-timeline-block__card_margin) - 100%));
+      }
+      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {
+        #icon {
+          left: calc(0px - var(--skylee-event-timeline-block__card_margin) - var(--skylee-event-timeline-block__icon_size));
+          transform: translateY(-50%);
+        }
+        :host([narrow]) #icon {
+          left: calc(0px - var(--skylee-event-timeline-block--narrow_padding-left) + var(--skylee-event-timeline-block_padding-left));
+          top: calc(0px - var(--skylee-event-timeline-block__card_margin) - var(--skylee-event-timeline-block__icon_size));
+          transform: none;
+        }
+      }
+
+      #arrow {
+        position: absolute;
+        top: 50%;
+        transform: translate(-25%, -50%) rotate(45deg);
+        width: var(--skylee-event-timeline-block__arrow_size);
+        height: var(--skylee-event-timeline-block__arrow_size);
+        box-shadow: var(--skylee-event-timeline-block__card_box-shadow);
+        transition: var(--skylee-shadow_transition);
+        /* Fix for Safari */
+        -webkit-transition: var(--skylee-shadow_transition);
+        background-color: var(--skylee-event-timeline-block__header_background-color);
+      }
+      #card:hover #arrow {
+        box-shadow: var(--skylee-event-timeline-block__card--hover_box-shadow);
+      }
+      :host([narrow]) #arrow {
+        top: 0px;
+        transform: translate(calc(0px - var(--skylee-event-timeline-block--narrow_padding-left) + var(--skylee-event-timeline-block_padding-left) + (var(--skylee-event-timeline-block__icon_size) - 100%) / 2), -25%) rotate(45deg);
+      }
+      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {
+        :host([narrow]) #arrow {
+          left: calc(0px - var(--skylee-event-timeline-block--narrow_padding-left) + var(--skylee-event-timeline-block_padding-left) + (var(--skylee-event-timeline-block__icon_size) - var(--skylee-event-timeline-block__arrow_size)) / 2);
+          transform: translateY(-25%) rotate(45deg);
+        }
+      }
+
+      #header {
+        position: relative; /* so this can cover the arrow */
+        border-top-left-radius: var(--skylee-event-timeline-block__card_border-radius);
+        border-top-right-radius: var(--skylee-event-timeline-block__card_border-radius);
+        overflow: hidden;
+        background-color: var(--skylee-event-timeline-block__header_background-color);
+        padding: var(--skylee-event-timeline-block__card_padding);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      #header[no-content] {
+        border-bottom-left-radius: var(--skylee-event-timeline-block__card_border-radius);
+        border-bottom-right-radius: var(--skylee-event-timeline-block__card_border-radius);
+      }
+
+      #time {
+        display: block;
+        @apply --skylee-text--body1_font;
+        color: var(--skylee-text--primary_color);
+      }
+      #header[theme="light"] #time {
+        color: var(--skylee-text--light-theme--primary_color);
+      }
+      #header[theme="dark"] #time {
+        color: var(--skylee-text--dark-theme--primary_color);
+      }
+
+      #name {
+        margin: 0px;
+        @apply --skylee-text--headline_font;
+        color: var(--skylee-text--primary_color);
+      }
+      #header[theme="light"] #name {
+        color: var(--skylee-text--light-theme--primary_color);
+      }
+      #header[theme="dark"] #name {
+        color: var(--skylee-text--dark-theme--primary_color);
+      }
+
+      #content {
+        border-bottom-left-radius: var(--skylee-event-timeline-block__card_border-radius);
+        border-bottom-right-radius: var(--skylee-event-timeline-block__card_border-radius);
+        overflow: hidden;
+        padding: var(--skylee-event-timeline-block__card_padding);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      #content[hide] {
+        display: none;
+      }
+
+      #content > ::slotted(p) {
+        margin: 0px;
+        @apply --skylee-text--body1_font;
+        color: var(--skylee-text--secondary_color);
+        text-align: justify;
+      }
+      #content > ::slotted(iframe) {
+        align-self: stretch;
+        border: 0px;
+        overflow: hidden;
+      }
+      /* IE11 can wrap p only if p is set to stretch */
+      /* IE11 and Edge cannot stretch iframe */
+      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {
+        #content > ::slotted(p) {
+          align-self: stretch;
+        }
+        #content > ::slotted(iframe) {
+          width: 100%;
+        }
+      }
+      @supports (-ms-ime-align: auto) {
+        #content > ::slotted(iframe) {
+          width: 100%;
+        }
+      }
+    </style>
+
+    <div id="timeline" position$="[[position]]"></div>
+    <div id="card">
+      <div id="top-bar">
+        <div id="icon">
+          <slot name="icon"></slot>
+        </div>
+        <div id="arrow" style$="[[_computeStyle('background-color',headerBackgroundColor)]]"></div>
+        <header id="header" style$="[[_computeStyle('background-color',headerBackgroundColor)]]" theme$="[[headerTheme]]" no-content$="[[noContent]]">
+          <time id="time">[[time]]</time>
+          <h2 id="name">[[name]]</h2>
+        </header>
+      </div>
+      <div id="content" hide$="[[noContent]]">
+        <slot></slot>
+      </div>
+    </div>
+
+  </template>
+  <script>
+    class SkyleeEventTimelineBlock extends Polymer.Element {
+
+      static get is() { return 'skylee-event-timeline-block'; }
+
+      static get properties() { return {
+        time: String,
+        name: String,
+        noContent: {
+          type: Boolean,
+          value: false
+        },
+        position: String,
+        narrow: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
+        headerTheme: String,
+        headerBackgroundColor: {
+          type: String,
+          value: ''
+        }
+      };}
+
+      _computeStyle(prop, value) {
+        return prop && value ? `${prop}:${value};` : '';
+      }
+
+    }
+    window.customElements.define(SkyleeEventTimelineBlock.is, SkyleeEventTimelineBlock);
+  </script>
+</dom-module>
