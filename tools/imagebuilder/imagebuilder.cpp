@@ -2,12 +2,19 @@
 #include <fstream>
 #include <experimental/filesystem>
 #include <regex>
+#include <list>
 #include <Magick++.h>
 
 namespace fs = std::experimental::filesystem;
 namespace mg = Magick;
 
-#define IMAGE_QUALITY 50 // [1, 100] for JPEG
+struct ImageData {
+  std::string filename;
+  size_t width;
+  size_t height;
+};
+
+#define IMAGE_QUALITY 75 // [1, 100] for JPEG
 
 void listArgv(int argc, char** argv);
 
@@ -68,10 +75,10 @@ int main(int argc, char** argv) {
     }
   }
 
-  if (listPath.empty()) {
-    listPath = outDirPath / "images.txt";
-  }
-  if (fs::exists(listPath) && !fs::is_regular_file(listPath)) {
+//  if (listPath.empty()) {
+//    listPath = outDirPath / "images.txt";
+//  }
+  if (!listPath.empty() && fs::exists(listPath) && !fs::is_regular_file(listPath)) {
     std::cout << "\"" << listPath.string() << "\" is not a regular file" << std::endl;
     return 4;
   }
@@ -86,7 +93,7 @@ int main(int argc, char** argv) {
     const fs::path& path = entry.path();
     const std::string& pathStr = path.string();
 
-    if (std::regex_search(pathStr, std::regex(R"(-\d+(\.\d*)?x.jpg$)"))
+    if (std::regex_search(pathStr, std::regex(R"(-\d+\.jpg$)"))
       && fs::is_regular_file(path)) {
       std::cout << "Remove \"" << pathStr << "\"" << std::endl;
       try {
@@ -102,7 +109,7 @@ int main(int argc, char** argv) {
 
   int exitValue = 0;
 
-  std::ofstream listOutStream(listPath);
+  std::list<ImageData> imageDataList;
 
   for (const fs::directory_entry& entry : fs::directory_iterator(inDirPath)) {
     const fs::path& path = entry.path();
@@ -110,80 +117,55 @@ int main(int argc, char** argv) {
     const fs::path& filenamePath = path.filename();
     const std::string& filenamePathStr = filenamePath.string();
 
-    std::smatch filenameMatch;
-    if (std::regex_search(filenamePathStr, filenameMatch, std::regex(R"(.jpg$)"))
-      && fs::is_regular_file(path)) {
-      const std::string& filenameBaseStr = filenameMatch.prefix();
+    if (std::regex_search(filenamePathStr, std::regex(R"(.jpg$)")) &&
+        fs::is_regular_file(path)) {
 
       std::cout << "Convert image: \"" << pathStr << "\"" << std::endl;
-      mg::Image oriImage;
+      mg::Image image;
       try {
-        oriImage.read(pathStr);
-        size_t oriWidth = oriImage.columns();
-        size_t oriHeight = oriImage.rows();
+        image.read(pathStr);
+        size_t imageWidth = image.columns();
+        size_t imageHeight = image.rows();
 
-        float factor = 1;
-        size_t modWidth = oriWidth;
-        size_t modHeight = oriHeight;
+        image.interlaceType(mg::InterlaceType::LineInterlace); // progressive JPEG
+        image.quality(IMAGE_QUALITY); // quality [1, 100] for JPEG
 
-        while (true) {
-          mg::Image modImage(oriImage);
+        fs::path outputPath = outDirPath / filenamePath;
+        std::string outputPathStr = outputPath.string();
 
-          modImage.scale(mg::Geometry(modWidth, modHeight));
-          modWidth = modImage.columns();
-          modHeight = modImage.rows();
+        std::cout << "\toutput to: " << outputPathStr << "\"" << std::endl;
+        try {
+          image.write(outputPathStr);
+        } catch (const std::exception& e) {
+          std::cout << "Caught Exception: " << e.what() << std::endl;
+          exitValue = 200;
+        }
 
-          modImage.interlaceType(mg::InterlaceType::LineInterlace); // progressive JPEG
-          modImage.quality(IMAGE_QUALITY); // quality [1, 100] for JPEG
-
-          size_t bufferSize = filenameBaseStr.length()
-            + std::to_string(1 / factor).length()
-            + 32;
-          char* buffer = new char[bufferSize];
-          std::snprintf(buffer, bufferSize, "%s-%gx.jpg",
-              filenameBaseStr.c_str(), 1/factor);
-          std::string outputFilenameStr(buffer);
-          std::string outputPathStr = outDirPath.string() + "/" + outputFilenameStr;
-          delete[] buffer; buffer = nullptr;
-
-          std::cout << "\toutput to: " << modWidth << "x" << modHeight
-              << "@" << (1 / factor) << "x" << " \"" << outputPathStr << "\"" << std::endl;
-          try {
-            modImage.write(outputPathStr);
-          } catch (const std::exception& e) {
-            std::cout << "Caught Exception: " << e.what() << std::endl;
-            exitValue = 200;
-          }
-
-          float nextFactor = factor * 2;
-          size_t nextModWidth = static_cast<size_t>(std::round(oriWidth / nextFactor));
-          size_t nextModHeight = static_cast<size_t>(std::round(oriHeight / nextFactor));
-          if (nextModWidth >= 320 && nextModHeight >= 320) {
-            factor = nextFactor;
-            modWidth = nextModWidth;
-            modHeight = nextModHeight;
-          } else {
-            break;
-          }
-        } // end while
-
-        listOutStream << " src=\"" << (htmlPrefix + filenamePathStr) << "\""
-                      << " srcWidth=\"" << oriWidth << "\""
-                      << " srcHeight=\"" << oriHeight << "\""
-                      << std::endl
-                      << "src: `" << (jsPrefix + filenamePathStr) << "`"
-                      << ", srcWidth: " << oriWidth
-                      << ", srcHeight: " << oriHeight
-                      << std::endl << std::endl;
+        imageDataList.push_back({filenamePathStr, imageWidth, imageHeight});
 
       } catch (const std::exception& e) {
         std::cout << "Caught Exception: " << e.what() << std::endl;
         exitValue = 100;
       }
 
+
     } // end if
 
   } // end for loop
+
+  if (!listPath.empty()) {
+    std::ofstream listOutStream(listPath);
+
+    for (const ImageData& data : imageDataList) {
+      listOutStream << " src=\"" << (htmlPrefix + data.filename) << "\""
+                    << std::endl;
+    }
+
+    for (const ImageData& data : imageDataList) {
+      listOutStream << "{ src: `" << (jsPrefix + data.filename) << "` },"
+                    << std::endl;
+    }
+  }
 
   std::cout << "Images list: \"" << listPath.string() << "\"" << std::endl;
 

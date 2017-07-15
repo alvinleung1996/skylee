@@ -10,6 +10,7 @@
 
 <link rel="import" href="../skylee-property-binder-behavior/skylee-property-binder-behavior.html">
 <link rel="import" href="all/skylee-team-all.html">
+<link rel="import" href="base/skylee-team-base.html">
 
 <dom-module id="skylee-team">
   <template strip-whitespace>
@@ -42,13 +43,53 @@
 
       <skylee-team-all team-page-id="all" toolbar-height="[[toolbarHeight]]"></skylee-team-all> <!-- element already imported -->
 
-      <skylee-team-badminton level="1" team-page-id="badminton"
-        element-path$="[[rootPath]]src/skylee-team/badminton/skylee-team-badminton.html"
-        toolbar-height="[[toolbarHeight]]" route="[[_subroute]]"></skylee-team-badminton>
+       <skylee-team-badminton level="1" team-page-id="badminton" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/badminton/skylee-team-badminton.html"></skylee-team-badminton>
 
-      <skylee-team-basketball level="1" team-page-id="basketball"
-        element-path$="[[rootPath]]src/skylee-team/basketball/skylee-team-basketball.html"
-        toolbar-height="[[toolbarHeight]]" route="[[_subroute]]"></skylee-team-badminton>
+      <skylee-team-basketball level="1" team-page-id="basketball" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/basketball/skylee-team-basketball.html"></skylee-team-basketball>
+
+      <skylee-team-handball level="1" team-page-id="handball" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/handball/skylee-team-handball.html"></skylee-team-handball>
+
+      <skylee-team-hockey level="1" team-page-id="hockey" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/hockey/skylee-team-hockey.html"></skylee-team-hockey>
+
+      <skylee-team-lacrosse level="1" team-page-id="lacrosse" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/lacrosse/skylee-team-lacrosse.html"></skylee-team-lacrosse>
+
+      <skylee-team-soccer level="1" team-page-id="soccer" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/soccer/skylee-team-soccer.html"></skylee-team-soccer>
+
+      <skylee-team-softball level="1" team-page-id="softball" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/softball/skylee-team-softball.html"></skylee-team-softball>
+
+      <skylee-team-squash level="1" team-page-id="squash" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/squash/skylee-team-squash.html"></skylee-team-squash>
+
+      <skylee-team-table-tennis level="1" team-page-id="table-tennis" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/table-tennis/skylee-team-table-tennis.html"></skylee-team-table-tennis>
+
+      <skylee-team-volleyball level="1" team-page-id="volleyball" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/volleyball/skylee-team-volleyball.html"></skylee-team-volleyball>
+
+      <skylee-team-band level="1" team-page-id="band" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/band/skylee-team-band.html"></skylee-team-band>
+
+      <skylee-team-bridge level="1" team-page-id="bridge" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/bridge/skylee-team-bridge.html"></skylee-team-bridge>
+
+      <skylee-team-choir level="1" team-page-id="choir" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/choir/skylee-team-choir.html"></skylee-team-choir>
+
+      <skylee-team-dancing level="1" team-page-id="dancing" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/dancing/skylee-team-dancing.html"></skylee-team-dancing>
+
+      <skylee-team-debating level="1" team-page-id="debating" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/debating/skylee-team-debating.html"></skylee-team-debating>
+
+      <skylee-team-drama level="1" team-page-id="drama" toolbar-height="[[toolbarHeight]]"
+        element-path$="[[rootPath]]src/skylee-team/drama/skylee-team-drama.html"></skylee-team-drama>
 
     </curium-animated-pages>
 
@@ -93,7 +134,7 @@
           _teamPageTitle: {
             type: String
           }
-        };
+        }
       }
 
       ready() {

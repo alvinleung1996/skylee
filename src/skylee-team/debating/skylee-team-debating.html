@@ -1,0 +1,43 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../base/skylee-team-base.html">
+
+<script>
+  class SkyleeTeamDebating extends SkyleeTeamBase {
+
+    static get is() { return 'skylee-team-debating'; }
+
+    static get properties() {
+      return {
+        teamPageTitle: {
+          type: String,
+          value: 'Debating Team',
+          readOnly: true,
+          notify: true
+        },
+
+        iconSrc: {
+          value: `${Polymer.rootPath}images/team/debating/debating-symbol.png`
+        },
+        name: {
+          value: 'Debating Team'
+        },
+        description: {
+          value: 'men\'s and women\'s team'
+        },
+        albumList: {
+          value: () => { return [
+            {
+              name: 'Photos',
+              imageList: [
+                { src: `${Polymer.rootPath}images/team/debating/debating-0.jpg` },
+              ]
+            }
+          ];}
+        }
+      };
+    }
+
+  }
+  window.customElements.define(SkyleeTeamDebating.is, SkyleeTeamDebating);
+</script>

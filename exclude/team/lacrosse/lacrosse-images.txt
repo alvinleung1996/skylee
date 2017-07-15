@@ -1,30 +1,20 @@
- src="[[rootPath]]images/team/lacrosse/lacrosse-0.jpg" srcWidth="2048" srcHeight="1365"
-src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-0.jpg`, srcWidth: 2048, srcHeight: 1365
-
- src="[[rootPath]]images/team/lacrosse/lacrosse-1.jpg" srcWidth="2048" srcHeight="1151"
-src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-1.jpg`, srcWidth: 2048, srcHeight: 1151
-
- src="[[rootPath]]images/team/lacrosse/lacrosse-2.jpg" srcWidth="2048" srcHeight="1152"
-src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-2.jpg`, srcWidth: 2048, srcHeight: 1152
-
- src="[[rootPath]]images/team/lacrosse/lacrosse-3.jpg" srcWidth="2048" srcHeight="1152"
-src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-3.jpg`, srcWidth: 2048, srcHeight: 1152
-
- src="[[rootPath]]images/team/lacrosse/lacrosse-4.jpg" srcWidth="2048" srcHeight="1151"
-src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-4.jpg`, srcWidth: 2048, srcHeight: 1151
-
- src="[[rootPath]]images/team/lacrosse/lacrosse-5.jpg" srcWidth="2048" srcHeight="1152"
-src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-5.jpg`, srcWidth: 2048, srcHeight: 1152
-
- src="[[rootPath]]images/team/lacrosse/lacrosse-6.jpg" srcWidth="2048" srcHeight="1152"
-src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-6.jpg`, srcWidth: 2048, srcHeight: 1152
-
- src="[[rootPath]]images/team/lacrosse/lacrosse-7.jpg" srcWidth="2048" srcHeight="1152"
-src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-7.jpg`, srcWidth: 2048, srcHeight: 1152
-
- src="[[rootPath]]images/team/lacrosse/lacrosse-8.jpg" srcWidth="2048" srcHeight="1366"
-src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-8.jpg`, srcWidth: 2048, srcHeight: 1366
-
- src="[[rootPath]]images/team/lacrosse/lacrosse-9.jpg" srcWidth="2048" srcHeight="1152"
-src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-9.jpg`, srcWidth: 2048, srcHeight: 1152
-
+ src="[[rootPath]]images/team/lacrosse/lacrosse-0.jpg"
+ src="[[rootPath]]images/team/lacrosse/lacrosse-1.jpg"
+ src="[[rootPath]]images/team/lacrosse/lacrosse-2.jpg"
+ src="[[rootPath]]images/team/lacrosse/lacrosse-3.jpg"
+ src="[[rootPath]]images/team/lacrosse/lacrosse-4.jpg"
+ src="[[rootPath]]images/team/lacrosse/lacrosse-5.jpg"
+ src="[[rootPath]]images/team/lacrosse/lacrosse-6.jpg"
+ src="[[rootPath]]images/team/lacrosse/lacrosse-7.jpg"
+ src="[[rootPath]]images/team/lacrosse/lacrosse-8.jpg"
+ src="[[rootPath]]images/team/lacrosse/lacrosse-9.jpg"
+{ src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-0.jpg` },
+{ src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-1.jpg` },
+{ src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-2.jpg` },
+{ src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-3.jpg` },
+{ src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-4.jpg` },
+{ src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-5.jpg` },
+{ src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-6.jpg` },
+{ src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-7.jpg` },
+{ src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-8.jpg` },
+{ src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-9.jpg` },

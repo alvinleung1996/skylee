@@ -93,14 +93,26 @@
       .album-block__image-tiles {
         padding: 20px;
         display: flex;
-        justify-content: center;
         flex-wrap: wrap;
       }
       .album-block__image-tile {
-        flex: 1 1 350px;
-        max-width: 450px;
-        margin: 8px;
+        flex: 0 1 300px;
+        margin: 5px; 
       }
+       @supports (display: grid) {
+        .album-block__image-tiles {
+          flex-wrap: initial;
+
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, auto));
+          grid-auto-rows: auto;
+          grid-gap: 10px;
+        }
+        .album-block__image-tile {
+          flex: initial;
+          margin: initial; 
+        }
+      } 
     </style>
 
     <iron-media-query query="not all and (min-width: 300px)" query-matches="{{_narrowLayout}}" full></iron-media-query>
@@ -151,8 +163,13 @@
 
       static get properties() {
         return {
+          toolbarHeight: Number,
+          
           teamPageId: String,
-          route: Object,
+          iconSrc: String,
+          name: String,
+          description: String,
+          albumList: Array,
           
           toolbarBackButtonUrl: {
             type: String,
@@ -161,9 +178,6 @@
             notify: true
           },
 
-          iconSrc: String,
-          name: String,
-          albumList: Array
         };
       }
 

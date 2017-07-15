@@ -115,7 +115,7 @@
         flex-direction: column;
         justify-content: center;
       }
-      .image-block__image-set {
+      .image-block__link {
         flex: 0 0 auto;
       }
       .image-block__image {
@@ -368,11 +368,9 @@
         </div>
 
         <div class="padding-block image-block">
-          <curium-responsive-image class="image-block__image-set" sizing="fit-width"
-            src-map="320w-314h [[rootPath]]images/about/hall-song-320w.jpg,
-                     [[rootPath]]images/about/hall-song-default.jpg">
-            <iron-image class="image-block__image" preload fade></iron-image>
-          </curium-responsive-image>
+          <a class="image-block__link" href$="[[rootPath]]image-viewer/images/about/hall-song.jpg">
+            <iron-image class="image-block__image" src="[[rootPath]]images/about/hall-song.jpg" preload fade></iron-image>
+          </a>
         </div>
 
       </div>
@@ -388,13 +386,9 @@
         </div>
 
         <div class="padding-block image-block">
-          <curium-responsive-image class="image-block__image-set" sizing="fit-width"
-            src-map="320w-226h [[rootPath]]images/about/hall-logo-320w.jpg,
-                     640w-453h [[rootPath]]images/about/hall-logo-640w.jpg,
-                     1280w-905h [[rootPath]]images/about/hall-logo-1280w.jpg,
-                     [[rootPath]]images/about/hall-logo-default.jpg">
-            <iron-image class="image-block__image" preload fade></iron-image>
-          </curium-responsive-image>
+          <a class="image-block__link" href$="[[rootPath]]image-viewer/images/about/hall-logo.jpg">
+            <iron-image class="image-block__image" src="[[rootPath]]images/about/hall-logo.jpg" preload fade></iron-image>
+          </a>
         </div>
 
       </div>

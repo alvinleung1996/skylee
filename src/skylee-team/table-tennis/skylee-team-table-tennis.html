@@ -1,0 +1,47 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../base/skylee-team-base.html">
+
+<script>
+  class SkyleeTeamTableTennis extends SkyleeTeamBase {
+
+    static get is() { return 'skylee-team-table-tennis'; }
+
+    static get properties() {
+      return {
+        teamPageTitle: {
+          type: String,
+          value: 'TableTennis Team',
+          readOnly: true,
+          notify: true
+        },
+
+        iconSrc: {
+          value: `${Polymer.rootPath}images/team/table-tennis/table-tennis-symbol.png`
+        },
+        name: {
+          value: 'TableTennis Team'
+        },
+        description: {
+          value: 'men\'s team'
+        },
+        albumList: {
+          value: () => { return [
+            {
+              name: 'Photos',
+              imageList: [
+                { src: `${Polymer.rootPath}images/team/table-tennis/table-tennis-0.jpg` },
+                { src: `${Polymer.rootPath}images/team/table-tennis/table-tennis-1.jpg` },
+                { src: `${Polymer.rootPath}images/team/table-tennis/table-tennis-2.jpg` },
+                { src: `${Polymer.rootPath}images/team/table-tennis/table-tennis-3.jpg` },
+                { src: `${Polymer.rootPath}images/team/table-tennis/table-tennis-4.jpg` },
+              ]
+            }
+          ];}
+        }
+      };
+    }
+
+  }
+  window.customElements.define(SkyleeTeamTableTennis.is, SkyleeTeamTableTennis);
+</script>

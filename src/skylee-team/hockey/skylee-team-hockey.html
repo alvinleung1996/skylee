@@ -1,0 +1,59 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../base/skylee-team-base.html">
+
+<script>
+  class SkyleeTeamHockey extends SkyleeTeamBase {
+
+    static get is() { return 'skylee-team-hockey'; }
+
+    static get properties() {
+      return {
+        teamPageTitle: {
+          type: String,
+          value: 'Hockey Team',
+          readOnly: true,
+          notify: true
+        },
+
+        iconSrc: {
+          value: `${Polymer.rootPath}images/team/hockey/hockey-symbol.png`
+        },
+        name: {
+          value: 'Hockey Team'
+        },
+        description: {
+          value: 'men\'s and women\'s team'
+        },
+        albumList: {
+          value: () => { return [
+            {
+              name: 'Photos',
+              imageList: [
+                { src: `${Polymer.rootPath}images/team/hockey/hockey-0.jpg` },
+                { src: `${Polymer.rootPath}images/team/hockey/hockey-1.jpg` },
+                { src: `${Polymer.rootPath}images/team/hockey/hockey-2.jpg` },
+                { src: `${Polymer.rootPath}images/team/hockey/hockey-3.jpg` },
+                { src: `${Polymer.rootPath}images/team/hockey/hockey-4.jpg` },
+                { src: `${Polymer.rootPath}images/team/hockey/hockey-5.jpg` },
+                { src: `${Polymer.rootPath}images/team/hockey/hockey-6.jpg` },
+                { src: `${Polymer.rootPath}images/team/hockey/hockey-7.jpg` },
+                { src: `${Polymer.rootPath}images/team/hockey/hockey-8.jpg` },
+                { src: `${Polymer.rootPath}images/team/hockey/hockey-9.jpg` },
+                { src: `${Polymer.rootPath}images/team/hockey/hockey-10.jpg` },
+                { src: `${Polymer.rootPath}images/team/hockey/hockey-11.jpg` },
+                { src: `${Polymer.rootPath}images/team/hockey/hockey-12.jpg` },
+                { src: `${Polymer.rootPath}images/team/hockey/hockey-13.jpg` },
+                { src: `${Polymer.rootPath}images/team/hockey/hockey-14.jpg` },
+                { src: `${Polymer.rootPath}images/team/hockey/hockey-15.jpg` },
+                { src: `${Polymer.rootPath}images/team/hockey/hockey-16.jpg` },
+              ]
+            }
+          ];}
+        }
+      };
+    }
+
+  }
+  window.customElements.define(SkyleeTeamHockey.is, SkyleeTeamHockey);
+</script>

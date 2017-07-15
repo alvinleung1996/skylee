@@ -4,8 +4,6 @@
 <link rel="import" href="../../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
 
-<link rel="import" href="../../skylee-responsive-image/skylee-responsive-image.html">
-
 <dom-module id="skylee-team-tile">
   <template strip-whitespace>
     <style>
@@ -69,9 +67,7 @@
 
       <div id="filling"></div>
 
-      <skylee-responsive-image id="cover" src="[[coverSrc]]" src-width="[[coverSrcWidth]]" src-height="[[coverSrcHeight]]" sizing="cover">
-        <iron-image sizing="cover" preload fade></iron-image>
-      </skylee-responsive-image>
+      <iron-image id="cover" src="[[_resizedCoverSrc]]" sizing="cover" preload fade></iron-image>
 
       <div id="bannar">
         <img id="icon" src$="[[iconSrc]]"></img>[[name]]
@@ -90,13 +86,24 @@
       static get properties() { return {
 
         coverSrc: String,
-        coverSrcWidth: Number,
-        coverSrcHeight: Number,
         iconSrc: String,
         name: String,
         href: String,
 
+        _resizedCoverSrc: {
+          type: String,
+          computed: '_computeResizedCoverSrc(coverSrc)'
+        }
+
       };}
+
+      _computeResizedCoverSrc(src) {
+        if (/^[\w\.\-\/]+\.\w+$/.test(src)) {
+          return src + '?w=300&h=300';
+        } else {
+          return null;
+        }
+      }
 
       _isTruthy(value) {
         return Boolean(value);

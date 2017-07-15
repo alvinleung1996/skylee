@@ -1,0 +1,52 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../base/skylee-team-base.html">
+
+<script>
+  class SkyleeTeamLacrosse extends SkyleeTeamBase {
+
+    static get is() { return 'skylee-team-lacrosse'; }
+
+    static get properties() {
+      return {
+        teamPageTitle: {
+          type: String,
+          value: 'Lacrosse Team',
+          readOnly: true,
+          notify: true
+        },
+
+        // iconSrc: {
+        //   value: `${Polymer.rootPath}images/team/lacrosse/lacrosse-symbol.png`
+        // },
+        name: {
+          value: 'Lacrosse Team'
+        },
+        description: {
+          value: 'men\'s team'
+        },
+        albumList: {
+          value: () => { return [
+            {
+              name: 'Photos',
+              imageList: [
+                { src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-0.jpg` },
+                { src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-1.jpg` },
+                { src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-2.jpg` },
+                { src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-3.jpg` },
+                { src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-4.jpg` },
+                { src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-5.jpg` },
+                { src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-6.jpg` },
+                { src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-7.jpg` },
+                { src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-8.jpg` },
+                { src: `${Polymer.rootPath}images/team/lacrosse/lacrosse-9.jpg` },
+              ]
+            }
+          ];}
+        }
+      };
+    }
+
+  }
+  window.customElements.define(SkyleeTeamLacrosse.is, SkyleeTeamLacrosse);
+</script>

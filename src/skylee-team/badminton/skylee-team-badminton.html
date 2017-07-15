@@ -2,46 +2,44 @@
 
 <link rel="import" href="../base/skylee-team-base.html">
 
-<dom-module id="skylee-team-badminton">
-  <script>
-    class SkyleeTeamBadminton extends SkyleeTeamBase {
+<script>
+  class SkyleeTeamBadminton extends SkyleeTeamBase {
 
-      static get is() { return 'skylee-team-badminton'; }
+    static get is() { return 'skylee-team-badminton'; }
 
-      static get properties() {
-        return {
-          teamPageTitle: {
-            type: String,
-            value: 'Badminton Team',
-            readOnly: true,
-            notify: true
-          },
+    static get properties() {
+      return {
+        teamPageTitle: {
+          type: String,
+          value: 'Badminton Team',
+          readOnly: true,
+          notify: true
+        },
 
-          iconSrc: {
-            value: `${Polymer.rootPath}images/team/badminton/badminton-symbol.png`
-          },
-          name: {
-            value: 'Badminton Team'
-          },
-          description: {
-            value: 'men\'s and women\'s team'
-          },
-          albumList: {
-            value: () => { return [
-              {
-                name: 'Photos',
-                imageList: [
-                  { src: `${Polymer.rootPath}images/team/badminton/badminton-0.jpg`, srcWidth: 2048, srcHeight: 1367 },
-                  { src: `${Polymer.rootPath}images/team/badminton/badminton-1.jpg`, srcWidth: 960, srcHeight: 640 },
-                  { src: `${Polymer.rootPath}images/team/badminton/badminton-2.jpg`, srcWidth: 960, srcHeight: 638 }
-                ]
-              }
-            ];}
-          }
-        };
-      }
-
+        iconSrc: {
+          value: `${Polymer.rootPath}images/team/badminton/badminton-symbol.png`
+        },
+        name: {
+          value: 'Badminton Team'
+        },
+        description: {
+          value: 'men\'s and women\'s team'
+        },
+        albumList: {
+          value: () => { return [
+            {
+              name: 'Photos',
+              imageList: [
+                { src: `${Polymer.rootPath}images/team/badminton/badminton-0.jpg` },
+                { src: `${Polymer.rootPath}images/team/badminton/badminton-1.jpg` },
+                { src: `${Polymer.rootPath}images/team/badminton/badminton-2.jpg` },
+              ]
+            }
+          ];}
+        }
+      };
     }
-    window.customElements.define(SkyleeTeamBadminton.is, SkyleeTeamBadminton);
-  </script>
-</dom-module>
+
+  }
+  window.customElements.define(SkyleeTeamBadminton.is, SkyleeTeamBadminton);
+</script>

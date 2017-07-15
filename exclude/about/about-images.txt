@@ -1,0 +1,4 @@
+ src="[[rootPath]]images/about/hall-logo.jpg"
+ src="[[rootPath]]images/about/hall-song.jpg"
+{ src: `${Polymer.rootPath}images/about/hall-logo.jpg` },
+{ src: `${Polymer.rootPath}images/about/hall-song.jpg` },

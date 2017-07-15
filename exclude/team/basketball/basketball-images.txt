@@ -1,33 +1,22 @@
- src="[[rootPath]]images/team/basketball/basketball-0.jpg" srcWidth="1325" srcHeight="746"
-src: `${Polymer.rootPath}images/team/basketball/basketball-0.jpg`, srcWidth: 1325, srcHeight: 746
-
- src="[[rootPath]]images/team/basketball/basketball-1.jpg" srcWidth="640" srcHeight="960"
-src: `${Polymer.rootPath}images/team/basketball/basketball-1.jpg`, srcWidth: 640, srcHeight: 960
-
- src="[[rootPath]]images/team/basketball/basketball-10.jpg" srcWidth="2048" srcHeight="1365"
-src: `${Polymer.rootPath}images/team/basketball/basketball-10.jpg`, srcWidth: 2048, srcHeight: 1365
-
- src="[[rootPath]]images/team/basketball/basketball-2.jpg" srcWidth="2048" srcHeight="1365"
-src: `${Polymer.rootPath}images/team/basketball/basketball-2.jpg`, srcWidth: 2048, srcHeight: 1365
-
- src="[[rootPath]]images/team/basketball/basketball-3.jpg" srcWidth="2048" srcHeight="1365"
-src: `${Polymer.rootPath}images/team/basketball/basketball-3.jpg`, srcWidth: 2048, srcHeight: 1365
-
- src="[[rootPath]]images/team/basketball/basketball-4.jpg" srcWidth="2048" srcHeight="1365"
-src: `${Polymer.rootPath}images/team/basketball/basketball-4.jpg`, srcWidth: 2048, srcHeight: 1365
-
- src="[[rootPath]]images/team/basketball/basketball-5.jpg" srcWidth="2048" srcHeight="1365"
-src: `${Polymer.rootPath}images/team/basketball/basketball-5.jpg`, srcWidth: 2048, srcHeight: 1365
-
- src="[[rootPath]]images/team/basketball/basketball-6.jpg" srcWidth="960" srcHeight="640"
-src: `${Polymer.rootPath}images/team/basketball/basketball-6.jpg`, srcWidth: 960, srcHeight: 640
-
- src="[[rootPath]]images/team/basketball/basketball-7.jpg" srcWidth="640" srcHeight="960"
-src: `${Polymer.rootPath}images/team/basketball/basketball-7.jpg`, srcWidth: 640, srcHeight: 960
-
- src="[[rootPath]]images/team/basketball/basketball-8.jpg" srcWidth="2048" srcHeight="1367"
-src: `${Polymer.rootPath}images/team/basketball/basketball-8.jpg`, srcWidth: 2048, srcHeight: 1367
-
- src="[[rootPath]]images/team/basketball/basketball-9.jpg" srcWidth="960" srcHeight="640"
-src: `${Polymer.rootPath}images/team/basketball/basketball-9.jpg`, srcWidth: 960, srcHeight: 640
-
+ src="[[rootPath]]images/team/basketball/basketball-0.jpg"
+ src="[[rootPath]]images/team/basketball/basketball-1.jpg"
+ src="[[rootPath]]images/team/basketball/basketball-10.jpg"
+ src="[[rootPath]]images/team/basketball/basketball-2.jpg"
+ src="[[rootPath]]images/team/basketball/basketball-3.jpg"
+ src="[[rootPath]]images/team/basketball/basketball-4.jpg"
+ src="[[rootPath]]images/team/basketball/basketball-5.jpg"
+ src="[[rootPath]]images/team/basketball/basketball-6.jpg"
+ src="[[rootPath]]images/team/basketball/basketball-7.jpg"
+ src="[[rootPath]]images/team/basketball/basketball-8.jpg"
+ src="[[rootPath]]images/team/basketball/basketball-9.jpg"
+{ src: `${Polymer.rootPath}images/team/basketball/basketball-0.jpg` },
+{ src: `${Polymer.rootPath}images/team/basketball/basketball-1.jpg` },
+{ src: `${Polymer.rootPath}images/team/basketball/basketball-10.jpg` },
+{ src: `${Polymer.rootPath}images/team/basketball/basketball-2.jpg` },
+{ src: `${Polymer.rootPath}images/team/basketball/basketball-3.jpg` },
+{ src: `${Polymer.rootPath}images/team/basketball/basketball-4.jpg` },
+{ src: `${Polymer.rootPath}images/team/basketball/basketball-5.jpg` },
+{ src: `${Polymer.rootPath}images/team/basketball/basketball-6.jpg` },
+{ src: `${Polymer.rootPath}images/team/basketball/basketball-7.jpg` },
+{ src: `${Polymer.rootPath}images/team/basketball/basketball-8.jpg` },
+{ src: `${Polymer.rootPath}images/team/basketball/basketball-9.jpg` },

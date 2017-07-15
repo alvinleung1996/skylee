@@ -1,39 +1,26 @@
- src="[[rootPath]]images/team/volleyball/volleyball-0.jpg" srcWidth="2048" srcHeight="1367"
-src: `${Polymer.rootPath}images/team/volleyball/volleyball-0.jpg`, srcWidth: 2048, srcHeight: 1367
-
- src="[[rootPath]]images/team/volleyball/volleyball-1.jpg" srcWidth="2048" srcHeight="1367"
-src: `${Polymer.rootPath}images/team/volleyball/volleyball-1.jpg`, srcWidth: 2048, srcHeight: 1367
-
- src="[[rootPath]]images/team/volleyball/volleyball-10.jpg" srcWidth="960" srcHeight="640"
-src: `${Polymer.rootPath}images/team/volleyball/volleyball-10.jpg`, srcWidth: 960, srcHeight: 640
-
- src="[[rootPath]]images/team/volleyball/volleyball-11.jpg" srcWidth="960" srcHeight="640"
-src: `${Polymer.rootPath}images/team/volleyball/volleyball-11.jpg`, srcWidth: 960, srcHeight: 640
-
- src="[[rootPath]]images/team/volleyball/volleyball-12.jpg" srcWidth="960" srcHeight="640"
-src: `${Polymer.rootPath}images/team/volleyball/volleyball-12.jpg`, srcWidth: 960, srcHeight: 640
-
- src="[[rootPath]]images/team/volleyball/volleyball-2.jpg" srcWidth="960" srcHeight="640"
-src: `${Polymer.rootPath}images/team/volleyball/volleyball-2.jpg`, srcWidth: 960, srcHeight: 640
-
- src="[[rootPath]]images/team/volleyball/volleyball-3.jpg" srcWidth="2048" srcHeight="1367"
-src: `${Polymer.rootPath}images/team/volleyball/volleyball-3.jpg`, srcWidth: 2048, srcHeight: 1367
-
- src="[[rootPath]]images/team/volleyball/volleyball-4.jpg" srcWidth="2048" srcHeight="1367"
-src: `${Polymer.rootPath}images/team/volleyball/volleyball-4.jpg`, srcWidth: 2048, srcHeight: 1367
-
- src="[[rootPath]]images/team/volleyball/volleyball-5.jpg" srcWidth="2048" srcHeight="1367"
-src: `${Polymer.rootPath}images/team/volleyball/volleyball-5.jpg`, srcWidth: 2048, srcHeight: 1367
-
- src="[[rootPath]]images/team/volleyball/volleyball-6.jpg" srcWidth="2048" srcHeight="1367"
-src: `${Polymer.rootPath}images/team/volleyball/volleyball-6.jpg`, srcWidth: 2048, srcHeight: 1367
-
- src="[[rootPath]]images/team/volleyball/volleyball-7.jpg" srcWidth="2048" srcHeight="1367"
-src: `${Polymer.rootPath}images/team/volleyball/volleyball-7.jpg`, srcWidth: 2048, srcHeight: 1367
-
- src="[[rootPath]]images/team/volleyball/volleyball-8.jpg" srcWidth="960" srcHeight="640"
-src: `${Polymer.rootPath}images/team/volleyball/volleyball-8.jpg`, srcWidth: 960, srcHeight: 640
-
- src="[[rootPath]]images/team/volleyball/volleyball-9.jpg" srcWidth="640" srcHeight="960"
-src: `${Polymer.rootPath}images/team/volleyball/volleyball-9.jpg`, srcWidth: 640, srcHeight: 960
-
+ src="[[rootPath]]images/team/volleyball/volleyball-0.jpg"
+ src="[[rootPath]]images/team/volleyball/volleyball-1.jpg"
+ src="[[rootPath]]images/team/volleyball/volleyball-10.jpg"
+ src="[[rootPath]]images/team/volleyball/volleyball-11.jpg"
+ src="[[rootPath]]images/team/volleyball/volleyball-12.jpg"
+ src="[[rootPath]]images/team/volleyball/volleyball-2.jpg"
+ src="[[rootPath]]images/team/volleyball/volleyball-3.jpg"
+ src="[[rootPath]]images/team/volleyball/volleyball-4.jpg"
+ src="[[rootPath]]images/team/volleyball/volleyball-5.jpg"
+ src="[[rootPath]]images/team/volleyball/volleyball-6.jpg"
+ src="[[rootPath]]images/team/volleyball/volleyball-7.jpg"
+ src="[[rootPath]]images/team/volleyball/volleyball-8.jpg"
+ src="[[rootPath]]images/team/volleyball/volleyball-9.jpg"
+{ src: `${Polymer.rootPath}images/team/volleyball/volleyball-0.jpg` },
+{ src: `${Polymer.rootPath}images/team/volleyball/volleyball-1.jpg` },
+{ src: `${Polymer.rootPath}images/team/volleyball/volleyball-10.jpg` },
+{ src: `${Polymer.rootPath}images/team/volleyball/volleyball-11.jpg` },
+{ src: `${Polymer.rootPath}images/team/volleyball/volleyball-12.jpg` },
+{ src: `${Polymer.rootPath}images/team/volleyball/volleyball-2.jpg` },
+{ src: `${Polymer.rootPath}images/team/volleyball/volleyball-3.jpg` },
+{ src: `${Polymer.rootPath}images/team/volleyball/volleyball-4.jpg` },
+{ src: `${Polymer.rootPath}images/team/volleyball/volleyball-5.jpg` },
+{ src: `${Polymer.rootPath}images/team/volleyball/volleyball-6.jpg` },
+{ src: `${Polymer.rootPath}images/team/volleyball/volleyball-7.jpg` },
+{ src: `${Polymer.rootPath}images/team/volleyball/volleyball-8.jpg` },
+{ src: `${Polymer.rootPath}images/team/volleyball/volleyball-9.jpg` },
