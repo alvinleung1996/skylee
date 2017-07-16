@@ -1,61 +1,153 @@
 <?php
 error_reporting(E_ALL);
 
-$imagePath = $_SERVER['DOCUMENT_ROOT'] . explode('?', $_SERVER['REQUEST_URI'])[0];
-
-if (!file_exists($imagePath)) {
-  die();
+function getRequestPathInfo() {
+  $root = $_SERVER['DOCUMENT_ROOT'];
+  $uri = explode('?', $_SERVER['REQUEST_URI'])[0];
+  return array(
+    'root' => $root,
+    'uri' => $uri,
+    'path' => $root . $uri
+  );
 }
 
-if ((list($imageWidth, $imageHeight, $imageType) = getimagesize($imagePath)) !== false) {
+function getRequestParam() {
+  if (!isset($_GET['w'], $_GET['h'])) return false;
+  
+  if (!ctype_digit($_GET['w']) || !ctype_digit($_GET['h'])) return false;
 
-  $directOutput = false;
+  $w = intval($_GET['w']);
+  $h = intval($_GET['h']);
 
-  if (isset($_GET['w'], $_GET['h']) && ctype_digit($_GET['w']) && ctype_digit($_GET['h'])) {
+  return array(
+    'width' => $w,
+    'height' => $h
+  );
+}
 
-    $image = false;
-    switch ($imageType) {
-      case IMAGETYPE_GIF: $image = imagecreatefromgif($imagePath); break;
-      case IMAGETYPE_PNG: $image = imagecreatefrompng($imagePath); break;
-      case IMAGETYPE_JPEG: $image = imagecreatefromjpeg($imagePath); break;
-    }
+function isSupportedImage($path) {
+  clearstatcache();
 
-    if ($image) {
-      $requestWidth = intval($_GET['w']);
-      $requestHeight = intval($_GET['h']);
+  if (!is_readable($path) || !is_file($path)) return false;
 
-      $scale = max(($requestWidth / $imageWidth), ($requestHeight / $imageHeight));
+  $fileHandler = fopen($path, 'c+b');
+  flock($fileHandler, LOCK_SH);
+  $imageInfo = getimagesize($path);
+  flock($fileHandler, LOCK_UN);
+  fclose($fileHandler);
 
-      $dstW = round($imageWidth * $scale);
-      $dstH = round($imageHeight * $scale);
-      $dstX = round(($requestWidth - $dstW) / 2);
-      $dstY = round(($requestHeight - $dstH) / 2);
+  if ($imageInfo === false) return false;
 
-      $outputImage = imagecreatetruecolor($requestWidth, $requestHeight);
-      imagecopyresampled($outputImage, $image, $dstX, $dstY, 0, 0, $dstW, $dstH, $imageWidth, $imageHeight);
+  if ($imageInfo[2] === IMAGETYPE_GIF || $imageInfo[2] === IMAGETYPE_PNG || $imageInfo[2] === IMAGETYPE_JPEG) {
+    return array(
+      'width' => $imageInfo[0],
+      'height' => $imageInfo[1],
+      'type' => $imageInfo[2],
+      'mime' => $imageInfo['mime']
+    );
+  } else {
+    return false;
+  }
+}
 
-      imageinterlace($outputImage);
+/**
+ * Assume the input image path is a valid image file
+ */
+function getOutputPath($pathInfo, $imageInfo, $param) {
+  $uriInfo = pathinfo($pathInfo['uri']);
+  $cachePath = $pathInfo['root'] . '/cache' . $uriInfo['dirname'] . '/' .
+               $uriInfo['filename'] . ($param ? ".{$param['width']}x{$param['height']}" : ".{$imageInfo['width']}x{$imageInfo['height']}") .
+               '.' . $uriInfo['extension'];
 
-      ob_start();
-      switch ($imageType) {
-        case IMAGETYPE_GIF: imagegif($outputImage); break;
-        case IMAGETYPE_PNG: imagepng($outputImage); break;
-        case IMAGETYPE_JPEG: imagejpeg($outputImage); break;
-      }
-      header('Content-Type: ' . image_type_to_mime_type($imageType));
-      header('Content-Length: ' . ob_get_length());
-      ob_end_flush();
-      $directOutput = true;
+  if (isSupportedImage($cachePath) && filemtime($cachePath) > filemtime($pathInfo['path'])) {
+    return $cachePath;
+  } elseif (createCache($pathInfo, $imageInfo, $param, $cachePath)) {
+    return $cachePath;
+  }
+  return $pathInfo['path'];
+}
 
-      imagedestroy($image);
-      imagedestroy($outputImage);
+/**
+ * Assume the input image path is a valid image file
+ */
+function createCache($pathInfo, $imageInfo, $param, $cachePath) {
+  $cacheDirPath = dirname($cachePath);
+  if (file_exists($cacheDirPath)) {
+    if (!is_dir($cacheDirPath) || !is_readable($cacheDirPath) || !is_writable($cacheDirPath)) return false;
+  } else {
+    /* Concurrency problem:
+     * file exist warning triggered when two thread trying to make the same dir.
+     * There is no lock available for directory so this warning cannot be prevented.
+     */
+    if (!@mkdir($cacheDirPath, 775, true)) {
+      // https://stackoverflow.com/questions/19964287/mkdir-function-throw-exception-file-exists-even-after-checking-that-directory
+      if (!is_dir($cacheDirPath) || !is_readable($cacheDirPath) || !is_writable($cacheDirPath)) return false;
     }
   }
 
-  if (!$directOutput) {
-    header('Content-Type: ' . image_type_to_mime_type($imageType));
-    header('Content-Length: ' . filesize($imagePath));
-    readfile($imagePath);
+  $fileHandler = fopen($pathInfo['path'], 'c+b');
+  flock($fileHandler, LOCK_SH);
+  switch ($imageInfo['type']) {
+    case IMAGETYPE_GIF: $image = imagecreatefromgif($pathInfo['path']); break;
+    case IMAGETYPE_PNG: $image = imagecreatefrompng($pathInfo['path']); break;
+    case IMAGETYPE_JPEG: $image = imagecreatefromjpeg($pathInfo['path']); break;
   }
+  flock($fileHandler, LOCK_UN);
+  fclose($fileHandler);
+
+  if ($param) {
+    $scale = max(($param['width'] / $imageInfo['width']), ($param['height'] / $imageInfo['height']));
+    $dstW = round($imageInfo['width'] * $scale);
+    $dstH = round($imageInfo['height'] * $scale);
+    $dstX = round(($param['width'] - $dstW) / 2);
+    $dstY = round(($param['height'] - $dstH) / 2);
+    $cacheImage = imagecreatetruecolor($param['width'], $param['height']);
+    imagealphablending($cacheImage, false);
+    imagecopyresampled($cacheImage, $image, $dstX, $dstY, 0, 0, $dstW, $dstH, $imageInfo['width'], $imageInfo['height']);
+  } else {
+    $cacheImage = $image;
+  }
+  
+  imagealphablending($cacheImage, false);
+  imagesavealpha($cacheImage, true);
+  imageinterlace($cacheImage, 1);
+
+  $cacheHandler = fopen($cachePath, 'cb');
+  flock($cacheHandler, LOCK_EX);
+  switch ($imageInfo['type']) {
+    case IMAGETYPE_GIF: imagegif($cacheImage, $cachePath); break;
+    case IMAGETYPE_PNG: imagepng($cacheImage, $cachePath); break;
+    case IMAGETYPE_JPEG: imagejpeg($cacheImage, $cachePath); break;
+  }
+  flock($cacheHandler, LOCK_UN);
+  fclose($cacheHandler);
+
+  imagedestroy($image);
+  if ($image !== $cacheImage) { // $image === $cacheImage if $param === false, so do not destroy twice
+    imagedestroy($cacheImage);
+  }
+
+  return true;
 }
-die();
+
+function handleRequest() {
+  $pathInfo = getRequestPathInfo();
+  if (!($imageInfo = isSupportedImage($pathInfo['path']))) return false;
+
+  $param = getRequestParam();
+
+  $outputPath = getOutputPath($pathInfo, $imageInfo, $param);
+
+  if ($outputPath) {
+    header('Content-Type: ' . $imageInfo['mime']);
+    header('Content-Length: ' . filesize($outputPath));
+    $outputFileHandler = fopen($outputPath, 'c+b');
+    flock($outputFileHandler, LOCK_SH);
+    readfile($outputPath);
+    flock($outputFileHandler, LOCK_UN);
+    fclose($outputFileHandler);
+    return true;
+  } 
+  return false;
+}
+return handleRequest();
