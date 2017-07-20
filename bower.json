@@ -4,17 +4,14 @@
   "dependencies": {
     "polymer": "Polymer/polymer#^2.0.0",
     "curium-animated-pages": "alvinleung1996/curium-animated-pages",
-    "curium-responsive-layout": "alvinleung1996/curium-responsive-layout",
     "app-route": "PolymerElements/app-route#^2.0.0",
     "iron-resizable-behavior": "PolymerElements/iron-resizable-behavior#^2.0.0",
     "iron-image": "PolymerElements/iron-image#^2.1.0",
-    "curium-proportional": "alvinleung1996/curium-proportional",
     "paper-button": "PolymerElements/paper-button#^2.0.0",
     "iron-icon": "PolymerElements/iron-icon#^2.0.0",
     "iron-iconset-svg": "PolymerElements/iron-iconset-svg#^2.0.0",
     "paper-material": "PolymerElements/paper-material#^2.0.0",
     "paper-tabs": "PolymerElements/paper-tabs#^2.0.0",
-    "curium-responsive-image": "alvinleung1996/curium-responsive-image",
     "iron-media-query": "PolymerElements/iron-media-query#^2.0.0",
     "paper-icon-button": "PolymerElements/paper-icon-button#^2.0.0",
     "paper-ripple": "PolymerElements/paper-ripple#^2.0.0",
@@ -22,6 +19,6 @@
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^6.0.0",
-    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0"
+    "webcomponentsjs": "webcomponents/webcomponentsjs#1.0.1"
   }
 }

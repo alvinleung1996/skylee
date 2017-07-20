@@ -1,8 +1,0 @@
- src="[[rootPath]]images/team/squash/squash-0.jpg"
- src="[[rootPath]]images/team/squash/squash-1.jpg"
- src="[[rootPath]]images/team/squash/squash-2.jpg"
- src="[[rootPath]]images/team/squash/squash-3.jpg"
-{ src: `${Polymer.rootPath}images/team/squash/squash-0.jpg` },
-{ src: `${Polymer.rootPath}images/team/squash/squash-1.jpg` },
-{ src: `${Polymer.rootPath}images/team/squash/squash-2.jpg` },
-{ src: `${Polymer.rootPath}images/team/squash/squash-3.jpg` },

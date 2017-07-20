@@ -1,5 +1,7 @@
 <?php
-error_reporting(E_ALL);
+
+include_once './config-error.php';
+require_once './filesystem.php';
 
 function getRequestPathInfo() {
   $root = $_SERVER['DOCUMENT_ROOT'];
@@ -27,10 +29,9 @@ function getRequestParam() {
 
 function isSupportedImage($path) {
   clearstatcache();
-
   if (!is_readable($path) || !is_file($path)) return false;
 
-  $fileHandler = fopen($path, 'c+b');
+  $fileHandler = fopen($path, 'rb');
   flock($fileHandler, LOCK_SH);
   $imageInfo = getimagesize($path);
   flock($fileHandler, LOCK_UN);
@@ -59,6 +60,7 @@ function getOutputPath($pathInfo, $imageInfo, $param) {
                $uriInfo['filename'] . ($param ? ".{$param['width']}x{$param['height']}" : ".{$imageInfo['width']}x{$imageInfo['height']}") .
                '.' . $uriInfo['extension'];
 
+  clearstatcache();
   if (isSupportedImage($cachePath) && filemtime($cachePath) > filemtime($pathInfo['path'])) {
     return $cachePath;
   } elseif (createCache($pathInfo, $imageInfo, $param, $cachePath)) {
@@ -72,20 +74,10 @@ function getOutputPath($pathInfo, $imageInfo, $param) {
  */
 function createCache($pathInfo, $imageInfo, $param, $cachePath) {
   $cacheDirPath = dirname($cachePath);
-  if (file_exists($cacheDirPath)) {
-    if (!is_dir($cacheDirPath) || !is_readable($cacheDirPath) || !is_writable($cacheDirPath)) return false;
-  } else {
-    /* Concurrency problem:
-     * file exist warning triggered when two thread trying to make the same dir.
-     * There is no lock available for directory so this warning cannot be prevented.
-     */
-    if (!@mkdir($cacheDirPath, 775, true)) {
-      // https://stackoverflow.com/questions/19964287/mkdir-function-throw-exception-file-exists-even-after-checking-that-directory
-      if (!is_dir($cacheDirPath) || !is_readable($cacheDirPath) || !is_writable($cacheDirPath)) return false;
-    }
-  }
+  clearstatcache();
+  if (!is_dir($cacheDirPath) && !createDirectory($cacheDirPath, 0775)) return false;
 
-  $fileHandler = fopen($pathInfo['path'], 'c+b');
+  $fileHandler = fopen($pathInfo['path'], 'rb');
   flock($fileHandler, LOCK_SH);
   switch ($imageInfo['type']) {
     case IMAGETYPE_GIF: $image = imagecreatefromgif($pathInfo['path']); break;
@@ -114,11 +106,13 @@ function createCache($pathInfo, $imageInfo, $param, $cachePath) {
 
   $cacheHandler = fopen($cachePath, 'cb');
   flock($cacheHandler, LOCK_EX);
+  ftruncate($cacheHandler, 0);
   switch ($imageInfo['type']) {
     case IMAGETYPE_GIF: imagegif($cacheImage, $cachePath); break;
     case IMAGETYPE_PNG: imagepng($cacheImage, $cachePath); break;
     case IMAGETYPE_JPEG: imagejpeg($cacheImage, $cachePath); break;
   }
+  chmod($cachePath, 0664);
   flock($cacheHandler, LOCK_UN);
   fclose($cacheHandler);
 
