@@ -61,6 +61,9 @@
       #toolbar[hide] {
         transform: translateY(-100%);
       }
+      #toolbar[transparent] {
+        background-color: transparent;
+      }
       #toolbar[shadow] {
         @apply --skylee-shadow--elevation-4;
       }
@@ -132,6 +135,10 @@
         box-sizing: border-box;
         color: var(--skylee-text--app-theme--primary_color);
         --paper-icon-button-ink-color: var(--skylee-text--app-theme--primary_color);
+        transition: color 330ms ease-out 0ms;
+      }
+      #toolbar[transparent] #toolbar__back-button {
+        color: white;
       }
 
       #toolbar__home-button-link {
@@ -178,8 +185,12 @@
         padding-bottom: 0;
         outline: none; /* for Safari */
         @apply --skylee-text--headline_font;
-        color: var(--skylee-text--app-theme--primary_color);
+        color: var(--skylee-accent_color);
         text-transform: none;
+        transition: color 330ms ease-out 0ms;
+      }
+      #toolbar[transparent] #toolbar__home-button {
+        color: white;
       }
 
       #toolbar__tabs {
@@ -189,10 +200,17 @@
         right: 0px;
         min-width: 0px; /* cannot perform transition from or to width: auto */
         box-sizing: border-box;
-        --paper-tabs-selection-bar-color: var(--skylee-text--app-theme--primary_color);
+        --paper-tabs-selection-bar-color: var(--skylee-accent_color); /* Cannot animate this property (border-bottom- */
+        --paper-tabs-selection-bar: {
+          border-bottom-width: 3px;
+          /* Cannot animate this value otherwise it mess up other internal transition. */
+        };
         transition: min-width 330ms ease-out 0ms,
                     height 330ms ease-out 0ms,
                     transform 330ms ease-out 0ms;
+      }
+      #toolbar[transparent] #toolbar__tabs {
+        --paper-tabs-selection-bar-color: white;
       }
       #toolbar[narrow] #toolbar__tabs {
         min-width: 100%;
@@ -213,6 +231,9 @@
       .toolbar__tab {
         --paper-tab-ink: var(--skylee-text--app-theme--primary_color);
       }
+      #toolbar[transparent] .toolbar__tab {
+        --paper-tab-ink: white;
+      }
       .toolbar__tab-link {
         padding-left: 12px;
         padding-right: 12px;
@@ -223,6 +244,10 @@
         @apply --skylee-text--subheading_font;
         color: var(--skylee-text--app-theme--primary_color);
         text-decoration: none;
+        transition: color 330ms ease-out 0ms;
+      }
+      #toolbar[transparent] .toolbar__tab-link {
+        color: white;
       }
 
       #tab-pages {
@@ -239,16 +264,17 @@
 
     <curium-route
       route="{{route}}"
+      prefix-pattern="/tab-pages"
       data-pattern="/tabPageId"
       data="{{_routeData}}"
       tail="{{_subroute}}">
     </curium-route>
 
     <div id="toolbar"
-      style$="[[_computeStyle('background-color', _toolbarBackgroundColor)]]"
       narrow$="[[_narrowToolbar]]"
       short$="[[_shortToolbar]]"
       hide$="[[_hideToolbar]]"
+      transparent$="[[_transparentToolbar]]"
       shadow$="[[_showToolbarShadow]]"
       show-back-button$="[[_isTruthy(_toolbarBackButtonUrl)]]">
       <div id="toolbar__content">
@@ -324,13 +350,23 @@
             computed: '_computeSceneTitle(_tabPageTitle)',
             notify: true
           },
-
-          _selectedTabPageId: {
-            type: String
-          },
           _tabPageTitle: {
             type: String,
             value: ''
+          },
+
+          sceneAddressBarBackgroundColor: {
+            type: String,
+            computed: '_computeSceneAddressBarBackgroundColor(_tabPageAddressBarBackgroundColor)',
+            notify: true
+          },
+          _tabPageAddressBarBackgroundColor: {
+            type: String,
+            value: ''
+          },
+
+          _selectedTabPageId: {
+            type: String
           },
 
           routePrefix: {
@@ -359,13 +395,14 @@
             type: Boolean,
             value: false
           },
+          _transparentToolbar: {
+            type: Boolean,
+            value: false,
+            observer: '_onTransparentToolbarChanged'
+          },
           _showToolbarShadow: {
             type: Boolean,
             value: false
-          },
-          _toolbarBackgroundColor: {
-            type: String,
-            value: ''
           },
           _toolbarBackButtonUrl: {
             type: String,
@@ -388,9 +425,38 @@
         });
       }
 
+
+
       _computeSceneTitle(tabPageTitle) {
         return tabPageTitle || '';
       }
+
+
+      _computeSceneAddressBarBackgroundColor(color) {
+        return color;
+      }
+
+
+
+      _onRouteTabPageIdChanged(id) {
+        id = id || 'home';
+        /* Do not use the "fallback" attribute.
+          * "selected" will not be set when we first load
+          * the image viewer page i.e. "selected" is undefined.
+          * If we use "fallback",
+          * "selected" will convert undefined value to 404,
+          * which will cause the 404 page to be loaded.
+          * This will result in a flash of the 404 page
+          * when we switch back from the image viewer page
+          * to the tab pages.
+          */
+        if (!/^(home|event|team|about)$/.test(id)) {
+          id = '404';
+        }
+        this._selectedTabPageId = id;
+      }
+
+      
 
       _computeToolbarHeight(narrow, short) {
         let toolbarHeight = narrow ? 96 : (short ? 48 : 64);
@@ -405,25 +471,26 @@
         return toolbarHeight;
       }
 
-      _onRouteTabPageIdChanged(id) {
-        if (id !== 'image-viewer') {
-          id = id || 'home';
-          /* Do not use the "fallback" attribute.
-           * "selected" will not be set when we first load
-           * the image viewer page i.e. "selected" is undefined.
-           * If we use "fallback",
-           * "selected" will convert undefined value to 404,
-           * which will cause the 404 page to be loaded.
-           * This will result in a flash of the 404 page
-           * when we switch back from the image viewer page
-           * to the tab pages.
-           */
-          if (!/^(home|event|team|about)$/.test(id)) {
-            id = '404';
+
+
+      _onTransparentToolbarChanged(transparent) {
+        if (window.ShadyCSS && !window.ShadyCSS.nativeCss) {
+          let tabs = this.shadowRoot.querySelector('#toolbar__tabs');
+          tabs.updateStyles({
+            '--paper-tabs-selection-bar-color': transparent ? 'white' : ShadyCSS.getComputedStyleValue(tabs, '--skylee-accent_color')
+          });
+
+          let tabList = this.shadowRoot.querySelectorAll('.toolbar__tab');
+          for (let i = 0, tab; tab = tabList[i]; ++i) {
+            let ink = transparent ? 'white' : ShadyCSS.getComputedStyleValue(tab, '--skylee-text--app-theme--primary_color');
+            tab.updateStyles({
+              '--paper-tab-ink': ink
+            });
           }
-          this._selectedTabPageId = id;
         }
       }
+
+
 
       _onTabPageSelectionChanged() {
         this._tabPageSelectionDebouncer = Polymer.Debouncer.debounce(this._tabPageSelectionDebouncer, Polymer.Async.microTask, () => {
@@ -454,9 +521,10 @@
       _bindTabPageProperties(selectedTabPage) {
         this._bindProperties({
           _tabPageTitle: 'tabPageTitle',
+          _tabPageAddressBarBackgroundColor: 'tabPageAddressBarBackgroundColor',
           _hideToolbar: 'hideToolbar',
+          _transparentToolbar: 'transparentToolbar',
           _showToolbarShadow: 'showToolbarShadow',
-          _toolbarBackgroundColor: 'toolbarBackgroundColor',
           _toolbarBackButtonUrl: 'toolbarBackButtonUrl'
         }, selectedTabPage);
       }
@@ -465,10 +533,6 @@
 
       _isTruthy(value) {
         return Boolean(value);
-      }
-
-      _computeStyle(prop, value) {
-        return value ? `${prop}:${value};` : '';
       }
 
     }

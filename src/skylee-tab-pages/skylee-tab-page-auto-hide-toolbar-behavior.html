@@ -16,9 +16,9 @@
           readOnly: true,
           notify: true
         },
-        showToolbarShadow: {
+        showToolbarShadow: { // always true
           type: Boolean,
-          value: false,
+          value: true,
           readOnly: true,
           notify: true
         }
@@ -58,10 +58,10 @@
         oldScrollTop = oldScrollTop || 0;
 
         let hideToolbar = Number.isInteger(toolbarHeight) && newScrollTop > oldScrollTop && newScrollTop >= toolbarHeight;
-        let showToolbarShadow = newScrollTop > 0;
+        // let showToolbarShadow = newScrollTop > 0;
         this.setProperties({
           hideToolbar: hideToolbar,
-          showToolbarShadow: showToolbarShadow
+          // showToolbarShadow: showToolbarShadow
         }, true);
       }
 

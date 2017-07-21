@@ -6,7 +6,7 @@
 
     <title>Simon K. Y. Lee Hall</title>
     <meta name="description" content="We are Skyers, Active and Sincere! Simon K. Y. Lee Hall is one of the campus halls located in the campus of The University of Hong Kong.">
-    <meta name="theme-color" content="#0047bb">
+    <meta name="theme-color"> <!-- content value will by binded at runtime -->
     <link rel="icon" sizes="192x192" href="/images/icon-192x192.png">
     <link rel="apple-touch-icon" href="/images/icon-192x192.png">
 
@@ -32,8 +32,7 @@
       Polymer.rootPath = '/';
 
       window.Skylee = window.Skylee || {};
-      Skylee.routePrefix = '';
-      Skylee.defaultPath = `${Polymer.rootPath}${Skylee.routePrefix}`;
+      Skylee.defaultPath = `${Polymer.rootPath}`;
     </script>
 
     <script src="/bower_components/webcomponentsjs/webcomponents-loader.js"></script>

@@ -25,28 +25,29 @@
       }
     </style>
 
-    <app-location route="{{_route}}"></app-location>
+    <app-location route="{{_rawRoute}}"></app-location>
     <curium-route
       route="{{_route}}"
       data-pattern="/sceneId"
-      data="{{_routeData}}">
+      data="{{_routeData}}"
+      tail="{{_subroute}}">
     </curium-route>
 
     <curium-scene-animation-manager id="scene-animation-manager" duration="330"></curium-scene-animation-manager>
     <curium-animated-pages
       id="scenes"
       attr-for-selected="scene-id"
-      selected="[[_selectedSceneId]]"
+      selected="[[_routeData.sceneId]]"
       selected-attribute="visible-scene"
       animation-manager="#scene-animation-manager">
 
       <skylee-tab-pages
         scene-id="tab-pages"
-        route="[[_route]]"></skylee-tab-pages> <!-- element already imported -->
+        route="[[_subroute]]"></skylee-tab-pages> <!-- element already imported -->
 
       <skylee-image-viewer level="1"
         scene-id="image-viewer" element-path$="[[rootPath]]src/skylee-image-viewer/skylee-image-viewer.html"
-        route="[[_route]]"></skylee-image-viewer>
+        route="[[_subroute]]"></skylee-image-viewer>
 
     </curium-animated-pages>
   </template>
@@ -72,15 +73,25 @@
             value: ''
           },
 
-          _selectedSceneId: {
+          addressBarBackgroundColor: {
             type: String,
-            computed: '_computeSelectedSceneId(_routeData.sceneId)'
+            computed: '_computeAddressBarBackgroundColor(_sceneAddressBarBackgroundColor)',
+            observer: '_onAddressBarBackgroundColorChanged'
           },
-          _tabPagesRoute: {
+          _sceneAddressBarBackgroundColor: {
+            type: String,
+            value: ''
+          },
+
+          _route: {
             type: Object
-          }
+          },
         };
       }
+
+      static get observers() { return [
+        '_onRawRouteChanged(_rawRoute.*)'
+      ];}
 
       ready() {
         super.ready();
@@ -92,6 +103,8 @@
         });
       }
 
+
+
       _computeAppTitle(sceneTitle) {
         return (sceneTitle ? (sceneTitle + ' - ') : '') + 'Simon K. Y. Lee Hall';
       }
@@ -100,9 +113,34 @@
         document.title = appTitle;
       }
 
-      _computeSelectedSceneId(id) {
-        return id === 'image-viewer' ? 'image-viewer' : 'tab-pages';
+
+
+      _computeAddressBarBackgroundColor(color) {
+        return color || '#fff';
       }
+
+      _onAddressBarBackgroundColorChanged(color) {
+        let meta = document.head.querySelector('meta[name="theme-color"]');
+        if (meta) {
+          if (color) meta.setAttribute('content', color);
+          else meta.removeAttribute('content');
+        }
+      }
+
+
+
+      _onRawRouteChanged(rawChangeRecord) {
+        if (rawChangeRecord.base) {
+          let rawPath = rawChangeRecord.base.path;
+          let path = /^\/image\-viewer(?:\/|$)/.test(rawPath) ? rawPath : `/tab-pages${rawPath}`;
+          this._route = {
+            prefix: '',
+            path: path
+          };
+        }
+      }
+
+
 
       _onSceneSelectionChanged() {
         this._sceneSelectionDebouncer = Polymer.Debouncer.debounce(this._sceneSelectionDebouncer, Polymer.Async.microTask, () => {
@@ -132,7 +170,8 @@
 
       _bindSceneProperties(selectedScene) {
         this._bindProperties({
-          _sceneTitle: 'sceneTitle'
+          _sceneTitle: 'sceneTitle',
+          _sceneAddressBarBackgroundColor: 'sceneAddressBarBackgroundColor'
         }, selectedScene);
       }
 

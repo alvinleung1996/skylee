@@ -6,6 +6,8 @@
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 
+<link rel="import" href="../../bower_components/curium-route/curium-route.html">
+
 <link rel="import" href="../skylee-icons/skylee-icons.html">
 
 <dom-module id="skylee-image-viewer">
@@ -146,6 +148,12 @@
     </style>
 
     <iron-media-query query="not all and (min-height: 500px)" query-matches="{{_shortToolbar}}" full></iron-media-query>
+    
+    <curium-route
+      route="[[route]]"
+      prefix-pattern="/image-viewer"
+      prefix-match="{{_routePrefixMatch}}"
+      tail="{{_subroute}}"></curium-route>
 
     <div id="toolbar" hide$="[[_hideToolbar]]" short$="[[_shortToolbar]]">
       <a id="toolbar__back-button-link" href="javascript:window.history.back();" tabindex="-1">
@@ -174,7 +182,12 @@
       static get is() { return 'skylee-image-viewer'; }
 
       static get properties() { return {
-        route: Object,
+        sceneAddressBarBackgroundColor: {
+          type: String,
+          value: '#000',
+          readOnly: true,
+          notify: true
+        },
 
         _hideToolbar: {
           type: Boolean,
@@ -184,8 +197,12 @@
           type: Boolean
         },
 
+        route: Object,
+        _routePrefixMatch: Boolean,
+        _subroute: Object,
         _imageSrc: {
           type: String,
+          computed: '_computeImageSrc(_routePrefixMatch, _subroute.path)',
           observer: '_onImageSrcChanged'
         },
         _imageFilename: {
@@ -244,8 +261,6 @@
       };}
 
       static get observers() { return [
-        '_onRoutePathChanged(route.path)',
-
         '_onImgDisplayParamChanged(_imgX, _imgY, _imgScale, _smoothImgTransform)'
       ];}
 
@@ -296,20 +311,18 @@
 
 
 
-      _onRoutePathChanged(routePath) {
-        let matches = routePath.match(/^\/image-viewer(.*)$/);
-        if (matches !== null) {
-          // console.log('Load image: ' + matches[1]);
-          this._imageSrc = matches[1];
-        } else {
-          this._imageSrc = '';
-        }
+      _computeImageSrc(prefixMatch, imagePath) {
+        return prefixMatch ? imagePath : '';
       }
 
       _computeImageFilename(src) {
-        let matches = src.match(/\/([\w\-]+\.\w+)(?:\?.*)?$/);
-        if (matches !== null) {
-          return matches[1];
+        if (src) {
+          let matches = src.match(/\/([\w\-]+\.\w+)(?:\?.*)?$/);
+          if (matches !== null) {
+            return matches[1];
+          } else {
+            return src;
+          }
         } else {
           return '';
         }

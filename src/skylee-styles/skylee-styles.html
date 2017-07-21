@@ -171,8 +171,8 @@
         --skylee-divider_opacity: var(--skylee-divider--light-theme_opacity);
         --skylee-divider_color: var(--skylee-divider--light-theme_color);
       /*};*/
-      --skylee-theme--dark: {
-        --skylee-background--primary_background-color: var(--skylee-background--dark-theme--primary_background-color);
+      /* --skylee-theme--dark: { */
+        /* --skylee-background--primary_background-color: var(--skylee-background--dark-theme--primary_background-color);
         --skylee-background--secondary_background-color: var(--skylee-background--dark-theme--secondary_background-color);
 
         --skylee-text--base_color_r: var(--skylee-text--dark-theme--base_color_r);
@@ -190,14 +190,16 @@
         --skylee-text--disabled_color: var(--skylee-text--dark-theme--disabled_color);
         
         --skylee-divider_opacity: var(--skylee-divider--dark-theme_opacity);
-        --skylee-divider_color: var(--skylee-divider--light-theme_color);
-      };
-      /*@apply --skylee-theme--dark;*/
+        --skylee-divider_color: var(--skylee-divider--light-theme_color); */
+      /* }; */
+      /* @apply --skylee-theme--dark; */
 
-      /* primary-color background color */
-      --skylee-background--app-theme--primary_background-color: rgb(0, 71, 187);
+      /* app-theme */
+      --skylee-background--app-theme--primary_background-color: var(--skylee-background--primary_background-color);
 
-      --skylee-text--app-theme--primary_color: white;
+      --skylee-text--app-theme--primary_color: var(--skylee-text--primary_color);
+
+      --skylee-accent_color: rgb(0, 71, 187);
 
       /*
        * Shadow
