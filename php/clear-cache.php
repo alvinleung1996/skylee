@@ -1,11 +1,12 @@
 <?php
 
+namespace skylee;
+
 include_once './config-error.php';
-require_once './filesystem.php';
+require_once './FileSystem.php';
 
 function clearCache() {
-  deletePath($_SERVER['DOCUMENT_ROOT'] . '/cache');
+  FileSystem::deletePath($_SERVER['DOCUMENT_ROOT'] . '/cache');
   echo 'clear';
 }
 clearCache();
-
