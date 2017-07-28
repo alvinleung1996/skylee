@@ -59,7 +59,7 @@ class FileRequestHandler implements RequestHandler {
           $param['statusCode'] = 304;
           unset($param['filePath']);
         }
-        $param['cacheControl'] = 'max-age=60';
+        if (!isset($param['cacheControl'])) $param['cacheControl'] = 'max-age=60';
 
       } else {
         $param['statusCode'] = 404;
