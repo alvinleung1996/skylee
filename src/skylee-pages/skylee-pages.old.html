@@ -1,29 +1,25 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
-<link rel="import" href="../../bower_components/polymer/lib/utils/debounce.html">
 <link rel="import" href="../../bower_components/shadycss/apply-shim.html">
 
+<link rel="import" href="../../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
 
-<link rel="import" href="../../bower_components/curium-animated-pages/curium-animated-pages.html">
-<link rel="import" href="../../bower_components/curium-animated-pages/animations/curium-tab-page-animation-manager.html">
 <link rel="import" href="../../bower_components/curium-route/curium-route.html">
 
+<link rel="import" href="../skylee-dynamic-pages/skylee-dynamic-pages.html">
 <link rel="import" href="../skylee-property-binder-behavior/skylee-property-binder-behavior.html">
 <link rel="import" href="../skylee-icons/skylee-icons.html">
 
-<link rel="import" href="../skylee-home/skylee-home.html">
-
-<dom-module id="skylee-tab-pages">
+<dom-module id="skylee-pages">
   <template strip-whitespace>
     <style>
       :host {
         display: block;
         position: relative;
-        overflow: hidden;
         --skylee-toolbar_height: var(--skylee-toolbar--normal_height);
         --skylee-toolbar_transition_padding-top: padding-top 330ms ease-out 0ms;
 
@@ -38,7 +34,7 @@
       }
 
       #toolbar {
-        position: absolute;
+        position: fixed;
         top: 0px;
         left: 0px;
         right: 0px;
@@ -250,12 +246,8 @@
         color: white;
       }
 
-      #tab-pages {
+      #pages {
         width: 100%;
-        height: 100%;
-      }
-      .tab-pages__tab-page[element-path]:not([element-loaded]) {
-        background-color: var(--skylee-background--secondary_background-color);
       }
     </style>
 
@@ -264,13 +256,11 @@
 
     <curium-route
       route="{{route}}"
-      prefix-pattern="/tab-pages"
-      data-pattern="/tabPageId"
-      data="{{_routeData}}"
+      prefix-pattern="/pages"
       tail="{{_subroute}}">
     </curium-route>
 
-    <div id="toolbar"
+    <!-- <div id="toolbar"
       narrow$="[[_narrowToolbar]]"
       short$="[[_shortToolbar]]"
       hide$="[[_hideToolbar]]"
@@ -297,38 +287,20 @@
         </paper-tabs>
 
       </div>
-    </div>
+    </div> -->
 
-    <curium-tab-page-animation-manager id="tab-page-animation-manager" duration="330" no-intermediate-page></curium-tab-page-animation-manager>
-    <curium-animated-pages
-      id="tab-pages"
-      attr-for-selected="tab-page-id"
-      selected="[[_selectedTabPageId]]"
-      selected-attribute="visible-tab-page"
-      animation-manager="#tab-page-animation-manager">
+    <app-toolbar>
+      <a id="toolbar__home-button-link" href$="[[defaultPath]]" tabindex="-1" main-title>
+        <paper-button id="toolbar__home-button">Simon K. Y. Lee Hall</paper-button>
+      </a>
+    </app-toolbar>
 
-      <skylee-home class="tab-pages__tab-page"
-        tab-page-id="home"
-        visible-scene="[[visibleScene]]">
-      </skylee-home> <!-- element already imported -->
-
-      <skylee-event class="tab-pages__tab-page"
-        tab-page-id="event" element-path$="[[rootPath]]src/skylee-event/skylee-event.html"
-        toolbar-height="[[_toolbarHeight]]"></skylee-event>
-
-      <skylee-team class="tab-pages__tab-page" tab-page-id="team"
-        element-path$="[[rootPath]]src/skylee-team/skylee-team.html"
-        toolbar-height="[[_toolbarHeight]]" route="{{_subroute}}"></skylee-team>
-
-      <skylee-about class="tab-pages__tab-page" tab-page-id="about"
-        element-path$="[[rootPath]]src/skylee-about/skylee-about.html"
-        toolbar-height="[[_toolbarHeight]]"></skylee-about>
-
-      <skylee-404 class="tab-pages__tab-page" tab-page-id="404"
-        element-path$="[[rootPath]]src/skylee-404/skylee-404.html"
-        toolbar-height="[[_toolbarHeight]]"></skylee-404>
-
-    </curium-animated-pages>
+    <skylee-dynamic-pages
+      id="pages"
+      page-map="[[_pageMap]]"
+      selected-path="[[_subroute.path]]"
+      visible-page="{{_visiblePage}}">
+    </skylee-dynamic-pages>
   </template>
 
   <script>
@@ -336,9 +308,9 @@
      * @customElement
      * @polymer
      */
-    class SkyleeTabPages extends Skylee.SkyleePropertyBinderBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
+    class SkyleePages extends Skylee.SkyleePropertyBinderBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
 
-      static get is() { return 'skylee-tab-pages'; }
+      static get is() { return 'skylee-pages'; }
 
       static get properties() {
         return {
@@ -347,26 +319,22 @@
 
           sceneTitle: {
             type: String,
-            computed: '_computeSceneTitle(_tabPageTitle)',
+            computed: '_computeSceneTitle(_pageTitle)',
             notify: true
           },
-          _tabPageTitle: {
+          _pageTitle: {
             type: String,
             value: ''
           },
 
           sceneAddressBarBackgroundColor: {
             type: String,
-            computed: '_computeSceneAddressBarBackgroundColor(_tabPageAddressBarBackgroundColor)',
+            computed: '_computeSceneAddressBarBackgroundColor(_pageAddressBarBackgroundColor)',
             notify: true
           },
-          _tabPageAddressBarBackgroundColor: {
+          _pageAddressBarBackgroundColor: {
             type: String,
             value: ''
-          },
-
-          _selectedTabPageId: {
-            type: String
           },
 
           routePrefix: {
@@ -407,23 +375,39 @@
           _toolbarBackButtonUrl: {
             type: String,
             value: ''
+          },
+
+          _pageMap: {
+            type: Object,
+            value: () => {
+              let obj = {
+                '/': { tagName: 'skylee-home', src: `${Polymer.rootPath}src/skylee-home/skylee-home.html` },
+                '/event': { tagName: 'skylee-event', src: `${Polymer.rootPath}src/skylee-event/skylee-event.html` },
+                '/team': { tagName: 'skylee-team', src: `${Polymer.rootPath}src/skylee-team/skylee-team.html` },
+                '/about': { tagName: 'skylee-about', src: `${Polymer.rootPath}src/skylee-about/skylee-about.html` },
+                '/404': { tagName: 'skylee-404', src: `${Polymer.rootPath}src/skylee-404/skylee-404.html` },
+              }
+
+              let teams = ['badminton', 'band', 'basketball', 'bridge', 'choir', 'dancing', 'debating', 'drama', 'handball', 'hockey', 'lacrosse', 'soccer', 'softball', 'squash', 'table-tennis', 'volleyball'];
+              teams.forEach(e => {
+                obj[`/team/${e}`] = {
+                  tagName: `skylee-team-${e}`,
+                  src: `${Polymer.rootPath}src/skylee-team/${e}/skylee-team-${e}.html`
+                };
+              });
+              
+              return obj;
+            }
+          },
+          _visiblePage: {
+            observer: '_onVisiblePageChanged'
           }
         };
       }
 
       static get observers() { return [
-        '_onRouteTabPageIdChanged(_routeData.tabPageId)'
+        // '_onRouteTabPageIdChanged(_routeData.tabPageId)'
       ];}
-
-      ready() {
-        super.ready();
-        this.$['tab-pages'].addEventListener('iron-select', e => {
-          if (e.target === this.$['tab-pages']) this._onTabPageSelectionChanged()
-        });
-        this.$['tab-pages'].addEventListener('iron-deselect', e => {
-          if (e.target === this.$['tab-pages']) this._onTabPageSelectionChanged()
-        });
-      }
 
 
 
@@ -438,23 +422,23 @@
 
 
 
-      _onRouteTabPageIdChanged(id) {
-        id = id || 'home';
-        /* Do not use the "fallback" attribute.
-          * "selected" will not be set when we first load
-          * the image viewer page i.e. "selected" is undefined.
-          * If we use "fallback",
-          * "selected" will convert undefined value to 404,
-          * which will cause the 404 page to be loaded.
-          * This will result in a flash of the 404 page
-          * when we switch back from the image viewer page
-          * to the tab pages.
-          */
-        if (!/^(home|event|team|about)$/.test(id)) {
-          id = '404';
-        }
-        this._selectedTabPageId = id;
-      }
+      // _onRouteTabPageIdChanged(id) {
+      //   id = id || 'home';
+      //   /* Do not use the "fallback" attribute.
+      //     * "selected" will not be set when we first load
+      //     * the image viewer page i.e. "selected" is undefined.
+      //     * If we use "fallback",
+      //     * "selected" will convert undefined value to 404,
+      //     * which will cause the 404 page to be loaded.
+      //     * This will result in a flash of the 404 page
+      //     * when we switch back from the image viewer page
+      //     * to the tab pages.
+      //     */
+      //   if (!/^(home|event|team|about)$/.test(id)) {
+      //     id = '404';
+      //   }
+      //   this._selectedTabPageId = id;
+      // }
 
       
 
@@ -466,7 +450,7 @@
             '--skylee-toolbar_height': toolbarHeight + 'px'
           };
           this.updateStyles(stylesToUpdate);
-          this.$['tab-pages'].items.filter(n => n instanceof Polymer.Element).forEach(n => n.updateStyles(stylesToUpdate));
+          // this.$['tab-pages'].items.filter(n => n instanceof Polymer.Element).forEach(n => n.updateStyles(stylesToUpdate));
         }
         return toolbarHeight;
       }
@@ -492,41 +476,19 @@
 
 
 
-      _onTabPageSelectionChanged() {
-        this._tabPageSelectionDebouncer = Polymer.Debouncer.debounce(this._tabPageSelectionDebouncer, Polymer.Async.microTask, () => {
-
-          let selectedTabPage = this.$['tab-pages'].selectedItem;
-          let deselectedTabPage = this._prevSelectedTabPage;
-
-          this._prevSelectedTabPage = selectedTabPage;
-
-          this._loadTabPage(selectedTabPage);
-          this._bindTabPageProperties(selectedTabPage);
-        });
-      }
-
-      _loadTabPage(selectedTabPage) {
-        if (selectedTabPage) {
-          if (selectedTabPage.hasAttribute('element-path') && !selectedTabPage.hasAttribute('element-loading') && !selectedTabPage.hasAttribute('element-loaded')) {
-            let path = selectedTabPage.getAttribute('element-path');
-            selectedTabPage.setAttribute('element-loading', '');
-            Polymer.importHref(this.resolveUrl(path), () => {
-              selectedTabPage.removeAttribute('element-loading');
-              selectedTabPage.setAttribute('element-loaded', '');
-            }, null, true);
-          }
-        }
-      }
-
-      _bindTabPageProperties(selectedTabPage) {
+      _onVisiblePageChanged(visiblePage) {
         this._bindProperties({
-          _tabPageTitle: 'tabPageTitle',
-          _tabPageAddressBarBackgroundColor: 'tabPageAddressBarBackgroundColor',
-          _hideToolbar: 'hideToolbar',
-          _transparentToolbar: 'transparentToolbar',
-          _showToolbarShadow: 'showToolbarShadow',
-          _toolbarBackButtonUrl: 'toolbarBackButtonUrl'
-        }, selectedTabPage);
+          visibleScene: { target: visiblePage, name: 'visibleScene', mode: 'down' },
+          
+          _pageTitle: { target: visiblePage, name: 'pageTitle', mode: 'up' },
+          _pageAddressBarBackgroundColor: { target: visiblePage, name: 'pageAddressBarBackgroundColor', mode: 'up' },
+
+          _toolbarHeight: { target: visiblePage, name: 'toolbarHeight', mode: 'down' },
+          _hideToolbar: { target: visiblePage, name: 'hideToolbar', mode: 'up' },
+          _transparentToolbar: { target: visiblePage, name: 'transparentToolbar', mode: 'up' },
+          _showToolbarShadow: { target: visiblePage, name: 'showToolbarShadow', mode: 'up' },
+          _toolbarBackButtonUrl: { target: visiblePage, name: 'toolbarBackButtonUrl', mode: 'up' }
+        });
       }
 
       
@@ -536,6 +498,6 @@
       }
 
     }
-    window.customElements.define(SkyleeTabPages.is, SkyleeTabPages);
+    window.customElements.define(SkyleePages.is, SkyleePages);
   </script>
 </dom-module>

@@ -11,7 +11,7 @@
 <link rel="import" href="../skylee-property-binder-behavior/skylee-property-binder-behavior.html">
 <link rel="import" href="../skylee-styles/skylee-styles.html">
 
-<link rel="import" href="../skylee-tab-pages/skylee-tab-pages.html">
+<link rel="import" href="../skylee-pages/skylee-pages.html">
 
 <dom-module id="skylee-app">
   <template strip-whitespace>
@@ -21,7 +21,6 @@
       }
       #scenes {
         width: 100%;
-        height: 100%;
       }
     </style>
 
@@ -38,12 +37,11 @@
       id="scenes"
       attr-for-selected="scene-id"
       selected="[[_routeData.sceneId]]"
-      selected-attribute="visible-scene"
-      animation-manager="#scene-animation-manager">
+      selected-attribute="visible-scene">
 
-      <skylee-tab-pages
-        scene-id="tab-pages"
-        route="[[_subroute]]"></skylee-tab-pages> <!-- element already imported -->
+      <skylee-pages
+        scene-id="page"
+        route="[[_subroute]]"></skylee-pages> <!-- element already imported -->
 
       <skylee-image-viewer level="1"
         scene-id="image-viewer" element-path$="[[rootPath]]src/skylee-image-viewer/skylee-image-viewer.html"
@@ -75,13 +73,11 @@
 
           addressBarBackgroundColor: {
             type: String,
-            computed: '_computeAddressBarBackgroundColor(_sceneAddressBarBackgroundColor)',
+            value: '',
             observer: '_onAddressBarBackgroundColorChanged'
           },
-          _sceneAddressBarBackgroundColor: {
-            type: String,
-            value: ''
-          },
+
+
 
           _route: {
             type: Object
@@ -115,15 +111,17 @@
 
 
 
-      _computeAddressBarBackgroundColor(color) {
-        return color || '#fff';
-      }
-
       _onAddressBarBackgroundColorChanged(color) {
         let meta = document.head.querySelector('meta[name="theme-color"]');
         if (meta) {
-          if (color) meta.setAttribute('content', color);
-          else meta.removeAttribute('content');
+          if (!color) {
+            if (window.ShadyCSS && !window.ShadyCSS.nativeCss) {
+              color = ShadyCSS.getComputedStyleValue(this, '--skylee-background--app-theme--primary_background-color');
+            } else {
+              color = getComputedStyle(this).getPropertyValue('--skylee-background--app-theme--primary_background-color');
+            }
+          }
+          meta.setAttribute('content', color);
         }
       }
 
@@ -132,7 +130,7 @@
       _onRawRouteChanged(rawChangeRecord) {
         if (rawChangeRecord.base) {
           let rawPath = rawChangeRecord.base.path;
-          let path = /^\/image\-viewer(?:\/|$)/.test(rawPath) ? rawPath : `/tab-pages${rawPath}`;
+          let path = /^\/image\-viewer(?:\/|$)/.test(rawPath) ? rawPath : `/page${rawPath}`;
           this._route = {
             prefix: '',
             path: path
@@ -163,16 +161,18 @@
             Polymer.importHref(this.resolveUrl(path), () => {
               selectedScene.removeAttribute('element-loading');
               selectedScene.setAttribute('element-loaded', '');
-            }, null, true);
+            }, () => {
+              selectedScene.removeAttribute('element-loading');
+            }, true);
           }
         }
       }
 
       _bindSceneProperties(selectedScene) {
         this._bindProperties({
-          _sceneTitle: 'sceneTitle',
-          _sceneAddressBarBackgroundColor: 'sceneAddressBarBackgroundColor'
-        }, selectedScene);
+          _sceneTitle: { target: selectedScene, name: 'sceneTitle', mode: 'up' },
+          addressBarBackgroundColor: { target: selectedScene, name: 'addressBarBackgroundColor', mode: 'up' }
+        });
       }
 
     }

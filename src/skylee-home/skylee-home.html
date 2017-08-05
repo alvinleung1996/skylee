@@ -15,8 +15,6 @@
       :host {
         display: block;
         /* position: absolute already applied by curium-animated-pages*/
-        overflow: hidden;
-        background-color: var(--skylee-background--dark-theme--primary_background-color);
       }
       #toolbar-background {
         position: absolute;
@@ -30,8 +28,12 @@
       }
       #slides {
         width: 100%;
-        height: 100%;
+        height: 100vh;
         z-index: 0;
+        background-color: var(--skylee-background--dark-theme--primary_background-color); /* show when image not finished loading */
+      }
+      #slides > * {
+        bottom: 0px;
       }
     </style>
 
@@ -61,25 +63,28 @@
             type: Boolean,
             value: false
           },
-          visibleTabPage: {
-            type: Boolean,
-            value: false
+          pageVisibility: {
+            type: String
           },
 
-          tabPageTitle: {
+          pageTitle: {
             type: String,
             value: 'Home',
+            readOnly: true,
             notify: true
           },
-          tabPageAddressBarBackgroundColor: {
+          addressBarBackgroundColor: {
             type: String,
             value: '#000',
+            readOnly: true,
             notify: true
           },
           transparentToolbar: {
             type: Boolean,
             value: true,
-            notify: true
+            readOnly: true,
+            notify: true,
+            reflectToAttribute: true
           },
 
           _slides: {
@@ -120,7 +125,7 @@
       }
 
       static get observers() { return [
-        '_onVisibilityChanged(visibleScene, visibleTabPage)'
+        '_onVisibilityChanged(visibleScene, pageVisibility)'
       ];}
 
       ready() {
@@ -130,8 +135,8 @@
         });
       }
 
-      _onVisibilityChanged(visibleScene, visibleTabPage) {
-        if (visibleScene && visibleTabPage) {
+      _onVisibilityChanged(visibleScene, pageVisibility) {
+        if (visibleScene && (pageVisibility === 'showing' || pageVisibility === 'shown')) {
           if (!Number.isInteger(this._slideshowTimerID)) {
             // console.log('slide start');
             this._slideshowTimerID = setInterval(() => {
@@ -142,7 +147,7 @@
           if (Number.isInteger(this._slideshowTimerID)) {
             // console.log('slide stop');
             clearInterval(this._slideshowTimerID);
-            this._slideshowTimerID = null;
+            delete this._slideshowTimerID;
           }
         }
       }

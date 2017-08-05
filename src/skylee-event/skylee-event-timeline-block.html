@@ -12,7 +12,7 @@
         --skylee-event-timeline-block_padding-left: 20px;
           --skylee-event-timeline-block--narrow_padding-left: 5px;
         
-        --skylee-event-timeline-block__timeline_width: 5px;
+        --skylee-event-timeline-block__timeline_width: 2px;
         --skylee-event-timeline-block__timeline_color: rgba(var(--skylee-text--base_color_r),
                                                               var(--skylee-text--base_color_g),
                                                               var(--skylee-text--base_color_b),
@@ -20,15 +20,14 @@
 
         --skylee-event-timeline-block__card_margin: var(--skylee-event-timeline-block_padding-left);
         --skylee-event-timeline-block__card_padding: 20px;
-        --skylee-event-timeline-block__card_border-radius: 5px;
+        --skylee-event-timeline-block__card_border-radius: 2px;
         --skylee-event-timeline-block__card_box-shadow: var(--skylee-shadow--elevation-2_box-shadow);
         --skylee-event-timeline-block__card--hover_box-shadow: var(--skylee-shadow--elevation-6_box-shadow);
         --skylee-event-timeline-block__card_background-color: var(--skylee-background--primary_background-color);
 
-        --skylee-event-timeline-block__icon_size: 48px;
+        --skylee-event-timeline-block__icon_size: 24px;
         --skylee-event-timeline-block__icon_background-color: var(--skylee-background--primary_background-color);
         --skylee-event-timeline-block__icon_box-shadow: var(--skylee-shadow--elevation-2_box-shadow);
-        --skylee-event-timeline-block__icon_background-color: var(--skylee-background--primary_background-color);
 
         --skylee-event-timeline-block__arrow_size: 20px;
 
@@ -203,9 +202,6 @@
         border-bottom-right-radius: var(--skylee-event-timeline-block__card_border-radius);
         overflow: hidden;
         padding: var(--skylee-event-timeline-block__card_padding);
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
       }
       #content[hide] {
         display: none;
@@ -218,7 +214,8 @@
         text-align: justify;
       }
       #content > ::slotted(iframe) {
-        align-self: stretch;
+        display: block;
+        width: 100%;
         border: 0px;
         overflow: hidden;
       }

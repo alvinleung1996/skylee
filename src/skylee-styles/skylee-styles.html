@@ -115,8 +115,8 @@
                                                   var(--skylee-divider--light-theme_opacity));
 
       /* Dark theme */
-      --skylee-background--dark-theme--primary_background-color: var(--paper-grey-900);
-      --skylee-background--dark-theme--secondary_background-color: var(--paper-grey-800);
+      --skylee-background--dark-theme--primary_background-color: var(--paper-grey-800);
+      --skylee-background--dark-theme--secondary_background-color: #303030;
       
       --skylee-text--dark-theme--base_color_r: 255;
       --skylee-text--dark-theme--base_color_g: 255;
@@ -171,8 +171,8 @@
         --skylee-divider_opacity: var(--skylee-divider--light-theme_opacity);
         --skylee-divider_color: var(--skylee-divider--light-theme_color);
       /*};*/
-      /* --skylee-theme--dark: { */
-        /* --skylee-background--primary_background-color: var(--skylee-background--dark-theme--primary_background-color);
+      /* --skylee-theme--dark: {
+        --skylee-background--primary_background-color: var(--skylee-background--dark-theme--primary_background-color);
         --skylee-background--secondary_background-color: var(--skylee-background--dark-theme--secondary_background-color);
 
         --skylee-text--base_color_r: var(--skylee-text--dark-theme--base_color_r);
@@ -190,9 +190,9 @@
         --skylee-text--disabled_color: var(--skylee-text--dark-theme--disabled_color);
         
         --skylee-divider_opacity: var(--skylee-divider--dark-theme_opacity);
-        --skylee-divider_color: var(--skylee-divider--light-theme_color); */
-      /* }; */
-      /* @apply --skylee-theme--dark; */
+        --skylee-divider_color: var(--skylee-divider--light-theme_color);
+      };
+      @apply --skylee-theme--dark; */
 
       /* app-theme */
       --skylee-background--app-theme--primary_background-color: var(--skylee-background--primary_background-color);
@@ -264,12 +264,14 @@
        */
       /* Toolbar */
       --skylee-toolbar--normal_height: 64px;
-      --skylee-toolbar--narrow_height: 96px;
       --skylee-toolbar--short_height: 48px;
 
       /* Content */
       --skylee-content_max-width: 1200px;
 
+    }
+    body {
+      background-color: var(--skylee-background--secondary_background-color);
     }
   </style>
 </custom-style>

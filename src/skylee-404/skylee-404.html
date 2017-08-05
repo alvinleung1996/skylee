@@ -4,7 +4,7 @@
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
-<link rel="import" href="../skylee-tab-pages/skylee-tab-page-auto-hide-toolbar-behavior.html">
+<link rel="import" href="../skylee-pages/skylee-page-auto-hide-toolbar-behavior.html">
 <link rel="import" href="../skylee-icons/skylee-icons.html">
 
 <dom-module id="skylee-404">
@@ -12,9 +12,6 @@
     <style>
       :host {
         display: block;
-        overflow-x: hidden;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
         padding-top: var(--skylee-toolbar_height);
         transition: var(--skylee-toolbar_transition_padding-top);
         /* Safari Bug: transition cannot use var */
@@ -109,15 +106,16 @@
 
   </template>
   <script>
-    class Skylee404 extends Skylee.SkyleeTabPageAutoHideToolbarBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
+    class Skylee404 extends Skylee.SkyleePageAutoHideToolbarBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
 
       static get is() { return 'skylee-404'; }
 
       static get properties() {
         return {
-          tabPageTitle: {
+          pageTitle: {
             type: String,
             value: '404',
+            readOnly: true,
             notify: true
           },
           defaultPath: {

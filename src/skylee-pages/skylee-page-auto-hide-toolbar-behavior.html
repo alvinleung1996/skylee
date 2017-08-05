@@ -1,7 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
 
 <script>
-  function SkyleeTabPageAutoHideToolbarBehavior(superClass) {
+  function SkyleePageAutoHideToolbarBehavior(superClass) {
     return class extends superClass {
 
       static get properties() { return {
@@ -26,7 +26,7 @@
 
       ready() {
         super.ready();
-        this.addEventListener('scroll', e => this._onScroll(e));
+        window.addEventListener('scroll', e => this._onScroll(e));
       }
 
       _onToolbarHeightChanged(toolbarHeight) {
@@ -39,7 +39,7 @@
 
       _computeToolbarStyle() {
         let toolbarHeight = this.toolbarHeight;
-        let scrollTop = this.scrollTop;
+        let scrollTop = window.pageYOffset;
 
         let prevScrollTop = this._prevScrollTop;
         let prevPrevScrollTop = this._prevPrevScrollTop;
@@ -68,5 +68,5 @@
     }
   }
   window.Skylee = window.Skylee || {};
-  Skylee.SkyleeTabPageAutoHideToolbarBehavior = SkyleeTabPageAutoHideToolbarBehavior;
+  Skylee.SkyleePageAutoHideToolbarBehavior = SkyleePageAutoHideToolbarBehavior;
 </script>

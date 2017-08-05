@@ -7,47 +7,31 @@
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 
-<link rel="import" href="../skylee-tab-pages/skylee-tab-page-auto-hide-toolbar-behavior.html">
+<link rel="import" href="../skylee-pages/skylee-page-auto-hide-toolbar-behavior.html">
 <link rel="import" href="../skylee-icons/skylee-icons.html">
+<link rel="import" href="../skylee-styles/skylee-styles.html">
 
 <dom-module id="skylee-about">
   <template strip-whitespace>
     <style>
       :host {
         display: block;
-        overflow-x: hidden;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-        padding-top: var(--skylee-toolbar_height);
-        transition: var(--skylee-toolbar_transition_padding-top);
-        /* Safari Bug: transition cannot use var */
-        -webkit-transition: var(--skylee-toolbar_transition_padding-top);
-        background-color: var(--skylee-background--secondary_background-color);
+      }
+      :host(:not([floating-drawer])) {
+        padding-top: 40px;
       }
 
-      section {
-        min-height: 300px;
-        border-bottom: 1px solid var(--skylee-divider_color);
-        display: flex;
-        justify-content: center;
-      }
-      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {  
-        /* Fix for IE11 flexbox container min-height bug:
-           Flexbox children cannot get the height of their parent
-           and behave like there is no height in their parent. */  
-        section {
-          min-height: 0px;
-        }
-      }
-      section:nth-of-type(odd) {
+      .card {
+        margin-left: auto;
+        margin-right: auto;
+        max-width: var(--skylee-content_max-width);
+        @apply --skylee-shadow--elevation-2;
+        margin-bottom: 20px;
         background-color: var(--skylee-background--primary_background-color);
       }
-      section:nth-of-type(even) {
-        background-color: var(--skylee-background--secondary_background-color);
-      }
-      section > * {
-        flex: 0 1 var(--skylee-content_max-width);
-        box-sizing: border-box;
+
+      .min-height {
+        min-height: 300px;
       }
 
       .horizontal-2-layout {
@@ -267,10 +251,10 @@
 
     </style>
 
-    <iron-media-query query="not all and (min-width: 700px)" query-matches="{{_narrowLayout}}" full></iron-media-query>
+    <iron-media-query query="not all and (min-width: 850px)" query-matches="{{_narrowLayout}}" full></iron-media-query>
 
-    <section>
-      <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-reverse-layout')]]">
+    <section class="card">
+      <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-reverse-layout')]] min-height">
 
         <div class="padding-block contact-block">
           <h2 class="contact-block__title">Location &amp; Contact</h2>
@@ -297,10 +281,8 @@
         </div>
 
       </div>
-    </section>
 
-    <section>
-      <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-layout')]]">
+      <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-layout')]] min-height">
 
         <div class="padding-block text-block">
           <h2 class="text-block__title">Transportation</h2>
@@ -342,10 +324,8 @@
         </div>
 
       </div>
-    </section>
 
-    <section>
-      <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-reverse-layout')]]">
+      <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-reverse-layout')]] min-height">
 
         <div class="padding-block lyrics-block">
           <h2 class="lyrics-block__title">Hall Song</h2>
@@ -372,10 +352,8 @@
         </div>
 
       </div>
-    </section>
 
-    <section>
-      <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-layout')]]">
+      <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-layout')]] min-height">
 
         <div class="padding-block text-block">
           <h2 class="text-block__title">Hall Logo</h2>
@@ -390,7 +368,6 @@
         </div>
 
       </div>
-    </section>
 
     <!--<section>
       <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-reverse-layout')]]">
@@ -416,8 +393,7 @@
       </div>
     </section>-->
 
-    <section>
-      <div class="padding-block text-block">
+      <div class="padding-block text-block min-height">
         <h2 class="text-block__title">Our History</h2>
         <p>Found in 1985, the development of Lee Hall was funded by a generous donation from the late Dr. Simon K. Y. Lee and therefore the hall was named after him. In 1986, the Students’ Association was formed.</p>
         <p>Through its over 20-year history, Lee Hall has developed into a vital and diversified hall. All hall mates participate in and contribute to the hall. “We are Skyers, Active and Sincere” has long been our slogan.</p>
@@ -426,19 +402,23 @@
 
   </template>
   <script>
-    class SkyleeAbout extends Skylee.SkyleeTabPageAutoHideToolbarBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
+    class SkyleeAbout extends Skylee.SkyleePageAutoHideToolbarBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
 
       static get is() { return 'skylee-about'; }
 
-      static get properties() {
-        return {
-          tabPageTitle: {
-            type: String,
-            value: 'About',
-            notify: true
-          }
-        };
-      }
+      static get properties() {return {
+        floatingDrawer: {
+          type: Boolean,
+          reflectToAttribute: true
+        },
+
+        pageTitle: {
+          type: String,
+          value: 'About',
+          readOnly: true,
+          notify: true
+        }
+      };}
 
       _enableIf(cond, value, otherwise) {
         return cond ? value : otherwise;

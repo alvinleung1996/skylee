@@ -1,194 +1,209 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
-<link rel="import" href="../../bower_components/polymer/lib/utils/debounce.html">
+<link rel="import" href="../../bower_components/polymer/lib/elements/dom-repeat.html">
 <link rel="import" href="../../bower_components/shadycss/apply-shim.html">
 
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
-<link rel="import" href="../../bower_components/curium-animated-pages/curium-animated-pages.html">
-<link rel="import" href="../../bower_components/curium-animated-pages/animations/curium-scene-animation-manager.html">
-<link rel="import" href="../../bower_components/curium-route/curium-route.html">
-
-<link rel="import" href="../skylee-property-binder-behavior/skylee-property-binder-behavior.html">
-<link rel="import" href="all/skylee-team-all.html">
-<link rel="import" href="base/skylee-team-base.html">
+<link rel="import" href="../skylee-pages/skylee-page-auto-hide-toolbar-behavior.html">
+<link rel="import" href="../skylee-styles/skylee-styles.html">
+<link rel="import" href="./skylee-team-tile.html">
 
 <dom-module id="skylee-team">
   <template strip-whitespace>
     <style>
       :host {
         display: block;
-        overflow: hidden;
-        background-color: var(--skylee-background--secondary_background-color);
       }
-      #team-pages {
-        width: 100%;
-        height: 100%;
+
+      .teams-block {
+        padding: 20px;
+      }
+      .teams-block__header {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .teams-block__name {
+        margin: 0;
+        @apply --skylee-text--headline_font;
+        color: var(--skylee-text--primary_color);
+      }
+      .teams-block__team-tiles {
+        margin-top: 16px;
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .teams-block__team-tile {
+        flex: 0 1 250px;
+        margin: 5px;
+      }
+      @supports (display: grid) {
+        .teams-block__team-tiles {
+          flex-wrap: initial;
+
+          display: grid;
+          /* chrome bug: the "250px" will make the row height locked at 250px
+             which ignore the children height (The children overflowed) */
+          grid-template-columns: repeat(auto-fill, minmax(250px, auto));
+          grid-auto-rows: auto;
+          grid-gap: 10px;
+        }
+        .teams-block__team-tile {
+          flex: initial;
+          margin: initial;
+        }
       }
     </style>
 
-    <curium-route
-      route="{{route}}"
-      prefix-pattern="/tab-pages/team"
-      data-pattern="/teamPageID"
-      data="{{_routeData}}"
-      tail="{{_subroute}}">
-    </curium-route>
+    <template is="dom-repeat" items="[[_teamGroups]]" as="group">
+      <div class="padding-block teams-block">
 
-    <curium-scene-animation-manager id="team-page-animation-manager" duration="330"></curium-scene-animation-manager>
-    <curium-animated-pages
-      id="team-pages"
-      attr-for-selected="team-page-id"
-      selected="[[_selectedTeamPageID]]"
-      animation-manager="#team-page-animation-manager">
+        <div class="teams-block__header">
+          <h2 class="teams-block__name">[[group.name]]</h2>
+        </div>
 
-      <skylee-team-all team-page-id="all" toolbar-height="[[toolbarHeight]]"></skylee-team-all> <!-- element already imported -->
+        <div class="teams-block__team-tiles">
 
-       <skylee-team-badminton level="1" team-page-id="badminton" toolbar-height="[[toolbarHeight]]"
-        element-path$="[[rootPath]]src/skylee-team/badminton/skylee-team-badminton.html"></skylee-team-badminton>
+          <template is="dom-repeat" items="[[group.teams]]" as="team">
+            <skylee-team-tile
+              class="teams-block__team-tile"
+              cover-src="[[team.coverSrc]]"
+              icon-src="[[team.iconSrc]]"
+              name="[[team.name]]"
+              href="[[team.href]]">
+            </skylee-team-tile>
+          </template>
 
-      <skylee-team-basketball level="1" team-page-id="basketball" toolbar-height="[[toolbarHeight]]"
-        element-path$="[[rootPath]]src/skylee-team/basketball/skylee-team-basketball.html"></skylee-team-basketball>
+        </div>
 
-      <skylee-team-handball level="1" team-page-id="handball" toolbar-height="[[toolbarHeight]]"
-        element-path$="[[rootPath]]src/skylee-team/handball/skylee-team-handball.html"></skylee-team-handball>
-
-      <skylee-team-hockey level="1" team-page-id="hockey" toolbar-height="[[toolbarHeight]]"
-        element-path$="[[rootPath]]src/skylee-team/hockey/skylee-team-hockey.html"></skylee-team-hockey>
-
-      <skylee-team-lacrosse level="1" team-page-id="lacrosse" toolbar-height="[[toolbarHeight]]"
-        element-path$="[[rootPath]]src/skylee-team/lacrosse/skylee-team-lacrosse.html"></skylee-team-lacrosse>
-
-      <skylee-team-soccer level="1" team-page-id="soccer" toolbar-height="[[toolbarHeight]]"
-        element-path$="[[rootPath]]src/skylee-team/soccer/skylee-team-soccer.html"></skylee-team-soccer>
-
-      <skylee-team-softball level="1" team-page-id="softball" toolbar-height="[[toolbarHeight]]"
-        element-path$="[[rootPath]]src/skylee-team/softball/skylee-team-softball.html"></skylee-team-softball>
-
-      <skylee-team-squash level="1" team-page-id="squash" toolbar-height="[[toolbarHeight]]"
-        element-path$="[[rootPath]]src/skylee-team/squash/skylee-team-squash.html"></skylee-team-squash>
-
-      <skylee-team-table-tennis level="1" team-page-id="table-tennis" toolbar-height="[[toolbarHeight]]"
-        element-path$="[[rootPath]]src/skylee-team/table-tennis/skylee-team-table-tennis.html"></skylee-team-table-tennis>
-
-      <skylee-team-volleyball level="1" team-page-id="volleyball" toolbar-height="[[toolbarHeight]]"
-        element-path$="[[rootPath]]src/skylee-team/volleyball/skylee-team-volleyball.html"></skylee-team-volleyball>
-
-      <skylee-team-band level="1" team-page-id="band" toolbar-height="[[toolbarHeight]]"
-        element-path$="[[rootPath]]src/skylee-team/band/skylee-team-band.html"></skylee-team-band>
-
-      <skylee-team-bridge level="1" team-page-id="bridge" toolbar-height="[[toolbarHeight]]"
-        element-path$="[[rootPath]]src/skylee-team/bridge/skylee-team-bridge.html"></skylee-team-bridge>
-
-      <skylee-team-choir level="1" team-page-id="choir" toolbar-height="[[toolbarHeight]]"
-        element-path$="[[rootPath]]src/skylee-team/choir/skylee-team-choir.html"></skylee-team-choir>
-
-      <skylee-team-dancing level="1" team-page-id="dancing" toolbar-height="[[toolbarHeight]]"
-        element-path$="[[rootPath]]src/skylee-team/dancing/skylee-team-dancing.html"></skylee-team-dancing>
-
-      <skylee-team-debating level="1" team-page-id="debating" toolbar-height="[[toolbarHeight]]"
-        element-path$="[[rootPath]]src/skylee-team/debating/skylee-team-debating.html"></skylee-team-debating>
-
-      <skylee-team-drama level="1" team-page-id="drama" toolbar-height="[[toolbarHeight]]"
-        element-path$="[[rootPath]]src/skylee-team/drama/skylee-team-drama.html"></skylee-team-drama>
-
-    </curium-animated-pages>
+      </div>
+    </template>
 
   </template>
   <script>
-    class SkyleeTeam extends Skylee.SkyleePropertyBinderBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
+    class SkyleeTeam extends Skylee.SkyleePageAutoHideToolbarBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
       
       static get is() { return 'skylee-team'; }
 
-      static get properties() {
-        return {
-          route: Object,
-          toolbarHeight: Number,
+      static get properties() { return {
+        pageTitle: {
+          type: String,
+          value: 'Team',
+          readOnly: true,
+          notify: true
+        },
 
-          tabPageTitle: {
-            type: String,
-            computed: '_computeTabPageTitle(_teamPageTitle)',
-            notify: true
-          },
-          hideToolbar: {
-            type: Boolean,
-            value: false,
-            readOnly: true,
-            notify: true
-          },
-          showToolbarShadow: {
-            type: Boolean,
-            value: false,
-            readOnly: true,
-            notify: true
-          },
-          toolbarBackButtonUrl: {
-            type: String,
-            readOnly: true,
-            notify: true
-          },
-
-          _selectedTeamPageID: {
-            type: String,
-            computed: '_computeSelectedTeamPageID(_routeData.teamPageID)'
-          },
-          _teamPageTitle: {
-            type: String
-          }
+        _teamGroups: {
+          value: () => [
+            {
+              name: 'Sports Teams',
+              teams: [
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/badminton/badminton-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/badminton/badminton-symbol.png`,
+                  name: 'Badminton',
+                  href: `${Polymer.rootPath}team/badminton`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/basketball/basketball-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/basketball/basketball-symbol.png`,
+                  name: 'Basketball',
+                  href: `${Polymer.rootPath}team/basketball`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/handball/handball-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/handball/handball-symbol.png`,
+                  name: 'Handball',
+                  href: `${Polymer.rootPath}team/handball`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/hockey/hockey-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/hockey/hockey-symbol.png`,
+                  name: 'Hockey',
+                  href: `${Polymer.rootPath}team/hockey`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/lacrosse/lacrosse-0.jpg`,
+                  // iconSrc: `${Polymer.rootPath}images/team/lacrosse/lacrosse-symbol.png`,
+                  name: 'Lacrosse',
+                  href: `${Polymer.rootPath}team/lacrosse`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/soccer/soccer-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/soccer/soccer-symbol.png`,
+                  name: 'Soccer',
+                  href: `${Polymer.rootPath}team/soccer`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/softball/softball-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/softball/softball-symbol.png`,
+                  name: 'Softball',
+                  href: `${Polymer.rootPath}team/softball`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/squash/squash-0.jpg`,
+                  // iconSrc: `${Polymer.rootPath}images/team/squash/squash-symbol.png`,
+                  name: 'Squash',
+                  href: `${Polymer.rootPath}team/squash`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/table-tennis/table-tennis-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/table-tennis/table-tennis-symbol.png`,
+                  name: 'Table-tennis',
+                  href: `${Polymer.rootPath}team/table-tennis`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/volleyball/volleyball-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/volleyball/volleyball-symbol.png`,
+                  name: 'Volleyball',
+                  href: `${Polymer.rootPath}team/volleyball`
+                }
+              ]
+            },
+            {
+              name: 'Cultural Teams',
+              teams: [
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/band/band-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/band/band-symbol.png`,
+                  name: 'Band',
+                  href: `${Polymer.rootPath}team/band`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/bridge/bridge-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/bridge/bridge-symbol.png`,
+                  name: 'Bridge',
+                  href: `${Polymer.rootPath}team/bridge`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/choir/choir-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/choir/choir-symbol.png`,
+                  name: 'Choir',
+                  href: `${Polymer.rootPath}team/choir`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/dancing/dancing-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/dancing/dancing-symbol.png`,
+                  name: 'Dancing',
+                  href: `${Polymer.rootPath}team/dancing`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/debating/debating-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/debating/debating-symbol.png`,
+                  name: 'Debating',
+                  href: `${Polymer.rootPath}team/debating`
+                },
+                {
+                  coverSrc: `${Polymer.rootPath}images/team/drama/drama-0.jpg`,
+                  iconSrc: `${Polymer.rootPath}images/team/drama/drama-symbol.png`,
+                  name: 'Drama',
+                  href: `${Polymer.rootPath}team/drama`
+                }
+              ]
+            }
+          ]
         }
-      }
-
-      ready() {
-        super.ready();
-        this.$['team-pages'].addEventListener('iron-select', e => {
-          if (e.target === this.$['team-pages']) this._onTeamPageSelectionChanged();
-        })
-        this.$['team-pages'].addEventListener('iron-deselect', e => {
-          if (e.target === this.$['team-pages']) this._onTeamPageSelectionChanged();
-        })
-      }
-
-      _computeTabPageTitle(teamPageTitle) {
-        return teamPageTitle || 'Team';
-      }
-
-      _computeSelectedTeamPageID(id) {
-        return id || 'all';
-      }
-
-      _onTeamPageSelectionChanged() {
-        this._teamPageSelectionDebouncer = Polymer.Debouncer.debounce(this._teamPageSelectionDebouncer, Polymer.Async.microTask, () => {
-
-          let selectedTeamPage = this.$['team-pages'].selectedItem;
-          let deselectedTeamPage = this._prevSelectedTeamPage;
-
-          this._prevSelectedTeamPage = selectedTeamPage;
-
-          this._loadTeamPage(selectedTeamPage);
-          this._bindTeamPageProperties(selectedTeamPage);
-        });
-      }
-
-      _loadTeamPage(selectedTeamPage) {
-        if (selectedTeamPage) {
-          if (selectedTeamPage.hasAttribute('element-path') && !selectedTeamPage.hasAttribute('element-loading') && !selectedTeamPage.hasAttribute('element-loaded')) {
-            let path = this.resolveUrl(selectedTeamPage.getAttribute('element-path'));
-            selectedTeamPage.setAttribute('element-loading', '');
-            Polymer.importHref(path, () => {
-              selectedTeamPage.removeAttribute('element-loading');
-              selectedTeamPage.setAttribute('element-loaded', '');
-            }, null, true);
-          }
-        }
-      }
-
-      _bindTeamPageProperties(selectedTeamPage) {
-        this._bindProperties({
-          _teamPageTitle: 'teamPageTitle',
-          hideToolbar: 'hideToolbar',
-          showToolbarShadow: 'showToolbarShadow',
-          toolbarBackButtonUrl: 'toolbarBackButtonUrl'
-        }, selectedTeamPage);
-      }
+      };}
 
     }
     window.customElements.define(SkyleeTeam.is, SkyleeTeam);

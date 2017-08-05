@@ -6,62 +6,98 @@
 
       constructor() {
         super();
-        this._bindedPropertyEventListeners = {};
+        this._bindedPropertyRecord = {};
       }
 
-      _bindProperties(props, target) {
-        if (typeof props === 'string') {
-          let p = {};
-          p[props] = props;
-          props = p;
-        }
+      _bindProperties(propsSetting) {
+        let thisPropsToSet = {};
 
-        let propsToSet = {};
-        for (let prop in props) {
-          if (prop in this._bindedPropertyEventListeners) {
-            let data = this._bindedPropertyEventListeners[prop];
-            if (data.target === target && data.name === props[prop]) {
+        for (let prop in propsSetting) {
+          let propSetting = propsSetting[prop];
+
+          if (prop in this._bindedPropertyRecord) {
+            let record = this._bindedPropertyRecord[prop];
+            if (record.target === propSetting.target && record.name === propSetting.name && record.mode === propSetting.mode) {
               continue;
+
             } else {
-              data.target.removeEventListener(this.__propertyNameToEventName(data.name), data.listener);
-              delete this._bindedPropertyEventListeners[prop];
+              if (record.mode === 'both' || record.mode === 'down') {
+                this.removeEventListener(this._propertyNameToEventName(prop), record.thisListener);
+              }
+              if (record.mode === 'both' || record.mode === 'up') {
+                record.target.removeEventListener(this._propertyNameToEventName(record.name), record.targetListener);
+              }
+              delete this._bindedPropertyRecord[prop];
             }
           }
 
-          if (target) {
-            let data = {
-              target: target,
-              name: props[prop],
-              listener: e => {
+          if (propSetting.target) {
+            let record = {
+              target: propSetting.target,
+              name: propSetting.name
+            };
+            if (propSetting.mode === 'both' || propSetting.mode === 'down') {
+              record.thisListener = e => {
+                propSetting.target[propSetting.name] = e.detail.value;
+              };
+              this.addEventListener(this._propertyNameToEventName(prop), record.thisListener);
+            }
+            if (propSetting.mode === 'both' || propSetting.mode === 'up') {
+              record.targetListener = e => {
                 let p = {};
                 p[prop] = e.detail.value;
                 this.setProperties(p, true);
               }
-            };
-            this._bindedPropertyEventListeners[prop] = data;
-            data.target.addEventListener(this.__propertyNameToEventName(data.name), data.listener);
-            propsToSet[prop] = data.target[props[prop]];
+              propSetting.target.addEventListener(this._propertyNameToEventName(propSetting.name), record.targetListener);
+            }
+            this._bindedPropertyRecord[prop] = record;
+
+            if (propSetting.mode === 'both') {
+              if (this[prop] === undefined) {
+                thisPropsToSet[prop] = propSetting.target[propSetting.name];
+              } else {
+                propSetting.target[propSetting.name] = this[prop];
+              }
+            } else if (propSetting.mode === 'down') {
+              propSetting.target[propSetting.name] = this[prop];
+            } else if (propSetting.mode === 'up') {
+              thisPropsToSet[prop] = propSetting.target[propSetting.name];
+            }
+
           } else {
-            propsToSet[prop] = undefined;
+            if (propSetting.mode === 'up') {
+              thisPropsToSet[prop] = undefined;
+            }
           }
         }
-        this.setProperties(propsToSet, true);
+
+        this.setProperties(thisPropsToSet, true);
       }
 
       _unbindProperties(props) {
-        let propsToSet = {};
-        for (let i = 0, prop; prop = props[i]; ++i) {
-          if (prop in this._bindedPropertyEventListeners) {
-            let data = this._bindedPropertyEventListeners[prop];
-            data.target.removeEventListener(this.__propertyNameToEventName(data.name), data.listener);
-            propsToSet[prop] = undefined;
-            delete this._bindedPropertyEventListeners[prop];
-          }
+        let propsSetting = {};
+        for (let prop in props) {
+          propsSetting[prop] = { target: null };
         }
-        this.setProperties(propsToSet, true);
+        this._bindProperties(propsSetting);
       }
 
-      __propertyNameToEventName(propName) {
+      _setTargetProperties(props) {
+        let targetPropsToSet = {};
+        for (prop in props) {
+          if (prop in this._bindedPropertyRecord) {
+            let record = this._bindedPropertyRecord[prop];
+            if (record.mode === 'both' || record.mode === 'down') {
+              record.target[record.name] = props[prop];
+            } else {
+              console.warn(`Cannot set property "${prop}" to value "${props[prop]}" since mode is set to "up".`);
+            }
+          }
+        }
+        
+      }
+
+      _propertyNameToEventName(propName) {
         return `${Polymer.CaseMap.camelToDashCase(propName)}-changed`;
       }
 

@@ -9,52 +9,28 @@
 <link rel="imoprt" href="../../../bower_components/curium-animated-pages/curium-animated-pages.html">
 <link rel="import" href="../../../bower_components/curium-route/curium-route.html">
 
-<link rel="import" href="../../skylee-tab-pages/skylee-tab-page-auto-hide-toolbar-behavior.html">
-<link rel="import" href="skylee-team-base-album-image-tile.html">
+<link rel="import" href="../../skylee-pages/skylee-page-auto-hide-toolbar-behavior.html">
+<link rel="import" href="../../skylee-styles/skylee-styles.html">
+<link rel="import" href="./skylee-team-base-album-image-tile.html">
 
 <dom-module id="skylee-team-base">
   <template strip-whitespace>
     <style>
       :host {
         display: block;
-        overflow-x: hidden;
-        overflow-y: auto;
-        padding-top: var(--skylee-toolbar_height);
-        transition: var(--skylee-toolbar_transition_padding-top);
-        /* Safari Bug: transition cannot use var */
-        -webkit-transition: var(--skylee-toolbar_transition_padding-top);
-        background-color: var(--skylee-background--secondary_background-color);
-        -webkit-overflow-scrolling: touch;
       }
 
-      section {
-        border-bottom: 1px solid var(--skylee-divider_color);
-        display: flex;
-        justify-content: center;
-      }
-      section > * {
-        flex: 0 1 var(--skylee-content_max-width);
-        box-sizing: border-box;
-      }
-
-      .background--primary {
-        background-color: var(--skylee-background--primary_background-color);
-      }
-
-      .padding-block {
+      .header-block {
         padding: 20px;
-      }
-
-      .team-block {
         display: flex;
         align-items: center;
       }
-      .team-block__icon {
+      .header-block__icon {
         width: 48px;
         height: 48px;
         --iron-image-width: 100%;
       }
-      .team-block__text {
+      .header-block__text {
         margin-left: 16px;
         display: flex;
         flex-direction: column;
@@ -62,17 +38,17 @@
         align-items: flex-start;
       }
       @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {  
-        .team-block__text {
+        .header-block__text {
           /* IE11 Bug: items not wrap when no enough space */
           align-items: stretch;
         }
       }
-      .team-block__name {
+      .header-block__name {
         margin: 0;
         @apply --skylee-text--headline_font;
         color: var(--skylee-text--primary_color);
       }
-      .team-block__description {
+      .header-block__description {
         margin: 0;
         @apply --skylee-text--body1_font;
         color: var(--skylee-text--secondary_color);
@@ -80,10 +56,9 @@
       }
 
       .album-block {
-
+        padding: 20px;
       }
       .album-block__header {
-        padding: 20px;
       }
       .album-block__name {
         margin: 0;
@@ -91,7 +66,7 @@
         color: var(--skylee-text--primary_color);
       }
       .album-block__image-tiles {
-        padding: 20px;
+        margin-top: 16px;
         display: flex;
         flex-wrap: wrap;
       }
@@ -117,55 +92,45 @@
 
     <iron-media-query query="not all and (min-width: 300px)" query-matches="{{_narrowLayout}}" full></iron-media-query>
 
-    <section class="background--primary">
-
-      <header class="padding-block team-block">
-        <iron-image class="team-block__icon" src="[[iconSrc]]" preload fade></iron-image>
-        <div class="team-block__text">
-          <h2 class="team-block__name">[[name]]</h2>
-          <p class="team-block__description">[[description]]</p>
-        </div>
-      </header>
-
-    </section>
+    <header class="header-block">
+      <iron-image class="header-block__icon" src="[[iconSrc]]" preload fade></iron-image>
+      <div class="header-block__text">
+        <h2 class="header-block__name">[[name]]</h2>
+        <p class="header-block__description">[[description]]</p>
+      </div>
+    </header>
 
     <template is="dom-repeat" items="[[albumList]]" as="album">
-      <section>
-        <div class="album-block">
+      <div class="album-block">
 
-          <header class="album-block__header">
-            <h2 class="album-block__name">[[album.name]]</h2>
-          </header>
+        <header class="album-block__header">
+          <h2 class="album-block__name">[[album.name]]</h2>
+        </header>
 
-          <div class="album-block__image-tiles">
+        <div class="album-block__image-tiles">
 
-            <template is="dom-repeat" items="[[album.imageList]]" as="image">
-              <skylee-team-base-album-image-tile
-                class="album-block__image-tile"
-                src="[[image.src]]"
-                src-width="[[image.srcWidth]]"
-                src-height="[[image.srcHeight]]"
-                name="[[image.name]]">
-              </skylee-team-base-album-image-tile>
-            </template>
-
-          </div>
+          <template is="dom-repeat" items="[[album.imageList]]" as="image">
+            <skylee-team-base-album-image-tile
+              class="album-block__image-tile"
+              src="[[image.src]]"
+              name="[[image.name]]">
+            </skylee-team-base-album-image-tile>
+          </template>
 
         </div>
-      </section>
+
+      </div>
     </template>
 
   </template>
   <script>
-    class SkyleeTeamBase extends Skylee.SkyleeTabPageAutoHideToolbarBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
+    class SkyleeTeamBase extends Skylee.SkyleePageAutoHideToolbarBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
     
       static get is() { return 'skylee-team-base'; }
 
       static get properties() {
         return {
-          toolbarHeight: Number,
-          
-          teamPageId: String,
+          pageTitle: String,
           iconSrc: String,
           name: String,
           description: String,

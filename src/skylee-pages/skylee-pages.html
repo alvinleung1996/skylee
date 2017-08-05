@@ -1,0 +1,438 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../../bower_components/polymer/lib/elements/dom-repeat.html">
+<link rel="import" href="../../bower_components/shadycss/apply-shim.html">
+
+<link rel="import" href="../../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+
+<link rel="import" href="../../bower_components/curium-route/curium-route.html">
+
+<link rel="import" href="../skylee-dynamic-pages/skylee-dynamic-pages.html">
+<link rel="import" href="../skylee-property-binder-behavior/skylee-property-binder-behavior.html">
+<link rel="import" href="../skylee-icons/skylee-icons.html">
+
+<link rel="import" href="./skylee-drawer-menu-item.html">
+
+<dom-module id="skylee-pages">
+  <template strip-whitespace>
+    <style>
+      :host {
+        display: block;
+
+        --skylee-toolbar_height: var(--skylee-toolbar--normal_height);
+        --skylee-toolbar_toggling-transition-duration: 330ms;
+        --skylee-toolbar_toggling-transition-timing-function: ease-out;
+
+        --skylee-drawer_width: 200px;
+        --skylee-drawer_toggling-transition-duration: 200ms; /* app-drawer default */
+        --skylee-drawer_toggling-transition-timing-function: cubic-bezier(0.667, 1, 0.667, 1); /* copy from app-drawer */
+      }
+      :host([_short-toolbar]) {
+        --skylee-toolbar_height: var(--skylee-toolbar--short_height);
+      }
+
+      #toolbar {
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        height: var(--skylee-toolbar_height);
+        z-index: 20;
+        background-color: var(--skylee-background--app-theme--primary_background-color);
+        /* Safari bug: var cannot be used in transition and only work after disabling and re-enabling the property.
+         * -webkit-transition seems does not have this bug. */
+        transition: height 330ms ease-out 0ms,
+                    transform var(--skylee-toolbar_toggling-transition-duration) var(--skylee-toolbar_toggling-transition-timing-function) 0ms,
+                    background-color 330ms ease-out 0ms,
+                    var(--skylee-shadow_transition);
+        -webkit-transition: height 330ms ease-out 0ms,
+                            transform var(--skylee-toolbar_toggling-transition-duration) var(--skylee-toolbar_toggling-transition-timing-function) 0ms,
+                            background-color 330ms ease-out 0ms,
+                            var(--skylee-shadow_transition);
+      }
+      #toolbar[hide] {
+        transform: translateY(-100%);
+      }
+      #toolbar[transparent] {
+        background-color: transparent;
+      }
+      #toolbar[shadow] {
+        @apply --skylee-shadow--elevation-2;
+      }
+
+      #toolbar__content {
+        width: 100%;
+        height: 100%;
+        transition: opacity var(--skylee-toolbar_toggling-transition-duration) var(--skylee-toolbar_toggling-transition-timing-function) 0ms;
+        display: flex;
+      }
+      #toolbar[hide] #toolbar__content {
+        opacity: 0;
+      }
+
+      #toolbar__icon-button-space {
+        flex: 0 0 var(--skylee-toolbar_height);
+        transition: flex-basis 330ms ease-out 0ms;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #toolbar__menu-button {
+        color: var(--skylee-text--app-theme--primary_color);
+        --paper-icon-button-ink-color: var(--skylee-text--app-theme--primary_color);
+        transition: color 330ms ease-out 0ms;
+      }
+      #toolbar[transparent] #toolbar__menu-button {
+        color: white;
+        --paper-icon-button-ink-color: white;
+      }
+
+      #toolbar__home-button-link {
+        flex: 0 0 auto;
+        display: flex;
+        text-decoration: none;
+        -webkit-tap-highlight-color: transparent; /* for Android Chrome */
+      }
+      #toolbar__home-button {
+        flex: 1 1 auto;
+        margin: 0px;
+        padding-top: 0;
+        padding-bottom: 0;
+        @apply --skylee-text--headline_font;
+        color: var(--skylee-accent_color);
+        text-transform: none;
+        transition: color 330ms ease-out 0ms;
+        outline: none; /* for Safari */
+      }
+      #toolbar[transparent] #toolbar__home-button {
+        color: white;
+      }
+
+      #drawer {
+        z-index: 10;
+        --app-drawer-width: var(--skylee-drawer_width);
+        --app-drawer-content-container: {
+          background-color: transparent;
+        };
+      }
+      #drawer[floating] {
+        z-index: 30;
+      }
+      #drawer__background {
+        height: 100%;
+        box-sizing: border-box;
+        transition: background-color 330ms ease-out 0ms,
+                    padding-top var(--skylee-toolbar_toggling-transition-duration) var(--skylee-toolbar_toggling-transition-timing-function) 0ms;
+        -webkit-transition: background-color 330ms ease-out 0ms,
+                            padding-top var(--skylee-toolbar_toggling-transition-duration) var(--skylee-toolbar_toggling-transition-timing-function) 0ms;
+      }
+      #drawer[floating] #drawer__background {
+        background-color: var(--skylee-background--primary_background-color);
+      }
+      #drawer[toolbar-padding] #drawer__background {
+        padding-top: var(--skylee-toolbar_height);
+      }
+      #drawer__scrollable {
+        height: 100%;
+        box-sizing: border-box;
+        overflow-y: auto;
+        padding-top: 20px;
+        padding-bottom: 20px;
+      }
+
+      #pages {
+        width: 100%;
+        z-index: 0;
+      }
+    </style>
+
+    <iron-media-query query="not all and (min-width: 700px)" query-matches="{{_narrowScreen}}" full></iron-media-query>
+    <iron-media-query query="not all and (min-height: 450px)" query-matches="{{_shortToolbar}}" full></iron-media-query>
+
+    <curium-route
+      route="{{route}}"
+      prefix-pattern="/page"
+      tail="{{_subroute}}">
+    </curium-route>
+
+    <div id="toolbar"
+      hide$="[[_hideToolbar]]"
+      transparent$="[[_transparentToolbar]]"
+      shadow$="[[_showToolbarShadow]]">
+      <div id="toolbar__content">
+
+        <div id="toolbar__icon-button-space">
+
+          <paper-icon-button id="toolbar__menu-button" icon="skylee:menu" on-tap="_onToolbarMenuButtonTap"></paper-icon-button>
+
+        </div>
+
+        <a id="toolbar__home-button-link" href$="[[defaultPath]]" tabindex="-1">
+          <paper-button id="toolbar__home-button">Simon K. Y. Lee Hall</paper-button>
+        </a>
+
+      </div>
+    </div>
+
+     <app-drawer id="drawer"
+      floating$="[[_floatingDrawer]]"
+      toolbar-padding$="[[_drawerToolbarPadding]]"
+      swipe-open="[[_floatingDrawer]]"
+      persistent="[[!_floatingDrawer]]"
+      opened="{{_drawerOpened}}">
+      <div id="drawer__background">
+        <div id="drawer__scrollable">
+          <div id="drawer__menu">
+            <template is="dom-repeat" items="[[_drawerMenuItems]]">
+              <skylee-drawer-menu-item
+                name="[[item.name]]"
+                href="[[item.href]]"
+                subitems="[[item.subitems]]"
+                route-path="[[_subroute.path]]"
+                depth="0">
+              </skylee-drawer-menu-item>
+            </template>
+          </div>
+        </div>
+      </div>
+    </app-drawer>
+
+    <skylee-dynamic-pages
+      id="pages"
+      floating-drawer="[[_floatingDrawer]]"
+      drawer-opened="[[_drawerOpened]]"
+      page-map="[[_pageMap]]"
+      selected-path="[[_subroute.path]]"
+      visible-page="{{_visiblePage}}">
+    </skylee-dynamic-pages>
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class SkyleePages extends Skylee.SkyleePropertyBinderBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
+
+      static get is() { return 'skylee-pages'; }
+
+      static get properties() {
+        return {
+          defaultPath: {
+            value: Skylee.defaultPath
+          },
+          
+          route: Object,
+          visibleScene: {
+            type: Boolean,
+            notify: true /* for dynamic binding */
+          },
+
+          sceneTitle: {
+            type: String,
+            computed: '_computeSceneTitle(_pageTitle)',
+            notify: true
+          },
+            _pageTitle: {
+              type: String,
+              value: ''
+            },
+          addressBarBackgroundColor: {
+            type: String,
+            notify: true
+          },
+
+          _narrowScreen: {
+            type: Boolean
+          },
+
+          /*
+           * Toolbar
+           */
+          _shortToolbar: {
+            type: Boolean,
+            reflectToAttribute: true
+          },
+            _toolbarHeight: {
+              type: Number,
+              computed: '_computeToolbarHeight(_shortToolbar)',
+              observer: '_onToolbarHeightChanged',
+              notify: true /* for dynamic binding */
+            },
+          _hideToolbar: {
+            type: Boolean,
+            value: false
+          },
+          _transparentToolbar: {
+            type: Boolean,
+            value: false,
+            observer: '_onTransparentToolbarChanged'
+          },
+          _showToolbarShadow: {
+            type: Boolean,
+            value: false
+          },
+
+          /*
+           * Drawer
+           */
+          _drawerMenuItems: {
+            type: Array,
+            value: () => [
+              {
+                name: 'Home',
+                href: `${Polymer.rootPath}`
+              },
+              {
+                name: 'Event',
+                href: `${Polymer.rootPath}event`
+              },
+              {
+                name: 'Team',
+                href: `${Polymer.rootPath}team`,
+                subitems: (() => {
+                  let teams = ['badminton', 'band', 'basketball', 'bridge', 'choir', 'dancing', 'debating', 'drama', 'handball', 'hockey', 'lacrosse', 'soccer', 'softball', 'squash', 'table-tennis', 'volleyball'];
+                  return teams.map(e => ({
+                    name: e.split('-').map(s => s.charAt(0).toUpperCase() + s.substr(1)).join(' '),
+                    href: `${Polymer.rootPath}team/${e}`
+                  }));
+                })()
+              },
+              {
+                name: 'About',
+                href: `${Polymer.rootPath}about`
+              }
+            ]
+          },
+          _floatingDrawer: {
+            type: Boolean,
+            computed: '_computeFloatingDrawer(_narrowScreen, _transparentToolbar)',
+            notify: true /* for dynamic binding */
+          },
+          _drawerToolbarPadding: {
+            type: Boolean,
+            computed: '_computedDrawerToolbarPadding(_floatingDrawer, _hideToolbar)'
+          },
+          _drawerOpened: {
+            type: Boolean,
+            notify: true /* for dynamic binding */
+          },
+          
+          /*
+           * Pages
+           */
+          _pageMap: {
+            type: Object,
+            value: () => {
+              let obj = {
+                '/': { tagName: 'skylee-home', src: `${Polymer.rootPath}src/skylee-home/skylee-home.html` },
+                '/event': { tagName: 'skylee-event', src: `${Polymer.rootPath}src/skylee-event/skylee-event.html` },
+                '/team': { tagName: 'skylee-team', src: `${Polymer.rootPath}src/skylee-team/skylee-team.html` },
+                '/about': { tagName: 'skylee-about', src: `${Polymer.rootPath}src/skylee-about/skylee-about.html` },
+                '/404': { tagName: 'skylee-404', src: `${Polymer.rootPath}src/skylee-404/skylee-404.html` },
+              }
+
+              let teams = ['badminton', 'band', 'basketball', 'bridge', 'choir', 'dancing', 'debating', 'drama', 'handball', 'hockey', 'lacrosse', 'soccer', 'softball', 'squash', 'table-tennis', 'volleyball'];
+              teams.forEach(e => {
+                obj[`/team/${e}`] = {
+                  tagName: `skylee-team-${e}`,
+                  src: `${Polymer.rootPath}src/skylee-team/${e}/skylee-team-${e}.html`
+                };
+              });
+              
+              return obj;
+            }
+          },
+          _visiblePage: {
+            observer: '_onVisiblePageChanged'
+          }
+        };
+      }
+
+
+
+      _computeSceneTitle(pageTitle) {
+        return pageTitle || '';
+      }
+
+      
+
+      _computeToolbarHeight(short) {
+        return short ? 48 : 64;
+      }
+
+      _onToolbarHeightChanged(height) {
+        /* Fix for ShadyCSS */
+        if (window.ShadyCSS && !window.ShadyCSS.nativeCss) {
+          let stylesToUpdate = {
+            '--skylee-toolbar_height': height + 'px'
+          };
+          this.updateStyles(stylesToUpdate);
+        }
+      }
+
+
+
+      _onTransparentToolbarChanged(transparent) {
+        /* Fix for ShadyCSS */
+        if (window.ShadyCSS && !window.ShadyCSS.nativeCss) {
+          let button = this.$['toolbar__menu-button'];
+          button.updateStyles({
+            '--paper-icon-button-ink-color': transparent ? 'white' : ShadyCSS.getComputedStyleValue(button, '--skylee-text--app-theme--primary_color')
+          });
+        }
+      }
+
+
+
+      _computeFloatingDrawer(narrowLayout, transparentToolbar) {
+        return narrowLayout || transparentToolbar;
+      }
+
+      _computedDrawerToolbarPadding(floatingDrawer, hideToolbar) {
+        return !floatingDrawer && !hideToolbar;
+      }
+
+      _computeDrawerLightContent(floatingDrawer, requestDrawerLightContent) {
+        return !floatingDrawer && requestDrawerLightContent;
+      }
+
+
+
+      _onVisiblePageChanged(visiblePage) {
+        this._bindProperties({
+          visibleScene: { target: visiblePage, name: 'visibleScene', mode: 'down' },
+          
+          _pageTitle: { target: visiblePage, name: 'pageTitle', mode: 'up' },
+          addressBarBackgroundColor: { target: visiblePage, name: 'addressBarBackgroundColor', mode: 'up' },
+
+          _toolbarHeight: { target: visiblePage, name: 'toolbarHeight', mode: 'down' },
+          _hideToolbar: { target: visiblePage, name: 'hideToolbar', mode: 'up' },
+          _transparentToolbar: { target: visiblePage, name: 'transparentToolbar', mode: 'up' },
+          _showToolbarShadow: { target: visiblePage, name: 'showToolbarShadow', mode: 'up' },
+
+          _floatingDrawer: { target: visiblePage, name: 'floatingDrawer', mode: 'down' },
+          _drawerOpened: { target: visiblePage, name: 'drawerOpened', mode: 'down' }
+        });
+        // this._floatingDrawer will be computed immediately
+        if (!visiblePage.classList.contains('buildin-page') && this._floatingDrawer) {
+          this.$.drawer.close();
+        }
+      }
+
+
+
+      _onToolbarMenuButtonTap(evt) {
+        this.$.drawer.toggle();
+      }
+
+    }
+    window.customElements.define(SkyleePages.is, SkyleePages);
+  </script>
+</dom-module>
