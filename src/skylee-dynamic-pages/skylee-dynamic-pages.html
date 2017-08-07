@@ -10,7 +10,7 @@
       }
       :host > * {
         position: absolute;
-        top: var(--skylee-toolbar_height);
+        top: 0px;
         left: 0px;
         right: 0px;
         will-change: left, transform, opacity; 
@@ -19,10 +19,10 @@
         -webkit-transition: top var(--skylee-toolbar_toggling-transition-duration) var(--skylee-toolbar_toggling-transition-timing-function) 0ms,
                             left var(--skylee-drawer_toggling-transition-duration) var(--skylee-drawer_toggling-transition-timing-function) 0ms; /* for Safari */
       }
-      :host > [transparent-toolbar] {
-        top: 0px;
+      :host > :not([transparent-toolbar]) {
+        top: var(--skylee-toolbar_height);
       }
-      :host(:not([floating-drawer])[drawer-opened]) > * {
+      :host(:not([floating-drawer])[drawer-opened]) > :not([transparent-toolbar]) {
         left: var(--skylee-drawer_width);
       }
       :host > [page-visibility="hidden"] {
@@ -75,11 +75,10 @@
           type: String
         },
 
-        selectedPage: {
-          readOnly: true,
-          notify: true
+        _selectingPage: {
+          observer: '_onSelectingPageChanged'
         },
-        visiblePage: {
+        selectedPage: {
           readOnly: true,
           notify: true
         }
@@ -119,7 +118,7 @@
         
         let selectedPage;
         if (pageMap && selectedPath) {
-          let selectedData = pageMap[selectedPath] || pageMap['/404'];
+          let selectedData = this._getPageToSelect(pageMap, selectedPath);
           if (selectedData) {
             let pendingSelectedPage = this.shadowRoot.querySelector(selectedData.tagName);
             if (pendingSelectedPage) {
@@ -136,14 +135,14 @@
                   this._newPageVisibilityController(el);
                   this.shadowRoot.appendChild(el);
                   if (this.selectedPath === selectedPath) {
-                    this._switchPage(el);
+                    this._selectingPage = el;
                   }
 
                 }, () => {
 
                   this._loadingPathSet.delete(selectedPath);
                   if (this.selectedPath === selectedPath) {
-                    this._switchPage(this.$['error-page']);
+                    this._selectingPage = this.$['error-page'];
                   }
 
                 }, true);
@@ -156,7 +155,28 @@
         } else {
           selectedPage = this.$['empty-page'];
         }
-        this._switchPage(selectedPage);
+        this._selectingPage = selectedPage;
+      }
+
+      _getPageToSelect(pageMap, selectedPath) {
+        let removedCount = 0;
+        while (true) {
+          if (removedCount === 0) {
+            if (selectedPath in pageMap) return pageMap[selectedPath];
+          }
+
+          let p = selectedPath + '/*';
+          if (p in pageMap) return pageMap[p];
+          
+          let separatorIndex = selectedPath.lastIndexOf('/');
+          if (separatorIndex >= 0) {
+            selectedPath = selectedPath.substring(0, separatorIndex);
+            ++removedCount;
+          } else {
+            break;
+          }
+        }
+        return pageMap['/404'];
       }
 
       _newPageVisibilityController(page) {
@@ -172,25 +192,20 @@
         return this._pageVisiblityControllers.get(page);
       }
 
-      _switchPage(selectedPage) {
-        let deselectedPage = this.selectedPage || null;
-        selectedPage = selectedPage || null;
-        
-        if (deselectedPage !== selectedPage) {
-          this._setSelectedPage(selectedPage);
 
-          if (this.__visiblePage === selectedPage) {
-            this._showPage(selectedPage);
-          } else {
-            this._hidePage(this.__visiblePage, selectedPage);
-          }
+
+      _onSelectingPageChanged(selectingPage) {
+        if (this.__visiblePage === selectingPage) {
+          this._showPage(selectingPage);
+        } else {
+          this._hidePage(this.__visiblePage, selectingPage);
         }
       }
 
       _hidePage(pageToHide, pageToShow) {
         if (pageToHide) {
           this.__visiblePage = pageToHide;
-          this._getPageVisibilityController(pageToHide).hide(null, s => this._onPageHidden(s, pageToShow));
+          this._getPageVisibilityController(pageToHide).hide(s => this._onPageHidden(s, pageToShow));
         } else {
           delete this.__visiblePage;
           this._showPage(pageToShow);
@@ -205,11 +220,9 @@
       _showPage(pageToShow) {
         if (pageToShow) {
           this.__visiblePage = pageToShow;
-          this._getPageVisibilityController(pageToShow).show(s => {
-            this.resizerShouldNotify = e => e === pageToShow;
-            this.notifyResize();
-            this._setVisiblePage(pageToShow);
-          }, s => this._onPageShown(s));
+          this.resizerShouldNotify = e => e === pageToShow;
+          this._setSelectedPage(pageToShow);
+          this._getPageVisibilityController(pageToShow).show(s => this._onPageShown(s));
         } else {
           delete this.__visiblePage;
           this.resizerShouldNotify = e => false;
@@ -223,6 +236,7 @@
       }
 
       _afterPageSwitching() {
+        this.notifyResize();
       }
 
     }
@@ -233,18 +247,18 @@
       constructor(element) {
         this.element = element;
         this._setVisibility('hidden');
-        this._animation = new SkyleePageAnimation(element);
+        this._animation = new SkyleePageSlideAnimation(element);
       }
 
-      hide(startCallback, finishCallback) {
-        this._do('hide', startCallback, finishCallback);
+      hide(finishCallback) {
+        this._do('hide', finishCallback);
       }
 
-      show(startCallback, finishCallback) {
-        this._do('show', startCallback, finishCallback);
+      show(finishCallback) {
+        this._do('show', finishCallback);
       }
 
-      _do(action, startCallback, finishCallback) {
+      _do(action, finishCallback) {
         let element = this.element;
         let visibility = this.visibility;
         let animation = this._animation;
@@ -252,7 +266,6 @@
         if ((action === 'hide' && (visibility === 'hidden')) ||
             (action === 'show' && visibility === 'shown'))
         {
-          if (startCallback) startCallback(this);
           if (finishCallback) finishCallback(this);
 
         } else {
@@ -261,7 +274,6 @@
             this._setVisibility(action === 'show' ? 'shown' : 'hidden');
             if (finishCallback) finishCallback(this);
           });
-          if (startCallback) startCallback(this);
         }
       }
 
@@ -274,12 +286,12 @@
 
     class SkyleePageAnimation {
 
-      constructor(element) {
+      constructor(element, duration) {
         this.element = element;
-        this.duration = 500;
+        this.duration = duration;
         this.currentTime = 0;
         this.rate = -1;
-        this.play(-1, null);
+        this.play(-1);
       }
 
       play(rate, finishCallback) {
@@ -293,12 +305,7 @@
       _onAnimationFrame(now) {
         delete this.__requestId;
 
-        let delta;
-        if (typeof this.__pass === 'number') {
-          delta = now - this.__pass;
-        } else {
-          delta = 0;
-        }
+        let delta = typeof this.__pass === 'number' ? (now - this.__pass) : 0;
         this.__pass = now;
 
         let currentTime = this.currentTime + delta * this.rate;
@@ -314,7 +321,6 @@
           if (this.finishCallback) {
             setTimeout(this.finishCallback, 0);
           }
-
         } else {
           this.__requestId = requestAnimationFrame(n => this._onAnimationFrame(n));
         }
@@ -322,8 +328,26 @@
 
       _onCurrentTimeChanged(currentTime) {
         let progress = currentTime / this.duration;
-        progress = Math.sqrt(1 - (progress - 1) * (progress - 1));
+        progress = this._interpolateProgress(progress);
         this._onProgressChanged(progress);
+      }
+
+      _interpolateProgress(progress) {
+        return progress;
+      }
+
+      _onProgressChanged(progress) {}
+
+    }
+
+    class SkyleePageSlideAnimation extends SkyleePageAnimation {
+
+      constructor(element) {
+        super(element, 500);
+      }
+
+      _interpolateProgress(progress) {
+        return Math.sqrt(1 - (progress - 1) * (progress - 1));
       }
 
       _onProgressChanged(progress) {

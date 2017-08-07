@@ -6,16 +6,14 @@
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 
-<link rel="import" href="../../bower_components/curium-route/curium-route.html">
-
 <link rel="import" href="../skylee-icons/skylee-icons.html">
 
 <dom-module id="skylee-image-viewer">
   <template strip-whitespace>
     <style>
       :host {
+        height: 100vh;
         display: block;
-        overflow: hidden;
         background-color: black;
         position: relative;
       }
@@ -148,19 +146,13 @@
     </style>
 
     <iron-media-query query="not all and (min-height: 500px)" query-matches="{{_shortToolbar}}" full></iron-media-query>
-    
-    <curium-route
-      route="[[route]]"
-      prefix-pattern="/image-viewer"
-      prefix-match="{{_routePrefixMatch}}"
-      tail="{{_subroute}}"></curium-route>
 
-    <div id="toolbar" hide$="[[_hideToolbar]]" short$="[[_shortToolbar]]">
+    <!-- <div id="toolbar" hide$="[[_hideToolbar]]" short$="[[_shortToolbar]]">
       <a id="toolbar__back-button-link" href="javascript:window.history.back();" tabindex="-1">
         <paper-icon-button id="toolbar__back-button" icon="skylee:arrow-back"></paper-icon-button>
       </a>
       <p id="toolbar__title">[[_imageFilename]]</p>
-    </div>
+    </div> -->
 
     <div id="img-wrapper" show$="[[_imageLoaded]]" grabbing$="[[_grabbingImg]]">
       <img id="img"></img> <!-- src set by js, smooth set by js -->
@@ -182,27 +174,36 @@
       static get is() { return 'skylee-image-viewer'; }
 
       static get properties() { return {
-        sceneAddressBarBackgroundColor: {
+        addressBarBackgroundColor: {
           type: String,
           value: '#000',
           readOnly: true,
           notify: true
         },
-
-        _hideToolbar: {
+        transparentToolbar: {
           type: Boolean,
-          value: false
+          value: true,
+          readOnly: true,
+          notify: true,
+          reflectToAttribute: true
+        },
+
+        hideToolbar: {
+          type: Boolean,
+          value: false,
+          readOnly: true,
+          notify: true
         },
         _shortToolbar: {
           type: Boolean
         },
 
-        route: Object,
-        _routePrefixMatch: Boolean,
-        _subroute: Object,
+        routePath: {
+          type: String,
+          observer: '_onRoutePathChanged'
+        },
         _imageSrc: {
           type: String,
-          computed: '_computeImageSrc(_routePrefixMatch, _subroute.path)',
           observer: '_onImageSrcChanged'
         },
         _imageFilename: {
@@ -306,13 +307,14 @@
 
 
       _onTap(evt) {
-        this._hideToolbar = !this._hideToolbar;
+        this._setHideToolbar(!this.hideToolbar);
       }
 
 
 
-      _computeImageSrc(prefixMatch, imagePath) {
-        return prefixMatch ? imagePath : '';
+      _onRoutePathChanged(routePath) {
+        let match = routePath.match(/^\/image\-viewer(.*)$/);
+        this._imageSrc = match !== null ? match[1] : '';
       }
 
       _computeImageFilename(src) {
@@ -343,7 +345,7 @@
         if (src) this.$.img.setAttribute('src', src);
         else this.$.img.removeAttribute('src');
 
-        this._hideToolbar = false;
+        this._setHideToolbar(false);
       }
 
 
@@ -585,13 +587,13 @@
         if (now) {
           if (typeof this.__scheduled_handleGesture === 'number') {
             clearInterval(this.__scheduled_handleGesture);
-            this.__scheduled_handleGesture = undefined;
+            delete this.__scheduled_handleGesture;
           }
           this._handleGesture(gestureType, state, pointerDataList);
         } else {
           if (typeof this.__scheduled_handleGesture !== 'number') {
             this.__scheduled_handleGesture = setTimeout(() => {
-              this.__scheduled_handleGesture = undefined;
+              delete this.__scheduled_handleGesture;
               this._handleGesture(gestureType, state, pointerDataList);
             }, 20);
           }
@@ -649,7 +651,8 @@
         }
 
         if (state === 'end') {
-          this.__panPointerImageAnchorX = this.__panPointerImageAnchorY = undefined;
+          delete this.__panPointerImageAnchorX;
+          delete this.__panPointerImageAnchorY;
           propsToSet._grabbingImg = false;
         }
 
@@ -718,10 +721,10 @@
         }
 
         if (state === 'end') {
-          this.__zoomPointer0ImageAnchorX = undefined;
-          this.__zoomPointer0ImageAnchorY = undefined;
-          this.__zoomPointer1ImageAnchorX = undefined;
-          this.__zoomPointer1ImageAnchorY = undefined;
+          delete this.__zoomPointer0ImageAnchorX;
+          delete this.__zoomPointer0ImageAnchorY;
+          delete this.__zoomPointer1ImageAnchorX;
+          delete this.__zoomPointer1ImageAnchorY;
         }
 
         this.setProperties(propsToSet);
