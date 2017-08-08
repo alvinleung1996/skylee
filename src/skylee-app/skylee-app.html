@@ -233,10 +233,6 @@
             computed: '_computeRoutePath(_rawRoute.path)',
             notify: true /* for dynamic binding */
           },
-          visibleScene: {
-            type: Boolean,
-            notify: true /* for dynamic binding */
-          },
 
           appTitle: {
             type: String,
@@ -440,7 +436,6 @@
       _onSelectedPageChanged(selectedPage) {
         this._bindProperties({
           _routePath: { target: selectedPage, name: 'routePath', mode: 'down' },
-          visibleScene: { target: selectedPage, name: 'visibleScene', mode: 'down' },
           
           _pageTitle: { target: selectedPage, name: 'pageTitle', mode: 'up' },
           addressBarBackgroundColor: { target: selectedPage, name: 'addressBarBackgroundColor', mode: 'up' },

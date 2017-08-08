@@ -59,12 +59,9 @@
 
       static get properties() {
         return {
-          visibleScene: {
-            type: Boolean,
-            value: false
-          },
           pageVisibility: {
-            type: String
+            type: String,
+            observer: '_onVisibilityChanged'
           },
 
           pageTitle: {
@@ -124,10 +121,6 @@
         };
       }
 
-      static get observers() { return [
-        '_onVisibilityChanged(visibleScene, pageVisibility)'
-      ];}
-
       ready() {
         super.ready();
         this.$.slides.addEventListener('iron-select', e => {
@@ -135,8 +128,8 @@
         });
       }
 
-      _onVisibilityChanged(visibleScene, pageVisibility) {
-        if (visibleScene && (pageVisibility === 'showing' || pageVisibility === 'shown')) {
+      _onVisibilityChanged(pageVisibility) {
+        if (pageVisibility === 'showing' || pageVisibility === 'shown') {
           if (!Number.isInteger(this._slideshowTimerID)) {
             // console.log('slide start');
             this._slideshowTimerID = setInterval(() => {
