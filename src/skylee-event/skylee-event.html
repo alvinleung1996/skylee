@@ -4,7 +4,7 @@
 <link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
-<link rel="import" href="../skylee-page-auto-hide-toolbar-behavior/skylee-page-auto-hide-toolbar-behavior.html">
+<link rel="import" href="../skylee-page-scroll-behavior/skylee-page-scroll-behavior.html">
 <link rel="import" href="skylee-event-timeline-block.html">
 
 <dom-module id="skylee-event">
@@ -77,7 +77,7 @@
 
   </template>
   <script>
-    class SkyleeEvent extends Skylee.SkyleePageAutoHideToolbarBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
+    class SkyleeEvent extends Skylee.SkyleePageScrollBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
 
       static get is() { return 'skylee-event'; }
 

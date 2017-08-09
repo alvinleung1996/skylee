@@ -7,7 +7,7 @@
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 
-<link rel="import" href="../skylee-page-auto-hide-toolbar-behavior/skylee-page-auto-hide-toolbar-behavior.html">
+<link rel="import" href="../skylee-page-scroll-behavior/skylee-page-scroll-behavior.html">
 <link rel="import" href="../skylee-icons/skylee-icons.html">
 <link rel="import" href="../skylee-styles/skylee-styles.html">
 
@@ -24,7 +24,7 @@
       .card {
         margin-left: auto;
         margin-right: auto;
-        max-width: var(--skylee-content_max-width);
+        max-width: 1200px;
         @apply --skylee-shadow--elevation-2;
         margin-bottom: 20px;
         background-color: var(--skylee-background--primary_background-color);
@@ -402,7 +402,7 @@
 
   </template>
   <script>
-    class SkyleeAbout extends Skylee.SkyleePageAutoHideToolbarBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
+    class SkyleeAbout extends Skylee.SkyleePageScrollBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
 
       static get is() { return 'skylee-about'; }
 

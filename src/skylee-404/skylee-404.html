@@ -4,7 +4,7 @@
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
-<link rel="import" href="../skylee-page-auto-hide-toolbar-behavior/skylee-page-auto-hide-toolbar-behavior.html">
+<link rel="import" href="../skylee-page-scroll-behavior/skylee-page-scroll-behavior.html">
 <link rel="import" href="../skylee-icons/skylee-icons.html">
 
 <dom-module id="skylee-404">
@@ -80,7 +80,7 @@
 
   </template>
   <script>
-    class Skylee404 extends Skylee.SkyleePageAutoHideToolbarBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
+    class Skylee404 extends Skylee.SkyleePageScrollBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
 
       static get is() { return 'skylee-404'; }
 
