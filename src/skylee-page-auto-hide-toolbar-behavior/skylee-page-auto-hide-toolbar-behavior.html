@@ -5,9 +5,25 @@
     return class extends superClass {
 
       static get properties() { return {
+        pageVisibility: {
+          type: String,
+        },
+        _scrollHandlerEnabled: {
+          type: Boolean,
+          computed: '_computeScrollHandlerEnabled(pageVisibility)',
+          observer: '_onScrollHandlerEnabledChanged'
+        },
         toolbarHeight: {
+          type: Number
+        },
+        pageScrollY: {
           type: Number,
-          observer: '_onToolbarHeightChanged'
+          value: 0,
+          readOnly: true
+        },
+        scrollYThreshold: {
+          type: Number,
+          value: 0
         },
 
         hideToolbar: {
@@ -21,48 +37,58 @@
           value: true,
           readOnly: true,
           notify: true
-        }
+        },
+
+
       };}
 
-      ready() {
-        super.ready();
-        window.addEventListener('scroll', e => this._onScroll(e));
+      static get observers() { return [
+        '_onScrollYChanged(_scrollHandlerEnabled, toolbarHeight, pageScrollY, scrollYThreshold)'
+      ];}
+      
+      constructor() {
+        super();
+        this.__bindedOnScroll = this._onScroll.bind(this);
       }
 
-      _onToolbarHeightChanged(toolbarHeight) {
-        this._computeToolbarStyle();
+      _computeScrollHandlerEnabled(pageVisibility) {
+        return pageVisibility === 'showing' || pageVisibility === 'shown';
+      }
+
+      _onScrollHandlerEnabledChanged(scrollHandlerEnabled) {
+        if (scrollHandlerEnabled) window.addEventListener('scroll', this.__bindedOnScroll);
+        else window.removeEventListener('scroll', this.__bindedOnScroll);
       }
 
       _onScroll(evt) {
-        this._computeToolbarStyle();
+        this._setPageScrollY(window.pageYOffset);
       }
 
-      _computeToolbarStyle() {
-        let toolbarHeight = this.toolbarHeight;
-        let scrollTop = window.pageYOffset;
+      _onScrollYChanged(scrollHandlerEnabled, toolbarHeight, pageScrollY, scrollYThreshold) {
+        if (scrollHandlerEnabled) {
+          let prevScrollY = this.__prevScrollY;
+          let prevPrevScrollY = this.__prevPrevScrollY;
 
-        let prevScrollTop = this._prevScrollTop;
-        let prevPrevScrollTop = this._prevPrevScrollTop;
+          let newScrollY, oldScrollY;
+          if (pageScrollY === prevScrollY) {
+            newScrollY = prevScrollY;
+            oldScrollY = prevPrevScrollY;
+          } else {
+            newScrollY = pageScrollY;
+            oldScrollY = prevScrollY;
+            this.__prevPrevScrollY = prevScrollY;
+            this.__prevScrollY = pageScrollY;
+          }
+          newScrollY = newScrollY || 0;
+          oldScrollY = oldScrollY || 0;
 
-        let newScrollTop, oldScrollTop;
-        if (scrollTop === prevScrollTop) {
-          newScrollTop = prevScrollTop;
-          oldScrollTop = prevPrevScrollTop;
-        } else {
-          newScrollTop = scrollTop;
-          oldScrollTop = prevScrollTop;
-          this._prevPrevScrollTop = prevScrollTop;
-          this._prevScrollTop = scrollTop;
+          let hideToolbar = Number.isInteger(toolbarHeight) && newScrollY > oldScrollY && newScrollY >= toolbarHeight && newScrollY >= scrollYThreshold;
+          // let showToolbarShadow = newScrollTop > 0;
+          this.setProperties({
+            hideToolbar: hideToolbar,
+            // showToolbarShadow: showToolbarShadow
+          }, true);
         }
-        newScrollTop = newScrollTop || 0;
-        oldScrollTop = oldScrollTop || 0;
-
-        let hideToolbar = Number.isInteger(toolbarHeight) && newScrollTop > oldScrollTop && newScrollTop >= toolbarHeight;
-        // let showToolbarShadow = newScrollTop > 0;
-        this.setProperties({
-          hideToolbar: hideToolbar,
-          // showToolbarShadow: showToolbarShadow
-        }, true);
       }
 
     }

@@ -27,6 +27,9 @@
         display: block;
 
         --skylee-toolbar_height: var(--skylee-toolbar--normal_height);
+        --skylee-toolbar_height-transition-duration: 330ms;
+        --skylee-toolbar_height-transition-timing-function: ease-out;
+
         --skylee-toolbar_toggling-transition-duration: 330ms;
         --skylee-toolbar_toggling-transition-timing-function: ease-out;
 
@@ -46,13 +49,14 @@
         height: var(--skylee-toolbar_height);
         z-index: 20;
         background-color: var(--skylee-background--app-theme--primary_background-color);
+        pointer-events: none;
         /* Safari bug: var cannot be used in transition and only work after disabling and re-enabling the property.
          * -webkit-transition seems does not have this bug. */
-        transition: height 330ms ease-out 0ms,
+        transition: height var(--skylee-toolbar_height-transition-duration) var(--skylee-toolbar_height-transition-timing-function) 0ms,
                     transform var(--skylee-toolbar_toggling-transition-duration) var(--skylee-toolbar_toggling-transition-timing-function) 0ms,
                     background-color 330ms ease-out 0ms,
                     var(--skylee-shadow_transition);
-        -webkit-transition: height 330ms ease-out 0ms,
+        -webkit-transition: height var(--skylee-toolbar_height-transition-duration) var(--skylee-toolbar_height-transition-timing-function) 0ms,
                             transform var(--skylee-toolbar_toggling-transition-duration) var(--skylee-toolbar_toggling-transition-timing-function) 0ms,
                             background-color 330ms ease-out 0ms,
                             var(--skylee-shadow_transition);
@@ -68,6 +72,8 @@
       }
 
       #toolbar__content {
+        position: relative;
+        z-index: 20;
         width: 100%;
         height: 100%;
         transition: opacity var(--skylee-toolbar_toggling-transition-duration) var(--skylee-toolbar_toggling-transition-timing-function) 0ms;
@@ -89,6 +95,7 @@
       #toolbar__menu-button {
         color: var(--skylee-text--app-theme--primary_color);
         --paper-icon-button-ink-color: var(--skylee-text--app-theme--primary_color);
+        pointer-events: auto;
         transition: color 330ms ease-out 0ms;
       }
       #toolbar[transparent] #toolbar__menu-button {
@@ -101,6 +108,7 @@
         display: flex;
         text-decoration: none;
         -webkit-tap-highlight-color: transparent; /* for Android Chrome */
+        pointer-events: auto;
       }
       #toolbar__home-button {
         flex: 1 1 auto;
@@ -144,6 +152,7 @@
       #drawer__scrollable {
         height: 100%;
         box-sizing: border-box;
+        overflow-x: hidden;
         overflow-y: auto;
         padding-top: 20px;
         padding-bottom: 20px;
@@ -156,7 +165,7 @@
     </style>
 
     <iron-media-query query="not all and (min-width: 700px)" query-matches="{{_narrowScreen}}" full></iron-media-query>
-    <iron-media-query query="not all and (min-height: 450px)" query-matches="{{_shortToolbar}}" full></iron-media-query>
+    <iron-media-query query="not all and (min-height: 450px)" query-matches="{{_shortScreen}}" full></iron-media-query>
 
     <app-location route="{{_rawRoute}}"></app-location>
 
@@ -177,14 +186,16 @@
         </a>
 
       </div>
+
+      <div id="toolbar__scrim"></div>
     </div>
 
      <app-drawer id="drawer"
       floating$="[[_floatingDrawer]]"
       toolbar-padding$="[[_drawerToolbarPadding]]"
+      opened="{{_drawerOpened}}"
       swipe-open="[[_floatingDrawer]]"
-      persistent="[[!_floatingDrawer]]"
-      opened="{{_drawerOpened}}">
+      persistent="[[!_floatingDrawer]]">
       <div id="drawer__background">
         <div id="drawer__scrollable">
           <div id="drawer__menu">
@@ -204,11 +215,11 @@
 
     <skylee-dynamic-pages
       id="pages"
-      floating-drawer="[[_floatingDrawer]]"
-      drawer-opened="[[_drawerOpened]]"
       page-map="[[_pageMap]]"
       selected-path="[[_routePath]]"
-      selected-page="{{_selectedPage}}">
+      selected-page="{{_selectedPage}}"
+      floating-drawer="[[_floatingDrawer]]"
+      drawer-opened="[[_drawerOpened]]">
     </skylee-dynamic-pages>
   </template>
 
@@ -231,18 +242,15 @@
           _routePath: {
             type: String,
             computed: '_computeRoutePath(_rawRoute.path)',
+            observer: '_onRoutePathChanged',
             notify: true /* for dynamic binding */
           },
 
-          appTitle: {
+          _pageTitle: {
             type: String,
-            computed: '_computeAppTitle(_pageTitle)',
-            observer: '_onAppTitleChanged'
+            value: '',
+            observer: '_onPageTitleChanged'
           },
-            _pageTitle: {
-              type: String,
-              value: ''
-            },
           addressBarBackgroundColor: {
             type: String,
             value: '',
@@ -252,12 +260,16 @@
           _narrowScreen: {
             type: Boolean
           },
+          _shortScreen: {
+            type: Boolean
+          },
 
           /*
            * Toolbar
            */
           _shortToolbar: {
             type: Boolean,
+            computed: '_computeShortToolbar(_shortScreen)',
             reflectToAttribute: true
           },
             _toolbarHeight: {
@@ -314,11 +326,16 @@
           _floatingDrawer: {
             type: Boolean,
             computed: '_computeFloatingDrawer(_narrowScreen, _transparentToolbar)',
+            observer: '_onFloatingDrawerChanged',
             notify: true /* for dynamic binding */
+          },
+          _drawerOpenedInPrevNonFloatingDrawerMode: {
+            type: Boolean,
+            value: true
           },
           _drawerToolbarPadding: {
             type: Boolean,
-            computed: '_computedDrawerToolbarPadding(_floatingDrawer, _hideToolbar)'
+            computed: '_computeDrawerToolbarPadding(_floatingDrawer, _hideToolbar)'
           },
           _drawerOpened: {
             type: Boolean,
@@ -362,18 +379,16 @@
       _computeRoutePath(path) {
         return path;
       }
-
-
-
-      _computeAppTitle(sceneTitle) {
-        return (sceneTitle ? (sceneTitle + ' - ') : '') + 'Simon K. Y. Lee Hall';
-      }
-
-      _onAppTitleChanged(appTitle) {
-        document.title = appTitle;
+      
+      _onRoutePathChanged(routePath) {
+        if (this._floatingDrawer) this.$.drawer.close();
       }
 
 
+
+      _onPageTitleChanged(pageTitle) {
+        document.title = (pageTitle ? (pageTitle + ' - ') : '') + 'Simon K. Y. Lee Hall';
+      }
 
       _onAddressBarBackgroundColorChanged(color) {
         let meta = document.head.querySelector('meta[name="theme-color"]');
@@ -391,8 +406,15 @@
 
       
 
+      _computeShortToolbar(shortScreen) {
+        return shortScreen;
+      }
+
       _computeToolbarHeight(short) {
-        return short ? 48 : 64;
+        let cssProp = short ? '--skylee-toolbar--short_height' : '--skylee-toolbar--normal_height';
+        let cssValue = (window.ShadyCSS && !window.ShadyCSS.nativeCss) ? ShadyCSS.getComputedStyleValue(this, cssProp) : getComputedStyle(this).getPropertyValue(cssProp);
+        let match = cssValue.match(/^\s*(\d+)px\s*$/);
+        return match !== null ? Number.parseInt(match[1]) : 0;
       }
 
       _onToolbarHeightChanged(height) {
@@ -404,9 +426,7 @@
           this.updateStyles(stylesToUpdate);
         }
       }
-
-
-
+      
       _onTransparentToolbarChanged(transparent) {
         /* Fix for ShadyCSS */
         if (window.ShadyCSS && !window.ShadyCSS.nativeCss) {
@@ -419,16 +439,22 @@
 
 
 
-      _computeFloatingDrawer(narrowLayout, transparentToolbar) {
-        return narrowLayout || transparentToolbar;
+      _computeFloatingDrawer(narrowScreen, transparentToolbar) {
+        return narrowScreen || transparentToolbar;
       }
 
-      _computedDrawerToolbarPadding(floatingDrawer, hideToolbar) {
+      _onFloatingDrawerChanged(floatingDrawer) {
+        if (floatingDrawer) {
+          this._drawerOpenedInPrevNonFloatingDrawerMode = this._drawerOpened;
+          this.$.drawer.close();
+        } else {
+          if (this._drawerOpenedInPrevNonFloatingDrawerMode) this.$.drawer.open();
+          else this.$.drawer.close();
+        }
+      }
+
+      _computeDrawerToolbarPadding(floatingDrawer, hideToolbar) {
         return !floatingDrawer && !hideToolbar;
-      }
-
-      _computeDrawerLightContent(floatingDrawer, requestDrawerLightContent) {
-        return !floatingDrawer && requestDrawerLightContent;
       }
 
 
@@ -448,10 +474,16 @@
           _floatingDrawer: { target: selectedPage, name: 'floatingDrawer', mode: 'down' },
           _drawerOpened: { target: selectedPage, name: 'drawerOpened', mode: 'down' }
         });
-        // this._floatingDrawer will be computed immediately
-        if (this._floatingDrawer) {
-          this.$.drawer.close();
+        
+        if (typeof this.__onSelectedPageChanged_timerId === 'number') {
+          clearTimeout(this.__onSelectedPageChanged_timerId);
+          delete this.__onSelectedPageChanged_timerId;
         }
+        this.__onSelectedPageChanged_timerId = setTimeout(() => {
+          delete this.__onSelectedPageChanged_timerId;
+          let scrollY = (selectedPage && Number.isInteger(selectedPage.pageScrollY)) ? selectedPage.pageScrollY : 0;
+          window.scrollTo(0, scrollY)
+        }, 0);
       }
 
 

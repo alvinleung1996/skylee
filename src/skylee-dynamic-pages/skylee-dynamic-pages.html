@@ -289,8 +289,12 @@
       constructor(element, duration) {
         this.element = element;
         this.duration = duration;
+
+        this.__bindedOnAnimationFrame = this._onAnimationFrame.bind(this);
+
         this.currentTime = 0;
         this.rate = -1;
+
         this.play(-1);
       }
 
@@ -298,7 +302,7 @@
         this.rate = rate;
         this.finishCallback = finishCallback;
         if (typeof this.__requestId !== 'number') {
-          this.__requestId = requestAnimationFrame(n => this._onAnimationFrame(n));
+          this.__requestId = requestAnimationFrame(this.__bindedOnAnimationFrame);
         }
       }
 
@@ -322,7 +326,7 @@
             setTimeout(this.finishCallback, 0);
           }
         } else {
-          this.__requestId = requestAnimationFrame(n => this._onAnimationFrame(n));
+          this.__requestId = requestAnimationFrame(this.__bindedOnAnimationFrame);
         }
       }
 

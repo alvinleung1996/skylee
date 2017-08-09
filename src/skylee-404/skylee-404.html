@@ -12,30 +12,6 @@
     <style>
       :host {
         display: block;
-        padding-top: var(--skylee-toolbar_height);
-        transition: var(--skylee-toolbar_transition_padding-top);
-        /* Safari Bug: transition cannot use var */
-        -webkit-transition: var(--skylee-toolbar_transition_padding-top);
-        background-color: var(--skylee-background--secondary_background-color);
-      }
-
-      section {
-        min-height: 300px;
-        border-bottom: 1px solid var(--skylee-divider_color);
-        display: flex;
-        justify-content: center;
-      }
-      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {  
-        /* Fix for IE11 flexbox container min-height bug:
-           Flexbox children cannot get the height of their parent
-           and behave like there is no height in their parent. */  
-        section {
-          min-height: 0px;
-        }
-      }
-      section > * {
-        flex: 0 1 var(--skylee-content_max-width);
-        box-sizing: border-box;
       }
 
       .vertical-layout {
@@ -45,7 +21,7 @@
       .vertical-layout > * {
         /* set flex-grow to 1 so elemenets can fill the remaining place
          * in case the elements take less height than the min-height */
-        flex: 1 0 auto;
+        flex: 1 1 auto;
       }
 
       .padding-block {
@@ -92,17 +68,15 @@
       }
     </style>
 
-    <section>
-      <div class="vertical-layout">
-        <div class="padding-block icon-block">
-          <iron-icon class="icon-block__icon" icon="skylee:info-outline"></iron-icon>
-        </div>
-        <div class="padding-block info-block">
-          <h2 class="info-block__title">Oh NO! We couldn't find the page you were looking for.</h2>
-          <p>Maybe head back to the <a href$="[[defaultPath]]">homepage</a> or use one of the tab links instead?</p>
-        </div>
+    <div class="vertical-layout">
+      <div class="padding-block icon-block">
+        <iron-icon class="icon-block__icon" icon="skylee:info-outline"></iron-icon>
       </div>
-    </section>
+      <div class="padding-block info-block">
+        <h2 class="info-block__title">Oh NO! We couldn't find the page you were looking for.</h2>
+        <p>Maybe head back to the <a href$="[[defaultPath]]">homepage</a> or use one of the links instead?</p>
+      </div>
+    </div>
 
   </template>
   <script>
@@ -110,20 +84,18 @@
 
       static get is() { return 'skylee-404'; }
 
-      static get properties() {
-        return {
-          pageTitle: {
-            type: String,
-            value: '404',
-            readOnly: true,
-            notify: true
-          },
-          defaultPath: {
-            type: String,
-            value: Skylee.defaultPath
-          }
-        };
-      }
+      static get properties() { return {
+        defaultPath: {
+          value: Skylee.defaultPath
+        },
+
+        pageTitle: {
+          type: String,
+          value: 'Page Not Found!',
+          readOnly: true,
+          notify: true
+        }
+      };}
 
     }
     window.customElements.define(Skylee404.is, Skylee404);

@@ -8,6 +8,11 @@ Number.isInteger = Number.isInteger || function(value) {
 };
 
 /*
+ * Number.parseInt()
+ */
+Number.parseInt = Number.parseInt || window.parseInt;
+
+/*
  * Event option passive
  */
 window.eventPassiveSupported = false;
