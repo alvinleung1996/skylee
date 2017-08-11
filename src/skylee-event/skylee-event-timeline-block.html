@@ -196,6 +196,11 @@
       #header[theme="dark"] #name {
         color: var(--skylee-text--dark-theme--primary_color);
       }
+      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {
+        #name {
+          align-self: stretch;
+        }
+      }
 
       #content {
         border-bottom-left-radius: var(--skylee-event-timeline-block__card_border-radius);
@@ -215,23 +220,23 @@
       }
       #content > ::slotted(iframe) {
         display: block;
-        width: 100%;
         border: 0px;
-        overflow: hidden;
+        overflow: auto;
+      }
+      #content > ::slotted(iframe[type="facebook"]) {
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      #content > ::slotted(iframe[type="youtube"]) {
+        width: 100%;
+        margin-bottom: 20px;
       }
       /* IE11 can wrap p only if p is set to stretch */
       /* IE11 and Edge cannot stretch iframe */
       @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {
         #content > ::slotted(p) {
           align-self: stretch;
-        }
-        #content > ::slotted(iframe) {
-          width: 100%;
-        }
-      }
-      @supports (-ms-ime-align: auto) {
-        #content > ::slotted(iframe) {
-          width: 100%;
         }
       }
     </style>

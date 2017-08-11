@@ -13,7 +13,6 @@
         top: 0px;
         left: 0px;
         right: 0px;
-        will-change: left, transform, opacity; 
         transition: top var(--skylee-toolbar_toggling-transition-duration) var(--skylee-toolbar_toggling-transition-timing-function) 0ms,
                     left var(--skylee-drawer_toggling-transition-duration) var(--skylee-drawer_toggling-transition-timing-function) 0ms;
         -webkit-transition: top var(--skylee-toolbar_toggling-transition-duration) var(--skylee-toolbar_toggling-transition-timing-function) 0ms,
@@ -27,6 +26,10 @@
       }
       :host > [page-visibility="hidden"] {
         display: none; 
+      }
+      :host > [page-visibility="showing"],
+      :host > [page-visibility="hiding"] {
+        will-change: transform, opacity;
       }
 
       .buildin-page {
@@ -159,23 +162,12 @@
       }
 
       _getPageToSelect(pageMap, selectedPath) {
-        let removedCount = 0;
-        while (true) {
-          if (removedCount === 0) {
-            if (selectedPath in pageMap) return pageMap[selectedPath];
-          }
-
-          let p = selectedPath + '/*';
-          if (p in pageMap) return pageMap[p];
-          
-          let separatorIndex = selectedPath.lastIndexOf('/');
-          if (separatorIndex >= 0) {
-            selectedPath = selectedPath.substring(0, separatorIndex);
-            ++removedCount;
-          } else {
-            break;
-          }
-        }
+        if (selectedPath in pageMap) return pageMap[selectedPath];
+        let separatorIndex = selectedPath.length;
+        do {
+          let path = selectedPath.substring(0, separatorIndex) + '/*';
+          if (path in pageMap) return pageMap[path];
+        } while (separatorIndex > 0 && (separatorIndex = selectedPath.lastIndexOf('/', separatorIndex - 1)) >= 0);
         return pageMap['/404'];
       }
 
@@ -247,7 +239,7 @@
       constructor(element) {
         this.element = element;
         this._setVisibility('hidden');
-        this._animation = new SkyleePageSlideAnimation(element);
+        this._animation = element.classList.contains('buildin-page') ? new SkyleePageFadeAnimation(element) : new SkyleePageSlideAnimation(element);
       }
 
       hide(finishCallback) {
@@ -344,7 +336,7 @@
 
     }
 
-    class SkyleePageSlideAnimation extends SkyleePageAnimation {
+    class SkyleePageFadeAnimation extends SkyleePageAnimation {
 
       constructor(element) {
         super(element, 500);
@@ -355,10 +347,22 @@
       }
 
       _onProgressChanged(progress) {
-        let translateY = (1 - progress) * 100 / 3;
         let opacity = progress;
-        this.element.style.transform = `translateY(${translateY}vh)`;
         this.element.style.opacity = `${opacity}`;
+      }
+
+    }
+
+    class SkyleePageSlideAnimation extends SkyleePageFadeAnimation {
+
+      constructor(element) {
+        super(element);
+      }
+
+      _onProgressChanged(progress) {
+        super._onProgressChanged(progress);
+        let translateY = (1 - progress) * 100 / 3;
+        this.element.style.transform = `translateY(${translateY}vh)`;
       }
 
     }

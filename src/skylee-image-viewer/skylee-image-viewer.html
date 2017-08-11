@@ -230,9 +230,9 @@
           type: String,
           computed: '_computeImageFilename(_imageSrc)'
         },
-        sceneTitle: {
+        pageTitle: {
           type: String,
-          computed: '_computeTabPageTitle(_imageFilename)',
+          computed: '_computePageTitle(_imageFilename)',
           notify: true
         },
         _imageLoading: {
@@ -350,7 +350,7 @@
         }
       }
 
-      _computeTabPageTitle(filename) {
+      _computePageTitle(filename) {
         return filename;
       }
 

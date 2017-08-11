@@ -11,69 +11,85 @@
         display: flex;
       }
       #link {
-        flex: 1 1 auto;
-        display: block;
+        flex: 1 1 100%;
+        display: flex;
+        flex-direction: column;
         border-radius: 2px;
         overflow: hidden;
+        @apply --skylee-shadow--elevation-1;
         position: relative;
-        -webkit-tap-highlight-color: transparent; /* for Android Chrome */
-        @apply --skylee-shadow--elevation-2;
+        background-color: var(--skylee-background--primary_background-color);
+        text-decoration: none;
         transition: var(--skylee-shadow_transition);
-        /* Safari Bug: transition cannot use var */
-        -webkit-transition: var(--skylee-shadow_transition);
+        -webkit-transition: var(--skylee-shadow_transition); /* Safari Bug: transition cannot use var */
+        -webkit-tap-highlight-color: transparent; /* for Android Chrome */
       }
       #link:hover {
-        @apply --skylee-shadow--elevation-8;
+        @apply --skylee-shadow--elevation-4;
         z-index: 10; /* Ensure shadow to be drawn on top of other divs */
       }
-      #filling {
+      #square {
+        flex: 0 0 auto;
+        position: relative;
+        /* The padding-bottom percentage value calculation on flex item is not consistent in all browser:
+         * https://stackoverflow.com/questions/35825787/169-padding-bottom-trick-not-working-as-expected-in-firefox
+         * so the filling can only be a block child instead of a flex item. */
+      }
+      #square::before {
+        display: block;
+        content: '';
         width: 100%;
         padding-bottom: 100%;
       }
       #cover {
+        display: block;
         position: absolute;
         top: 0px;
         right: 0px;
         bottom: 0px;
         left: 0px;
+        border-radius: 2px;
+        overflow: hidden;
       }
       #bannar {
-        position: absolute;
-        right: 0px;
-        bottom: 0px;
-        left: 0px;
-        background-color: var(--skylee-background--primary_background-color);
-        padding: 16px;
+        flex: 1 0 auto;
+        padding: 16px 8px 16px 8px;
         display: flex;
         align-items: center;
-        @apply --skylee-text--subheading_font;
-        color: var(--skylee-text--primary_color);
       }
       #icon {
         width: 24px;
         height: 24px;
-        margin-right: 16px;
+        margin-right: 8px;
         image-rendering: -webkit-optimize-contrast; /* Chrome only look less blurry with this option */
+      }
+      #icon:not([show]) {
+        display: none;
+      }
+      #name {
+        margin: 0px;
+        min-width: 0px;
+        overflow-wrap: break-word;
+        @apply --skylee-text--subheading_font;
+        color: var(--skylee-text--primary_color);
       }
       #ripple {
         color: var(--skylee-text--base_color);
-      }
-      #ripple:not([show]) {
-        display: none;
       }
     </style>
 
     <a id="link" href$="[[href]]">
 
-      <div id="filling"></div>
-
-      <iron-image id="cover" src="[[_resizedCoverSrc]]" sizing="cover" preload fade></iron-image>
-
-      <div id="bannar">
-        <img id="icon" src$="[[iconSrc]]"></img>[[name]]
+      <div id="square">
+        <iron-image id="cover" src="[[_resizedCoverSrc]]" sizing="cover" preload fade></iron-image>
       </div>
 
-      <paper-ripple id="ripple" show$="[[_isTruthy(href)]]"></paper-ripple>
+      <div id="bannar">
+        <img id="icon" show$="[[_showIcon]]" src$="[[iconSrc]]"></img>
+        <p id="name">[[name]]</p>
+      </div>
+
+      <paper-ripple id="ripple"></paper-ripple>
 
     </a>
 
@@ -93,6 +109,10 @@
         _resizedCoverSrc: {
           type: String,
           computed: '_computeResizedCoverSrc(coverSrc)'
+        },
+        _showIcon: {
+          type: Boolean,
+          computed: '_computedShowIcon(iconSrc)'
         }
 
       };}
@@ -105,8 +125,8 @@
         }
       }
 
-      _isTruthy(value) {
-        return Boolean(value);
+      _computedShowIcon(iconSrc) {
+        return Boolean(iconSrc);
       }
 
     }

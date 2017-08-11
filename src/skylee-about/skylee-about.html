@@ -17,16 +17,51 @@
       :host {
         display: block;
       }
-      :host(:not([floating-drawer])) {
-        padding-top: 40px;
+
+      #cover {
+        height: 50vh;
+        min-height: 200px;
+        max-height: 500px;
+        background-image: linear-gradient(to bottom, #2f80ed, #56ccf2);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      #cover__icon {
+        --iron-icon-width: 128px;
+        --iron-icon-height: 128px;
+        --iron-icon-fill-color: white;
+      }
+      #cover__hall-name {
+        margin: 10px 0px 0px 0px;
+        @apply --skylee-text--headline_font;
+        color: white;
+      }
+      #cover__slogan {
+        margin: 0px;
+        @apply --skylee-text--subheading_font;
+        color: white;
       }
 
+      #card-background {
+        padding-left: 10px;
+        padding-right: 10px;
+        background-image: linear-gradient(to bottom, #56ccf2, white);
+        overflow: hidden; /* prevent margin collapsing */
+      }
+      #card-background::after{
+        display: block;
+        content: '';
+      }
       .card {
         margin-left: auto;
         margin-right: auto;
+        margin-bottom: 10px;
         max-width: 1200px;
+        border-radius: 2px;
+        overflow: hidden;
         @apply --skylee-shadow--elevation-2;
-        margin-bottom: 20px;
         background-color: var(--skylee-background--primary_background-color);
       }
 
@@ -247,158 +282,164 @@
         border-radius: 5px;
         border: 1px solid var(--skylee-divider_color);
       }
-
-
     </style>
 
     <iron-media-query query="not all and (min-width: 850px)" query-matches="{{_narrowLayout}}" full></iron-media-query>
 
-    <section class="card">
-      <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-reverse-layout')]] min-height">
+    <div id="cover">
+      <iron-icon id="cover__icon" icon="skylee:hall-logo"></iron-icon>
+      <p id="cover__hall-name">Simon K. Y. Lee Hall</p>
+      <p id="cover__slogan">Active and Sincere</p>
+    </div>
 
-        <div class="padding-block contact-block">
-          <h2 class="contact-block__title">Location &amp; Contact</h2>
-          <p>Located inside the main campus, it is extremely convenient to travel from Lee Hall to any parts of HKU. Since Lee Hall is located at the Composite Building, next to Hsu Long Sing Amenities Centre, it takes less than 2 minutes to reach the Union Restaurant, the Students’ Union Office, the photocopying centre and the co-op.</p>
-          <a class="contact-block__button-link" href="mailto:skyhall@hku.hk">
-            <paper-button class="contact-block__button">
-              <iron-icon class="contact-block__icon" icon="skylee:email"></iron-icon>skyhall@hku.hk
-            </paper-button>
-          </a>
-          <a class="contact-block__button-link" href="tel:39170307">
-            <paper-button class="contact-block__button">
-              <iron-icon class="contact-block__icon" icon="skylee:local-phone"></iron-icon>3917 0307
-            </paper-button>
-          </a>
-          <a class="contact-block__button-link" href="geo:22.283021,114.135835">
-            <paper-button class="contact-block__button contact-block__button--wrappable">
-              <iron-icon class="contact-block__icon" icon="skylee:home"></iron-icon>Simon K. Y. Lee Hall, The University of Hong Kong, Pok Fu Lam Road, Hong Kong
-            </paper-button>
-          </a>
+    <div id="card-background">
+      <section class="card">
+        <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-reverse-layout')]] min-height">
+
+          <div class="padding-block contact-block">
+            <h2 class="contact-block__title">Location &amp; Contact</h2>
+            <p>Located inside the main campus, it is extremely convenient to travel from Lee Hall to any parts of HKU. Since Lee Hall is located at the Composite Building, next to Hsu Long Sing Amenities Centre, it takes less than 2 minutes to reach the Union Restaurant, the Students’ Union Office, the photocopying centre and the co-op.</p>
+            <a class="contact-block__button-link" href="mailto:skyhall@hku.hk">
+              <paper-button class="contact-block__button">
+                <iron-icon class="contact-block__icon" icon="skylee:email"></iron-icon>skyhall@hku.hk
+              </paper-button>
+            </a>
+            <a class="contact-block__button-link" href="tel:39170307">
+              <paper-button class="contact-block__button">
+                <iron-icon class="contact-block__icon" icon="skylee:local-phone"></iron-icon>3917 0307
+              </paper-button>
+            </a>
+            <a class="contact-block__button-link" href="geo:22.283021,114.135835">
+              <paper-button class="contact-block__button contact-block__button--wrappable">
+                <iron-icon class="contact-block__icon" icon="skylee:home"></iron-icon>Simon K. Y. Lee Hall, The University of Hong Kong, Pok Fu Lam Road, Hong Kong
+              </paper-button>
+            </a>
+          </div>
+
+          <div class="padding-block iframe-block">
+            <iframe class="iframe-block__iframe" style="min-height:300px;" src="https://www.google.com/maps/embed/v1/place?q=place_id:ChIJy_g-sIX_AzQRQKVMfR8BxAk&key=AIzaSyBCeLWP6ls4Xl-lvQEpw7tYlK2msDviuLc" allowfullscreen></iframe>
+          </div>
+
         </div>
 
-        <div class="padding-block iframe-block">
-          <iframe class="iframe-block__iframe" style="min-height:300px;" src="https://www.google.com/maps/embed/v1/place?q=place_id:ChIJy_g-sIX_AzQRQKVMfR8BxAk&key=AIzaSyBCeLWP6ls4Xl-lvQEpw7tYlK2msDviuLc" allowfullscreen></iframe>
+        <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-layout')]] min-height">
+
+          <div class="padding-block text-block">
+            <h2 class="text-block__title">Transportation</h2>
+            <p>Lee Hall is easily accessible. MTR, all buses and mini-buses getting to the HKU, also get to Lee Hall.</p>
+          </div>
+
+          <div class="padding-block table-block">
+            <table class="table-block__table">
+              <thead>
+                <tr>
+                  <td>Starting Point</td>
+                  <td>Bus Routes 🚌</td>
+                  <td>Green Minibus Routes 🚐</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Admiralty</td>
+                  <td>23, 37A, 40, 40M, 90B</td>
+                  <td>10, 11, 31</td>
+                </tr>
+                <tr>
+                  <td>Central</td>
+                  <td>3B, 4, 40M, 7, 71, 90B, 91</td>
+                  <td>8, 10A, 22</td>
+                </tr>
+                <tr>
+                  <td>Causeway Bay</td>
+                  <td>23, 103</td>
+                  <td>10, 11, 28, 31</td>
+                </tr>
+                <tr>
+                  <td>Kowloon</td>
+                  <td>970, 970X, 103, 973</td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
         </div>
 
-      </div>
+        <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-reverse-layout')]] min-height">
 
-      <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-layout')]] min-height">
+          <div class="padding-block lyrics-block">
+            <h2 class="lyrics-block__title">Hall Song</h2>
+            <p>O Simon K. Y. Lee Hall,</p>
+            <p>in our hearts you’ll forever stay.</p>
+            <p>O Simon K. Y. Lee Hall,</p>
+            <p>for lighting up our way.</p>
+            <p>Never fall, never fail,</p>
+            <p>never pale before each heavy hail.</p>
+            <p>We will fight the ones who dare</p>
+            <p>with all our might for our rights.</p>
+            <p>In love and trust we grow here</p>
+            <p>as brothers and sisters do.</p>
+            <p>The life we’ve learnt to cherish,</p>
+            <p>the friendship we hold true.</p>
+            <p>Our spirit shall not perish,</p>
+            <p>Lee Hallites ever true, ever true.</p>
+          </div>
 
-        <div class="padding-block text-block">
-          <h2 class="text-block__title">Transportation</h2>
-          <p>Lee Hall is easily accessible. MTR, all buses and mini-buses getting to the HKU, also get to Lee Hall.</p>
+          <div class="padding-block image-block">
+            <a class="image-block__link" href$="[[rootPath]]image-viewer/images/about/hall-song.jpg">
+              <iron-image class="image-block__image" src="[[rootPath]]images/about/hall-song.jpg" preload fade></iron-image>
+            </a>
+          </div>
+
         </div>
 
-        <div class="padding-block table-block">
-          <table class="table-block__table">
-            <thead>
-              <tr>
-                <td>Starting Point</td>
-                <td>Bus Routes</td>
-                <td>Green Minibus Routes</td>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Admiralty</td>
-                <td>23, 37A, 40, 40M, 90B</td>
-                <td>10, 11, 31</td>
-              </tr>
-              <tr>
-                <td>Central</td>
-                <td>3B, 4, 40M, 7, 71, 90B, 91</td>
-                <td>8, 10A, 22</td>
-              </tr>
-              <tr>
-                <td>Causeway Bay</td>
-                <td>23, 103</td>
-                <td>10, 11, 28, 31</td>
-              </tr>
-              <tr>
-                <td>Kowloon</td>
-                <td>970, 970X, 103, 973</td>
-                <td></td>
-              </tr>
-            </tbody>
-          </table>
+        <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-layout')]] min-height">
+
+          <div class="padding-block text-block">
+            <h2 class="text-block__title">Hall Logo</h2>
+            <p>The current hall logo was adopted in 1997. It incorporates clouds, a flying pigeon and the sea.</p>
+            <p>The flying pigeon exhibits the characteristics of Skyers – the flying bird shows activeness while the pigeon shows sincerity and friendliness. The curved lines at the bottom represent sea waves and they act as a foil for the boundless sky.</p>
+          </div>
+
+          <div class="padding-block image-block">
+            <a class="image-block__link" href$="[[rootPath]]image-viewer/images/about/hall-logo.jpg">
+              <iron-image class="image-block__image" src="[[rootPath]]images/about/hall-logo.jpg" preload fade></iron-image>
+            </a>
+          </div>
+
         </div>
 
-      </div>
+        <!--<section>
+          <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-reverse-layout')]]">
 
-      <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-reverse-layout')]] min-height">
+            <div class="padding-block download-block">
+              <h2 class="download-block__title">Hall Regulations</h2>
+              <a class="download-block__button-link" href$="[[rootPath]]data/regulations-governing-halls-and-flats.pdf" tabindex="-1" target="_blank">
+                <paper-button class="download-block__button">
+                  <iron-icon icon="skylee:file-download"></iron-icon>Download
+                </paper-button>
+              </a>
+            </div>
 
-        <div class="padding-block lyrics-block">
-          <h2 class="lyrics-block__title">Hall Song</h2>
-          <p>O Simon K. Y. Lee Hall,</p>
-          <p>in our hearts you’ll forever stay.</p>
-          <p>O Simon K. Y. Lee Hall,</p>
-          <p>for lighting up our way.</p>
-          <p>Never fall, never fail,</p>
-          <p>never pale before each heavy hail.</p>
-          <p>We will fight the ones who dare</p>
-          <p>with all our might for our rights.</p>
-          <p>In love and trust we grow here</p>
-          <p>as brothers and sisters do.</p>
-          <p>The life we’ve learnt to cherish,</p>
-          <p>the friendship we hold true.</p>
-          <p>Our spirit shall not perish,</p>
-          <p>Lee Hallites ever true, ever true.</p>
+            <div class="padding-block download-block">
+              <h2 class="download-block__title">Hall Charges</h2>
+              <a class="download-block__button-link" href$="[[rootPath]]data/hall-charges-2016-2017.pdf" tabindex="-1" target="_blank">
+                <paper-button class="download-block__button">
+                  <iron-icon icon="skylee:file-download"></iron-icon>Download
+                </paper-button>
+              </a>
+            </div>
+
+          </div>
+        </section>-->
+
+        <div class="padding-block text-block min-height">
+          <h2 class="text-block__title">Our History</h2>
+          <p>Found in 1985, the development of Lee Hall was funded by a generous donation from the late Dr. Simon K. Y. Lee and therefore the hall was named after him. In 1986, the Students’ Association was formed.</p>
+          <p>Through its over 20-year history, Lee Hall has developed into a vital and diversified hall. All hall mates participate in and contribute to the hall. “We are Skyers, Active and Sincere” has long been our slogan.</p>
         </div>
-
-        <div class="padding-block image-block">
-          <a class="image-block__link" href$="[[rootPath]]image-viewer/images/about/hall-song.jpg">
-            <iron-image class="image-block__image" src="[[rootPath]]images/about/hall-song.jpg" preload fade></iron-image>
-          </a>
-        </div>
-
-      </div>
-
-      <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-layout')]] min-height">
-
-        <div class="padding-block text-block">
-          <h2 class="text-block__title">Hall Logo</h2>
-          <p>The current hall logo was adopted in 1997. It incorporates clouds, a flying pigeon and the sea.</p>
-          <p>The flying pigeon exhibits the characteristics of Skyers – the flying bird shows activeness while the pigeon shows sincerity and friendliness. The curved lines at the bottom represent sea waves and they act as a foil for the boundless sky.</p>
-        </div>
-
-        <div class="padding-block image-block">
-          <a class="image-block__link" href$="[[rootPath]]image-viewer/images/about/hall-logo.jpg">
-            <iron-image class="image-block__image" src="[[rootPath]]images/about/hall-logo.jpg" preload fade></iron-image>
-          </a>
-        </div>
-
-      </div>
-
-    <!--<section>
-      <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-reverse-layout')]]">
-
-        <div class="padding-block download-block">
-          <h2 class="download-block__title">Hall Regulations</h2>
-          <a class="download-block__button-link" href$="[[rootPath]]data/regulations-governing-halls-and-flats.pdf" tabindex="-1" target="_blank">
-            <paper-button class="download-block__button">
-              <iron-icon icon="skylee:file-download"></iron-icon>Download
-            </paper-button>
-          </a>
-        </div>
-
-        <div class="padding-block download-block">
-          <h2 class="download-block__title">Hall Charges</h2>
-          <a class="download-block__button-link" href$="[[rootPath]]data/hall-charges-2016-2017.pdf" tabindex="-1" target="_blank">
-            <paper-button class="download-block__button">
-              <iron-icon icon="skylee:file-download"></iron-icon>Download
-            </paper-button>
-          </a>
-        </div>
-
-      </div>
-    </section>-->
-
-      <div class="padding-block text-block min-height">
-        <h2 class="text-block__title">Our History</h2>
-        <p>Found in 1985, the development of Lee Hall was funded by a generous donation from the late Dr. Simon K. Y. Lee and therefore the hall was named after him. In 1986, the Students’ Association was formed.</p>
-        <p>Through its over 20-year history, Lee Hall has developed into a vital and diversified hall. All hall mates participate in and contribute to the hall. “We are Skyers, Active and Sincere” has long been our slogan.</p>
-      </div>
-    </section>
+      </section>
+    </div>
 
   </template>
   <script>

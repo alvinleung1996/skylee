@@ -1,7 +1,6 @@
 bower_components*
 build*
 cache*
-exclude/imagebuilder
 tools/imagebuilder/*
 !tools/imagebuilder/imagebuilder.cpp
 debug*

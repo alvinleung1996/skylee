@@ -157,6 +157,11 @@
         padding-top: 20px;
         padding-bottom: 20px;
       }
+      .drawer__menu-divider {
+        margin-top: 4px;
+        margin-bottom: 4px;
+        border-top: 1px solid var(--skylee-divider_color);
+      }
 
       #pages {
         width: 100%;
@@ -208,6 +213,27 @@
                 depth="0">
               </skylee-drawer-menu-item>
             </template>
+
+            <div class="drawer__menu-divider"></div>
+
+            <skylee-drawer-menu-item
+              name="Facebook"
+              href="https://www.facebook.com/skylee.hku"
+              target="_blank"
+              depth="0">
+            </skylee-drawer-menu-item>
+            <skylee-drawer-menu-item
+              name="Instagram"
+              href="https://www.instagram.com/skylee.hku/"
+              target="_blank"
+              depth="0">
+            </skylee-drawer-menu-item>
+            <skylee-drawer-menu-item
+              name="Youtube"
+              href="https://www.youtube.com/channel/UC3w7MWF3OkqMs-tV-Np-LKw"
+              target="_blank"
+              depth="0">
+            </skylee-drawer-menu-item>
           </div>
         </div>
       </div>
@@ -400,6 +426,7 @@
               color = getComputedStyle(this).getPropertyValue('--skylee-background--app-theme--primary_background-color');
             }
           }
+          color = color.trim();
           meta.setAttribute('content', color);
         }
       }
@@ -413,7 +440,7 @@
       _computeToolbarHeight(short) {
         let cssProp = short ? '--skylee-toolbar--short_height' : '--skylee-toolbar--normal_height';
         let cssValue = (window.ShadyCSS && !window.ShadyCSS.nativeCss) ? ShadyCSS.getComputedStyleValue(this, cssProp) : getComputedStyle(this).getPropertyValue(cssProp);
-        let match = cssValue.match(/^\s*(\d+)px\s*$/);
+        let match = cssValue.trim().match(/^(\d+)px$/);
         return match !== null ? Number.parseInt(match[1]) : 0;
       }
 
@@ -460,6 +487,7 @@
 
 
       _onSelectedPageChanged(selectedPage) {
+        window.scrollTo(0, 0);
         this._bindProperties({
           _routePath: { target: selectedPage, name: 'routePath', mode: 'down' },
           
@@ -474,16 +502,6 @@
           _floatingDrawer: { target: selectedPage, name: 'floatingDrawer', mode: 'down' },
           _drawerOpened: { target: selectedPage, name: 'drawerOpened', mode: 'down' }
         });
-        
-        if (typeof this.__onSelectedPageChanged_timerId === 'number') {
-          clearTimeout(this.__onSelectedPageChanged_timerId);
-          delete this.__onSelectedPageChanged_timerId;
-        }
-        this.__onSelectedPageChanged_timerId = setTimeout(() => {
-          delete this.__onSelectedPageChanged_timerId;
-          let scrollY = (selectedPage && Number.isInteger(selectedPage.pageScrollY)) ? selectedPage.pageScrollY : 0;
-          window.scrollTo(0, scrollY)
-        }, 0);
       }
 
 
