@@ -20,6 +20,9 @@
 
 <link rel="import" href="./skylee-drawer-menu-item.html">
 
+<link rel="import" href="../skylee-loading-page/skylee-loading-page.html">
+<link rel="import" href="../skylee-404-page/skylee-404-page.html">
+
 <dom-module id="skylee-app">
   <template strip-whitespace>
     <style>
@@ -165,6 +168,7 @@
 
       #pages {
         width: 100%;
+        height: 100%;
         z-index: 0;
       }
     </style>
@@ -246,6 +250,10 @@
       selected-page="{{_selectedPage}}"
       floating-drawer="[[_floatingDrawer]]"
       drawer-opened="[[_drawerOpened]]">
+
+      <skylee-loading-page page-type="loading"></skylee-loading-page>
+      <skylee-404-page page-type="404"></skylee-404-page>
+
     </skylee-dynamic-pages>
   </template>
 
@@ -379,7 +387,6 @@
                 '/event': { tagName: 'skylee-event', src: `${Polymer.rootPath}src/skylee-event/skylee-event.html` },
                 '/team': { tagName: 'skylee-team', src: `${Polymer.rootPath}src/skylee-team/skylee-team.html` },
                 '/about': { tagName: 'skylee-about', src: `${Polymer.rootPath}src/skylee-about/skylee-about.html` },
-                '/404': { tagName: 'skylee-404', src: `${Polymer.rootPath}src/skylee-404/skylee-404.html` },
                 '/image-viewer/*': { tagName: 'skylee-image-viewer', src: `${Polymer.rootPath}src/skylee-image-viewer/skylee-image-viewer.html`}
               }
 

@@ -8,7 +8,7 @@
       :host {
         display: block;
       }
-      :host > * {
+      :host > ::slotted(*) {
         position: absolute;
         top: 0px;
         left: 0px;
@@ -18,41 +18,24 @@
         -webkit-transition: top var(--skylee-toolbar_toggling-transition-duration) var(--skylee-toolbar_toggling-transition-timing-function) 0ms,
                             left var(--skylee-drawer_toggling-transition-duration) var(--skylee-drawer_toggling-transition-timing-function) 0ms; /* for Safari */
       }
-      :host > :not([transparent-toolbar]) {
+      :host > ::slotted(:not([transparent-toolbar])) {
         top: var(--skylee-toolbar_height);
       }
-      :host(:not([floating-drawer])[drawer-opened]) > :not([transparent-toolbar]) {
+      :host(:not([floating-drawer])[drawer-opened]) > ::slotted(:not([transparent-toolbar])) {
         left: var(--skylee-drawer_width);
       }
-      :host > [page-visibility="hidden"] {
+      :host > ::slotted([snap-bottom]) {
+        bottom: 0px;
+      }
+      :host > ::slotted([page-visibility="hidden"]) {
         display: none; 
       }
-      :host > [page-visibility="showing"],
-      :host > [page-visibility="hiding"] {
+      :host > ::slotted([page-visibility="showing"]),
+      :host > ::slotted([page-visibility="hiding"]) {
         will-change: transform, opacity;
       }
-
-      .buildin-page {
-        padding-top: 200px;
-        font-size: 70px;
-      }
-      #loading-page {
-        background-color: grey;
-      }
-      #error-page {
-        background-color: yellow;
-      }
-      #not-found-page {
-        background-color: blue;
-      }
-      #empty-page {
-        background-color: green;
-      }
     </style>
-    <div id="loading-page" class="buildin-page">Loading</div>
-    <div id="error-page" class="buildin-page">Error</div>
-    <div id="not-found-page" class="buildin-page">404</div>
-    <div id="empty-page" class="buildin-page">Empty</div>
+    <slot></slot>
   </template>
   <script>
     class SkyleeDynamicPages extends Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element) {
@@ -99,10 +82,13 @@
 
       ready() {
         super.ready();
-        this._newPageVisibilityController(this.$['loading-page']);
-        this._newPageVisibilityController(this.$['error-page']);
-        this._newPageVisibilityController(this.$['not-found-page']);
-        this._newPageVisibilityController(this.$['empty-page']);
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        Array.prototype.forEach.call(this.children, e => {
+          this._newPageVisibilityController(e);
+        });
       }
 
 
@@ -121,14 +107,14 @@
         
         let selectedPage;
         if (pageMap && selectedPath) {
-          let selectedData = this._getPageToSelect(pageMap, selectedPath);
+          let selectedData = this._getPageDataByPath(pageMap, selectedPath);
           if (selectedData) {
-            let pendingSelectedPage = this.shadowRoot.querySelector(selectedData.tagName);
+            let pendingSelectedPage = this.querySelector(selectedData.tagName);
             if (pendingSelectedPage) {
               selectedPage = pendingSelectedPage;
 
             } else {
-              selectedPage = this.$['loading-page'];
+              selectedPage = this.querySelector('[page-type="loading"]');
               if (!this._loadingPathSet.has(selectedPath)) {
                 this._loadingPathSet.add(selectedPath);
                 Polymer.importHref(selectedData.src, () => {
@@ -136,7 +122,7 @@
                   this._loadingPathSet.delete(selectedPath);
                   let el = document.createElement(selectedData.tagName);
                   this._newPageVisibilityController(el);
-                  this.shadowRoot.appendChild(el);
+                  this.appendChild(el);
                   if (this.selectedPath === selectedPath) {
                     this._selectingPage = el;
                   }
@@ -145,30 +131,30 @@
 
                   this._loadingPathSet.delete(selectedPath);
                   if (this.selectedPath === selectedPath) {
-                    this._selectingPage = this.$['error-page'];
+                    this._selectingPage = this.querySelector('[page-type="error"]');
                   }
 
                 }, true);
               }
             }
           } else { // !selectedData
-            selectedPage = this.$['not-found-page'];
+            selectedPage = this.querySelector('[page-type="404"]');
           }
 
         } else {
-          selectedPage = this.$['empty-page'];
+          selectedPage = this.querySelector('[page-type="empty"]');
         }
         this._selectingPage = selectedPage;
       }
 
-      _getPageToSelect(pageMap, selectedPath) {
+      _getPageDataByPath(pageMap, selectedPath) {
         if (selectedPath in pageMap) return pageMap[selectedPath];
         let separatorIndex = selectedPath.length;
         do {
           let path = selectedPath.substring(0, separatorIndex) + '/*';
           if (path in pageMap) return pageMap[path];
         } while (separatorIndex > 0 && (separatorIndex = selectedPath.lastIndexOf('/', separatorIndex - 1)) >= 0);
-        return pageMap['/404'];
+        return null;
       }
 
       _newPageVisibilityController(page) {
@@ -218,7 +204,7 @@
         } else {
           delete this.__visiblePage;
           this.resizerShouldNotify = e => false;
-          this._setVisiblePage(undefined);
+          this._setSelectedPage(undefined);
           this._afterPageSwitching();
         }
       }
@@ -239,7 +225,7 @@
       constructor(element) {
         this.element = element;
         this._setVisibility('hidden');
-        this._animation = element.classList.contains('buildin-page') ? new SkyleePageFadeAnimation(element) : new SkyleePageSlideAnimation(element);
+        this._animation = element.hasAttribute('page-type') ? new SkyleePageFadeAnimation(element) : new SkyleePageSlideAnimation(element);
       }
 
       hide(finishCallback) {
@@ -339,11 +325,7 @@
     class SkyleePageFadeAnimation extends SkyleePageAnimation {
 
       constructor(element) {
-        super(element, 500);
-      }
-
-      _interpolateProgress(progress) {
-        return Math.sqrt(1 - (progress - 1) * (progress - 1));
+        super(element, 200);
       }
 
       _onProgressChanged(progress) {
@@ -353,15 +335,20 @@
 
     }
 
-    class SkyleePageSlideAnimation extends SkyleePageFadeAnimation {
+    class SkyleePageSlideAnimation extends SkyleePageAnimation {
 
       constructor(element) {
-        super(element);
+        super(element, 500);
+      }
+
+      _interpolateProgress(progress) {
+        return Math.sqrt(1 - (progress - 1) * (progress - 1));
       }
 
       _onProgressChanged(progress) {
-        super._onProgressChanged(progress);
+        let opacity = progress;
         let translateY = (1 - progress) * 100 / 3;
+        this.element.style.opacity = `${opacity}`;
         this.element.style.transform = `translateY(${translateY}vh)`;
       }
 

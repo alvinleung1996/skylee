@@ -45,19 +45,23 @@
       }
 
       #card-background {
-        padding-left: 10px;
-        padding-right: 10px;
-        background-image: linear-gradient(to bottom, #56ccf2, white);
+        padding-left: 20px;
+        padding-right: 20px;
+        background-image: linear-gradient(to bottom, #56ccf2, transparent);
         overflow: hidden; /* prevent margin collapsing */
+        transition: padding-left var(--skylee-drawer_toggling-transition-duration) var(--skylee-drawer_toggling-transition-timing-function) 0ms,
+                    padding-right var(--skylee-drawer_toggling-transition-duration) var(--skylee-drawer_toggling-transition-timing-function) 0ms;
+        -webkit-transition: padding-left var(--skylee-drawer_toggling-transition-duration) var(--skylee-drawer_toggling-transition-timing-function) 0ms,
+                            padding-right var(--skylee-drawer_toggling-transition-duration) var(--skylee-drawer_toggling-transition-timing-function) 0ms;
       }
-      #card-background::after{
-        display: block;
-        content: '';
+      #card-background[no-padding] {
+        padding-left: 0px;
+        padding-right: 0px;
       }
       .card {
         margin-left: auto;
         margin-right: auto;
-        margin-bottom: 10px;
+        margin-bottom: 20px;
         max-width: 1200px;
         border-radius: 2px;
         overflow: hidden;
@@ -292,7 +296,7 @@
       <p id="cover__slogan">Active and Sincere</p>
     </div>
 
-    <div id="card-background">
+    <div id="card-background" no-padding$="[[floatingDrawer]]">
       <section class="card">
         <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-reverse-layout')]] min-height">
 

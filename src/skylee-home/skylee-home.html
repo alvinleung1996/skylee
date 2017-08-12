@@ -29,7 +29,7 @@
       }
       #slides {
         width: 100%;
-        height: 100vh;
+        height: 100%;
         z-index: 0;
         background-color: var(--skylee-background--dark-theme--primary_background-color); /* show when image not finished loading */
       }
@@ -75,6 +75,13 @@
             notify: true
           },
           transparentToolbar: {
+            type: Boolean,
+            value: true,
+            readOnly: true,
+            notify: true,
+            reflectToAttribute: true
+          },
+          snapBottom: {
             type: Boolean,
             value: true,
             readOnly: true,

@@ -7,7 +7,7 @@
 <link rel="import" href="../skylee-page-scroll-behavior/skylee-page-scroll-behavior.html">
 <link rel="import" href="../skylee-icons/skylee-icons.html">
 
-<dom-module id="skylee-404">
+<dom-module id="skylee-404-page">
   <template strip-whitespace>
     <style>
       :host {
@@ -80,9 +80,9 @@
 
   </template>
   <script>
-    class Skylee404 extends Skylee.SkyleePageScrollBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
+    class Skylee404Page extends Skylee.SkyleePageScrollBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
 
-      static get is() { return 'skylee-404'; }
+      static get is() { return 'skylee-404-page'; }
 
       static get properties() { return {
         defaultPath: {
@@ -98,6 +98,6 @@
       };}
 
     }
-    window.customElements.define(Skylee404.is, Skylee404);
+    window.customElements.define(Skylee404Page.is, Skylee404Page);
   </script>
 </dom-module>
