@@ -154,7 +154,8 @@
         },
         _visiblePage: {
           type: Boolean,
-          computed: '_computeVisiblePage(pageVisibility)'
+          computed: '_computeVisiblePage(pageVisibility)',
+          observer: '_onVisiblePageChanged'
         },
 
         addressBarBackgroundColor: {
@@ -301,6 +302,12 @@
         return visibility === 'showing' || visibility === 'shown';
       }
 
+      _onVisiblePageChanged(visiblePage) {
+        if (visiblePage) {
+          this._setHideToolbar(false);
+        }
+      }
+
 
 
       _onTap(evt) {
@@ -337,9 +344,7 @@
         this.setProperties({
           _imageLoading: Boolean(src),
           _imageLoaded: false,
-          _imageError: false,
-
-          hideToolbar: false
+          _imageError: false
         }, true);
         
         // Ensure load/error event will only be triggered after we have set the above property value
