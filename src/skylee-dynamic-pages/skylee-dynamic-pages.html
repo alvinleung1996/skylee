@@ -268,7 +268,7 @@
         this.element = element;
         this.duration = duration;
 
-        this.__bindedOnAnimationFrame = this._onAnimationFrame.bind(this);
+        this.__bindedOnAnimationFrame = n => this._onAnimationFrame(n);
 
         this.currentTime = 0;
         this.rate = -1;
