@@ -37,42 +37,38 @@
       .teams-block__team-tile {
         flex: 0 0 200px;
         margin: 0px 10px 30px 0px;
+        min-width: 0px; /* Without this, the team name prevent the tile from shrinking https://css-tricks.com/flexbox-truncated-text/ */
       }
       .teams-block__team-tiles[narrow] .teams-block__team-tile {
         flex-grow: 0;
         flex-shrink: 0;
-        flex-basis: calc(50% - 5px); /* IE does not support calc() in shorthand flex property: flex: 0 0 calc(50% - 5px); */
-        min-width: 0px; /* Without this, the team name prevent the tile from shrinking https://css-tricks.com/flexbox-truncated-text/ */
-        margin: 0px 0px 30px 0px;
-      }
-      .teams-block__team-tiles[narrow] .teams-block__team-tile:nth-child(odd) {
-        margin-right: 5px;
+        flex-basis: calc((100% - 10px) / 2); /* IE does not support calc() in shorthand flex property: flex: 0 0 calc(...); */
       }
       .teams-block__team-tiles[narrow] .teams-block__team-tile:nth-child(even) {
-        margin-left: 5px;
+        margin-right: 0px;
       }
-      /* @supports (display: -moz-grid) { /* Chrome has bug in calculating height
-        .teams-block__team-tiles,
-        .teams-block__team-tiles[narrow] {
-          flex-direction: initial;
-          align-items: initial;
+      @supports (display: -moz-grid) { /* Chrome has bug in calculating height */
+        .teams-block__team-tiles {
           flex-wrap: initial;
 
           display: grid;
           /* chrome bug: the "200px" will make the row height locked at 200px
-             which ignore the children height (The children overflowed)
+             which ignore the children height (The children overflowed) until we resize the window */
           grid-template-columns: repeat(auto-fill, minmax(200px, auto));
           grid-auto-rows: auto;
           grid-row-gap: 30px;
           grid-column-gap: 10px;
         }
+        .teams-block__team-tiles[narrow] {
+          grid-template-columns: repeat(2, 1fr);
+        }
         .teams-block__team-tile,
-        .teams-block__team-tiles[narrow] .teams-block__team-tile {
+        .teams-block__team-tiles[narrow] .teams-block__team-tile,
+        .teams-block__team-tiles[narrow] .teams-block__team-tile:nth-child(even) {
           flex: initial;
           margin: initial;
-          width: initial;
         }
-      } */
+      }
     </style>
 
     <iron-media-query query="max-width: 480px" query-matches="{{_narrowLayout}}"></iron-media-query>

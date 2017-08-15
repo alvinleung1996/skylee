@@ -317,7 +317,7 @@
 
 
       _onRoutePathChanged(routePath) {
-        let match = routePath.match(/^\/image\-viewer(.*)$/);
+        let match = routePath.match(/^\/image\-viewer\/(.*)$/);
         if (match !== null) {
           this._imageSrc = match[1];
         }

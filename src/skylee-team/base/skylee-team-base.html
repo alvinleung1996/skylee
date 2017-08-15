@@ -19,6 +19,9 @@
       :host {
         display: block;
       }
+      :host > * {
+        border-bottom: 1px solid var(--skylee-divider_color);
+      }
 
       .header-block {
         padding: 20px;
@@ -26,12 +29,16 @@
         align-items: center;
       }
       .header-block__icon {
+        flex: 0 0 auto;
+        margin-right: 16px;
         width: 48px;
         height: 48px;
         --iron-image-width: 100%;
       }
+      .header-block__icon:not([show]) {
+        display: none;
+      }
       .header-block__text {
-        margin-left: 16px;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -52,48 +59,86 @@
         margin: 0;
         @apply --skylee-text--body1_font;
         color: var(--skylee-text--secondary_color);
-        text-align: justify;
       }
 
       .album-block {
-        padding: 20px;
+        padding: 10px 0px 10px 0px;
+        background-color: var(--skylee-background--primary_background-color);
       }
       .album-block__header {
+        position: -webkit-sticky;
+        position: sticky;
+        top: var(--skylee-toolbar_height);
+        z-index: 20;
+        padding: 10px 20px 10px 20px;
+        background-color: rgba(var(--skylee-background--primary_background-color_r),
+                                 var(--skylee-background--primary_background-color_g),
+                                 var(--skylee-background--primary_background-color_b),
+                                 0.9);
+        /* -webkit-backdrop-filter: blur(5px);
+        backdrop-filter: blur(5px); */
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        transition: top var(--skylee-toolbar_toggling-transition-duration) var(--skylee-toolbar_toggling-transition-timing-function) 0ms;
+        -webkit-transition: top var(--skylee-toolbar_toggling-transition-duration) var(--skylee-toolbar_toggling-transition-timing-function) 0ms; /* for Safari */
+      }
+      .album-block[snap-header-to-top] .album-block__header {
+        top: 0px;
+      }
+      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {  
+        .album-block__header {
+          /* IE11 Bug: items not wrap when no enough space */
+          align-items: stretch;
+        }
       }
       .album-block__name {
         margin: 0;
-        @apply --skylee-text--headline_font;
+        @apply --skylee-text--subheading_font;
         color: var(--skylee-text--primary_color);
       }
       .album-block__image-tiles {
-        margin-top: 16px;
+        padding: 10px 20px 10px 20px;
         display: flex;
         flex-wrap: wrap;
       }
       .album-block__image-tile {
-        flex: 0 1 300px;
-        margin: 5px; 
+        flex: 0 0 200px;
+        margin: 0px 5px 5px 0px;
       }
-       @supports (display: grid) {
+      .album-block[narrow] .album-block__image-tile {
+        flex-grow: 0;
+        flex-shrink: 0;
+        flex-basis: calc((100% - 5px) / 2);  /* IE does not support calc() in shorthand flex property: flex: 0 0 calc(...); */
+      }
+      .album-block[narrow] .album-block__image-tile:nth-child(even) {
+        margin-right: 0px;
+      }
+      @supports (display: -moz-grid) {
         .album-block__image-tiles {
           flex-wrap: initial;
 
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(300px, auto));
+          grid-template-columns: repeat(auto-fill, minmax(200px, auto));
           grid-auto-rows: auto;
-          grid-gap: 10px;
+          grid-gap: 5px;
         }
-        .album-block__image-tile {
+        .album-block[narrow] .album-block__image-tiles {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .album-block__image-tile,
+        .album-block[narrow] .album-block__image-tile,
+        .album-block[narrow] .album-block__image-tile:nth-child(even) {
           flex: initial;
           margin: initial; 
         }
       } 
     </style>
 
-    <iron-media-query query="not all and (min-width: 300px)" query-matches="{{_narrowLayout}}" full></iron-media-query>
+    <iron-media-query query="max-width: 450px" query-matches="{{_narrowLayout}}"></iron-media-query>
 
     <header class="header-block">
-      <iron-image class="header-block__icon" src="[[iconSrc]]" preload fade></iron-image>
+      <iron-image class="header-block__icon" src="[[iconSrc]]" preload fade show$="[[_showIcon]]"></iron-image>
       <div class="header-block__text">
         <h2 class="header-block__name">[[name]]</h2>
         <p class="header-block__description">[[description]]</p>
@@ -101,7 +146,7 @@
     </header>
 
     <template is="dom-repeat" items="[[albumList]]" as="album">
-      <div class="album-block">
+      <div class="album-block" narrow$="[[_narrowLayout]]" snap-header-to-top$="[[hideToolbar]]">
 
         <header class="album-block__header">
           <h2 class="album-block__name">[[album.name]]</h2>
@@ -112,8 +157,7 @@
           <template is="dom-repeat" items="[[album.imageList]]" as="image">
             <skylee-team-base-album-image-tile
               class="album-block__image-tile"
-              src="[[image.src]]"
-              name="[[image.name]]">
+              src="[[image.src]]">
             </skylee-team-base-album-image-tile>
           </template>
 
@@ -128,22 +172,22 @@
     
       static get is() { return 'skylee-team-base'; }
 
-      static get properties() {
-        return {
-          pageTitle: String,
+      static get properties() { return {
           iconSrc: String,
           name: String,
           description: String,
           albumList: Array,
           
-          toolbarBackButtonUrl: {
-            type: String,
-            value: `${Polymer.rootPath}team`,
-            readOnly: true,
-            notify: true
-          },
+          pageTitle: String,
 
-        };
+          _showIcon: {
+            type: Boolean,
+            computed: '_computeShowIcon(iconSrc)'
+          }
+      };}
+
+      _computeShowIcon(iconSrc) {
+        return Boolean(iconSrc);
       }
 
     }

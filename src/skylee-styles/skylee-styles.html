@@ -80,8 +80,18 @@
        * Theme & Color
        */
       /* Light theme */
-      --skylee-background--light-theme--primary_background-color: white;
-      --skylee-background--light-theme--secondary_background-color: var(--paper-grey-50);
+      --skylee-background--light-theme--primary_background-color_r: 255; /* white */
+      --skylee-background--light-theme--primary_background-color_g: 255;
+      --skylee-background--light-theme--primary_background-color_b: 255;
+      --skylee-background--light-theme--primary_background-color: rgb(var(--skylee-background--light-theme--primary_background-color_r),
+                                                                        var(--skylee-background--light-theme--primary_background-color_g),
+                                                                        var(--skylee-background--light-theme--primary_background-color_b));
+      --skylee-background--light-theme--secondary_background-color_r: 250; /* --paper-grey-50 */
+      --skylee-background--light-theme--secondary_background-color_g: 250;
+      --skylee-background--light-theme--secondary_background-color_b: 250;
+      --skylee-background--light-theme--secondary_background-color: rgb(var(--skylee-background--light-theme--secondary_background-color_r),
+                                                                          var(--skylee-background--light-theme--secondary_background-color_g),
+                                                                          var(--skylee-background--light-theme--secondary_background-color_b));
 
       --skylee-text--light-theme--base_color_r: 0;
       --skylee-text--light-theme--base_color_g: 0;
@@ -115,8 +125,19 @@
                                                   var(--skylee-divider--light-theme_opacity));
 
       /* Dark theme */
-      --skylee-background--dark-theme--primary_background-color: var(--paper-grey-800);
-      --skylee-background--dark-theme--secondary_background-color: #303030;
+      
+      --skylee-background--dark-theme--primary_background-color_r: 66; /* --paper-grep-800 */
+      --skylee-background--dark-theme--primary_background-color_g: 66;
+      --skylee-background--dark-theme--primary_background-color_b: 66;
+      --skylee-background--dark-theme--primary_background-color: rgb(var(--skylee-background--dark-theme--primary_background-color_r),
+                                                                        var(--skylee-background--dark-theme--primary_background-color_g),
+                                                                        var(--skylee-background--dark-theme--primary_background-color_b));
+      --skylee-background--dark-theme--secondary_background-color_r: 48; /* #303030 */
+      --skylee-background--dark-theme--secondary_background-color_g: 48;
+      --skylee-background--dark-theme--secondary_background-color_b: 48;
+      --skylee-background--dark-theme--secondary_background-color: rgb(var(--skylee-background--dark-theme--secondary_background-color_r),
+                                                                          var(--skylee-background--dark-theme--secondary_background-color_g),
+                                                                          var(--skylee-background--dark-theme--secondary_background-color_b));
       
       --skylee-text--dark-theme--base_color_r: 255;
       --skylee-text--dark-theme--base_color_g: 255;
@@ -151,8 +172,14 @@
 
       /* Current theme */
       /*--skylee-theme--light: {*/
-        --skylee-background--primary_background-color: var(--skylee-background--light-theme--primary_background-color);
-        --skylee-background--secondary_background-color: var(--skylee-background--light-theme--secondary_background-color);
+        --skylee-background--primary_background-color_r: var(--skylee-background--light-theme--primary_background-color_r);
+        --skylee-background--primary_background-color_g: var(--skylee-background--light-theme--primary_background-color_g);
+        --skylee-background--primary_background-color_b: var(--skylee-background--light-theme--primary_background-color_b);
+          --skylee-background--primary_background-color: var(--skylee-background--light-theme--primary_background-color);
+        --skylee-background--secondary_background-color_r: var(--skylee-background--light-theme--secondary_background-color_r);
+        --skylee-background--secondary_background-color_g: var(--skylee-background--light-theme--secondary_background-color_g);
+        --skylee-background--secondary_background-color_b: var(--skylee-background--light-theme--secondary_background-color_b);
+          --skylee-background--secondary_background-color: var(--skylee-background--light-theme--secondary_background-color);
 
         --skylee-text--base_color_r: var(--skylee-text--light-theme--base_color_r);
         --skylee-text--base_color_g: var(--skylee-text--light-theme--base_color_g);
@@ -172,8 +199,14 @@
         --skylee-divider_color: var(--skylee-divider--light-theme_color);
       /*};*/
       /* --skylee-theme--dark: {
-        --skylee-background--primary_background-color: var(--skylee-background--dark-theme--primary_background-color);
-        --skylee-background--secondary_background-color: var(--skylee-background--dark-theme--secondary_background-color);
+        --skylee-background--primary_background-color_r: var(--skylee-background--dark-theme--primary_background-color_r);
+        --skylee-background--primary_background-color_g: var(--skylee-background--dark-theme--primary_background-color_g);
+        --skylee-background--primary_background-color_b: var(--skylee-background--dark-theme--primary_background-color_b);
+          --skylee-background--primary_background-color: var(--skylee-background--dark-theme--primary_background-color);
+        --skylee-background--secondary_background-color_r: var(--skylee-background--dark-theme--secondary_background-color_r);
+        --skylee-background--secondary_background-color_g: var(--skylee-background--dark-theme--secondary_background-color_g);
+        --skylee-background--secondary_background-color_b: var(--skylee-background--dark-theme--secondary_background-color_b);
+          --skylee-background--secondary_background-color: var(--skylee-background--dark-theme--secondary_background-color);
 
         --skylee-text--base_color_r: var(--skylee-text--dark-theme--base_color_r);
         --skylee-text--base_color_g: var(--skylee-text--dark-theme--base_color_g);
