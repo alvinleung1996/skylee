@@ -33,7 +33,8 @@
     "src/**/*",
     ".htaccess",
     "index.html",
-    "manifest.json"
+    "manifest.json",
+    "vendor/**/*"
   ],
   "builds": [
     {

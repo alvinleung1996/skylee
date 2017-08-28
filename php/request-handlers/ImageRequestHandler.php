@@ -2,15 +2,15 @@
 
 namespace skylee;
 
-include_once './config-error.php';
-require_once './FileSystem.php';
-require_once './request-handlers/FileRequestHandler.php';
-require_once './RequestController.php';
+include_once __DIR__ . '/../config-error.php';
+require_once __DIR__ . '/../FileSystem.php';
+require_once __DIR__ . '/FileRequestHandler.php';
 
 class ImageRequestHandler extends FileRequestHandler {
 
-  public function acceptRequest() {
+  public function handleRequest() {
     if (!isset($_SERVER['DOCUMENT_ROOT'], $_SERVER['REQUEST_URI'])) return false;
+
     $uri = \explode('?', $_SERVER['REQUEST_URI'])[0];
     $path = $_SERVER['DOCUMENT_ROOT'] . $uri;
 
@@ -26,14 +26,9 @@ class ImageRequestHandler extends FileRequestHandler {
                  ($type === \IMAGETYPE_GIF || $type === \IMAGETYPE_PNG ||
                   $type === \IMAGETYPE_JPEG);
     if ($handler !== false) { \flock($handler, \LOCK_UN); \fclose($handler); }
-    return $supported;
-  }
+    if (!$supported) return false;
 
-
-
-  public function handleRequest() {
     $referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : false;
-    $uri = \explode('?', $_SERVER['REQUEST_URI'])[0];
     $redirect = $referer === false ||
                 (!\preg_match('/^http:\/\/(?:www\.)?skylee\.hku\.hk/', $referer) &&
                  !\preg_match('/^http:\/\/localhost/', $referer) &&
@@ -42,7 +37,7 @@ class ImageRequestHandler extends FileRequestHandler {
     if ($redirect) {
       return $this->outputResponse($this->composeResponse([
         'statusCode' => 301,
-        'location' => 'http://' . $_SERVER['HTTP_HOST'] . '/image-viewer' . $uri
+        'location' => 'http://' . $_SERVER['HTTP_HOST'] . '/image-viewer/' . $uri
       ]));
       
     } else {
@@ -56,7 +51,6 @@ class ImageRequestHandler extends FileRequestHandler {
   }
 
   private function getOutputImagePath() {
-    if (!isset($_SERVER['DOCUMENT_ROOT'], $_SERVER['REQUEST_URI'])) return false;
     $root = $_SERVER['DOCUMENT_ROOT'];
     $uri = \explode('?', $_SERVER['REQUEST_URI'])[0];
     $uriInfo = \pathinfo($uri);
@@ -163,4 +157,3 @@ class ImageRequestHandler extends FileRequestHandler {
   }
 
 }
-RequestController::addRequestHandler(new ImageRequestHandler(), 10);

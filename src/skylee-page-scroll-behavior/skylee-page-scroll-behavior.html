@@ -31,12 +31,6 @@
           readOnly: true,
           notify: true
         },
-        showToolbarShadow: { // always true
-          type: Boolean,
-          value: true,
-          readOnly: true,
-          notify: true
-        }
       };}
 
       static get observers() { return [
@@ -50,11 +44,13 @@
       }
 
       _onPageVisibilityChanged(pageVisibility, pageScrollY) {
-        if (this.__prevPageVisibility !== pageVisibility) {
+        if (this.__prevPageVisibility !== pageVisibility && typeof pageScrollY === 'number') {
           this.__prevPageVisibility = pageVisibility;
           if (pageVisibility === 'showing' || pageVisibility === 'shown') {
-            window.scrollTo(0, pageScrollY); // TODO: only scrollTo when 'showing' or both 'showing' and 'shown'?
-            this._enableScrollTracker = true;
+            if (!this._enableScrollTracker) {
+              window.scrollTo(0, pageScrollY);
+              this._enableScrollTracker = true;
+            }
           } else {
             this._enableScrollTracker = false;
           }
@@ -96,11 +92,7 @@
           oldScrollY = typeof oldScrollY === 'number' ? oldScrollY : newScrollY;
 
           let hideToolbar = Number.isInteger(toolbarHeight) && newScrollY > oldScrollY && newScrollY >= toolbarHeight && newScrollY >= scrollYThreshold;
-          // let showToolbarShadow = newScrollTop > 0;
-          this.setProperties({
-            hideToolbar: hideToolbar,
-            // showToolbarShadow: showToolbarShadow
-          }, true);
+          this._setHideToolbar(hideToolbar);
         }
       }
 

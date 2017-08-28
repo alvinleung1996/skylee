@@ -2,7 +2,7 @@
 
 namespace skylee;
 
-include_once './config-error.php';
+include_once __DIR__ . '/config-error.php';
 
 class FileSystem {
 

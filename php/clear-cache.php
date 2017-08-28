@@ -2,8 +2,8 @@
 
 namespace skylee;
 
-include_once './config-error.php';
-require_once './FileSystem.php';
+include_once __DIR__ . '/config-error.php';
+require_once __DIR__ . '/FileSystem.php';
 
 function clearCache() {
   FileSystem::deletePath($_SERVER['DOCUMENT_ROOT'] . '/cache');

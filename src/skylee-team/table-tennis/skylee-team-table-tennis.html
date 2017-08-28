@@ -25,7 +25,11 @@
         description: {
           value: 'men\'s team'
         },
-        albumList: {
+        keywords: {
+          type: Array,
+          value: () => ['table-tennis', 'table tennis', 'tabletennis']
+        },
+        /*albumList: {
           value: () => { return [
             {
               name: 'Photos',
@@ -38,7 +42,7 @@
               ]
             }
           ];}
-        }
+        }*/
       };
     }
 

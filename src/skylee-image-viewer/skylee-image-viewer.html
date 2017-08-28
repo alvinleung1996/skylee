@@ -65,6 +65,7 @@
         top: 0px;
         left: 0px;
         transform-origin: 0% 0%;
+        will-change: transform;
         pointer-events: none; /* Prevent cross browser image dragging and ghost image */
       }
       #img[smooth] {
@@ -319,7 +320,7 @@
       _onRoutePathChanged(routePath) {
         let match = routePath.match(/^\/image\-viewer\/(.*)$/);
         if (match !== null) {
-          this._imageSrc = match[1];
+          this._imageSrc = decodeURIComponent(match[1]);
         }
       }
 
@@ -487,6 +488,8 @@
 
 
       _toGestureEvent(evt, state) {
+        evt.preventDefault(); // TODO: work ???
+        
         let trackEvent = {};
         trackEvent.state = state;
 

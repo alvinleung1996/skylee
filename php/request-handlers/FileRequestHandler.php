@@ -2,42 +2,14 @@
 
 namespace skylee;
 
-include_once './config-error.php';
-require_once './RequestHandler.php';
-require_once './RequestController.php';
+include_once __DIR__ . '/../config-error.php';
+require_once __DIR__ . '/../RequestHandlerInterface.php';
 
-class FileRequestHandler implements RequestHandler {
-
-  public function acceptRequest() {
-    return true;
-  }
-
-
-
-  private function getClientCacheETag() {
-    if (isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
-      return \str_replace(['"', '-gzip'], '', $_SERVER['HTTP_IF_NONE_MATCH']);
-    } else {
-      return NULL;
-    }
-  }
-
-  private function getFileETag($path) {
-    \clearstatcache();
-
-    $size = \filesize($path);
-    if ($size === false) return false;
-
-    $mTime = \filemtime($path);
-    if ($mTime === false) return false;
-
-    return \md5("{$path}:{$size}:{$mTime}");
-  }
-
-
+class FileRequestHandler implements RequestHandlerInterface {
 
   public function handleRequest() {
     if (!isset($_SERVER['DOCUMENT_ROOT'], $_SERVER['REQUEST_URI'])) return false;
+
     $path = $_SERVER['DOCUMENT_ROOT'] . \explode('?', $_SERVER['REQUEST_URI'])[0];
     return $this->outputResponse($this->composeResponse([
       'filePath' => $path
@@ -59,6 +31,7 @@ class FileRequestHandler implements RequestHandler {
           $param['statusCode'] = 304;
           unset($param['filePath']);
         }
+        
         if (!isset($param['cacheControl'])) $param['cacheControl'] = 'max-age=60';
 
       } else {
@@ -73,6 +46,26 @@ class FileRequestHandler implements RequestHandler {
     }
 
     return $param;
+  }
+
+  private function getClientCacheETag() {
+    if (isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
+      return \str_replace(['"', '-gzip'], '', $_SERVER['HTTP_IF_NONE_MATCH']);
+    } else {
+      return NULL;
+    }
+  }
+
+  private function getFileETag($path) {
+    \clearstatcache();
+
+    $size = \filesize($path);
+    if ($size === false) return false;
+
+    $mTime = \filemtime($path);
+    if ($mTime === false) return false;
+
+    return \md5("{$path}:{$size}:{$mTime}");
   }
 
   protected function outputResponse($param) {
@@ -99,4 +92,3 @@ class FileRequestHandler implements RequestHandler {
   }
 
 }
-RequestController::addRequestHandler(new FileRequestHandler());

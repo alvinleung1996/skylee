@@ -1,5 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
 
+<link rel="import" href="../../bower_components/polymer/lib/utils/debounce.html">
 <link rel="import" href="../../bower_components/polymer/lib/elements/dom-repeat.html">
 <link rel="import" href="../../bower_components/shadycss/apply-shim.html">
 <link rel="import" href="../../bower_components/polymer/lib/mixins/gesture-event-listeners.html">
@@ -323,7 +324,7 @@
           },
           _showToolbarShadow: {
             type: Boolean,
-            value: false
+            computed: '_computeShowToolbarShadow(_transparentToolbar)'
           },
 
           /*
@@ -407,6 +408,10 @@
         };
       }
 
+      static get observers() { return [
+        '_onDynamicPagesSizeChanged(_floatingDrawer, _drawerOpened)'
+      ];}
+
 
 
       _computeRoutePath(path) {
@@ -471,6 +476,10 @@
         }
       }
 
+      _computeShowToolbarShadow(transparentToolbar) {
+        return !transparentToolbar;
+      }
+
 
 
       _computeFloatingDrawer(narrowScreen, transparentToolbar) {
@@ -491,6 +500,42 @@
         return !floatingDrawer && !hideToolbar;
       }
 
+      _onDynamicPagesSizeChanged(floatingDrawer, drawerOpened) {
+        if (this.__notifyDynamicPagesResizeDebouncer) this.__notifyDynamicPagesResizeDebouncer.cancel();
+        this.__onDynamicPagesSizeChangedDebouncer = Polymer.Debouncer.debounce(this.__onDynamicPagesSizeChangedDebouncer, Polymer.Async.microTask, () => {
+          
+          let notify;
+          if (!this.__prevFloatingDrawer && floatingDrawer) {
+            notify = this.__prevDrawerOpened;
+
+          } else if (this.__prevFloatingDrawer && !floatingDrawer) {
+            notify = drawerOpened;
+
+          } else if (!this.__prevFloatingDrawer && !floatingDrawer) {
+            notify = this.__prevDrawerOpened != drawerOpened;
+
+          } else {
+            notify = false;
+          }
+
+          this.__prevFloatingDrawer = floatingDrawer;
+          this.__prevDrawerOpened = drawerOpened;
+
+          if (notify) {
+            let durationStyle = (window.ShadyCSS && !window.ShadyCSS.nativeCss) ? 
+                                ShadyCSS.getComputedStyleValue(this, '--skylee-drawer_toggling-transition-duration') :
+                                getComputedStyle(this).getPropertyValue('--skylee-drawer_toggling-transition-duration');
+            let matches = durationStyle.trim().match(/^(\d+)/);
+            if (matches !== null) {
+              let duration = Number.parseInt(matches[1]);
+              this.__notifyDynamicPagesResizeDebouncer = Polymer.Debouncer.debounce(this.__notifyDynamicPagesResizeDebouncer, Polymer.Async.timeOut.after(duration), () => {
+                this.$.pages.notifyResize();
+              });
+            }
+          }
+        });
+      }
+
 
 
       _onSelectedPageChanged(selectedPage) {
@@ -504,7 +549,6 @@
           _toolbarHeight: { target: selectedPage, name: 'toolbarHeight', mode: 'down' },
           _hideToolbar: { target: selectedPage, name: 'hideToolbar', mode: 'up' },
           _transparentToolbar: { target: selectedPage, name: 'transparentToolbar', mode: 'up' },
-          _showToolbarShadow: { target: selectedPage, name: 'showToolbarShadow', mode: 'up' },
 
           _floatingDrawer: { target: selectedPage, name: 'floatingDrawer', mode: 'down' },
           _drawerOpened: { target: selectedPage, name: 'drawerOpened', mode: 'down' }

@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -16,12 +16,10 @@
     <script src="/js/skylee-polyfill.js"></script>
     <script>
       /*
-       * In Edge, CSS variables in global scope seems cannot be applied, bug?
-       * So force using ShadyCSS in Edge.
+       * Edge presudo element styles seems like conflict with their parent,
+       * ShadyCSS solves this.
        */
       if (navigator.userAgent.match(/Edge/)) {
-        // window.customElements && (window.customElements.forcePolyfill = true);
-        // ShadyDOM = { force: true };
         ShadyCSS = { shimcssproperties: true };
       }
       // window.customElements && (window.customElements.forcePolyfill = true);
@@ -41,7 +39,8 @@
 
     <style>
       /* Full selector path to prevent messing with styles in custom elements when using shadydom */
-      html, body, #shell {
+      html, body,
+      body > #shell {
         width: 100%;
         height: 100%;
       }

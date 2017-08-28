@@ -1,6 +1,6 @@
 bower_components*
 build*
 cache*
-tools/imagebuilder/*
-!tools/imagebuilder/imagebuilder.cpp
 debug*
+php/FacebookAppInfo.php
+vendor*

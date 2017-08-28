@@ -20,7 +20,7 @@
 
       #cover {
         height: 50vh;
-        min-height: 200px;
+        min-height: 250px;
         max-height: 500px;
         background-image: linear-gradient(to bottom, #2f80ed, #56ccf2);
         display: flex;
@@ -32,6 +32,16 @@
         --iron-icon-width: 128px;
         --iron-icon-height: 128px;
         --iron-icon-fill-color: white;
+        animation: cover__icon 2s ease-in-out 0s infinite alternate both;
+        animation-play-state: running; /* Fix for IE */
+      }
+      @keyframes cover__icon {
+        0% {
+          transform: translateY(0%);
+        }
+        100% {
+          transform: translateY(-10%);
+        }
       }
       #cover__hall-name {
         margin: 10px 0px 0px 0px;
@@ -133,11 +143,11 @@
 
       .image-block {
         display: flex;
-        flex-direction: column;
         justify-content: center;
+        align-items: center;
       }
       .image-block__link {
-        flex: 0 0 auto;
+        flex: 0 1 auto;
       }
       .image-block__image {
         display: block;
@@ -390,7 +400,7 @@
           </div>
 
           <div class="padding-block image-block">
-            <a class="image-block__link" href$="[[rootPath]]image-viewer/[[rootPath]]images/about/hall-song.jpg">
+            <a class="image-block__link" style="flex-basis:500px;" href$="[[rootPath]]image-viewer/[[_encodeURIComponent(rootPath,'images/about/hall-song.jpg')]]">
               <iron-image class="image-block__image" src="[[rootPath]]images/about/hall-song.jpg" preload fade></iron-image>
             </a>
           </div>
@@ -406,7 +416,7 @@
           </div>
 
           <div class="padding-block image-block">
-            <a class="image-block__link" href$="[[rootPath]]image-viewer/[[rootPath]]images/about/hall-logo.jpg">
+            <a class="image-block__link" style="flex-basis:300px;" href$="[[rootPath]]image-viewer/[[_encodeURIComponent(rootPath,'images/about/hall-logo.jpg')]]">
               <iron-image class="image-block__image" src="[[rootPath]]images/about/hall-logo.jpg" preload fade></iron-image>
             </a>
           </div>
@@ -467,6 +477,14 @@
 
       _enableIf(cond, value, otherwise) {
         return cond ? value : otherwise;
+      }
+
+      _encodeURIComponent() {
+        let text = '';
+        for (let i = 0; i < arguments.length; ++i) {
+          text += arguments[i];
+        }
+        return encodeURIComponent(text);
       }
 
     }

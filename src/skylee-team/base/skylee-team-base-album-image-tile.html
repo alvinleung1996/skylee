@@ -14,17 +14,13 @@
       #link {
         flex: 1 1 auto;
         display: block;
-        border-radius: 2px;
         overflow: hidden;
-        @apply --skylee-shadow--elevation-2;
-        transition: var(--skylee-shadow_transition);
-        -webkit-transition: var(--skylee-shadow_transition); /* Fix for Safari */
+        background-color: rgba(var(--skylee-text--base_color_r),
+                                 var(--skylee-text--base_color_g),
+                                 var(--skylee-text--base_color_b),
+                                 0.1);
         -webkit-tap-highlight-color: transparent; /* for Android Chrome */
         position: relative;
-      }
-      #link:hover {
-        @apply --skylee-shadow--elevation-6;
-        z-index: 10;
       }
       #link::before {
         display: block;
@@ -38,6 +34,10 @@
         right: 0px;
         bottom: 0px;
         left: 0px;
+        transition: transform 330ms ease-out 0ms;
+      }
+      #link:hover #image {
+        transform: scale(1.1);
       }
       #ripple {
         color: var(--skylee-text--light-theme--base_color);
@@ -46,7 +46,7 @@
 
     <a id="link" href$="[[_href]]">
 
-      <iron-image id="image" src="[[_imgSrc]]" sizing="cover" preload fade></iron-image>
+      <iron-image id="image" src="[[thumbnailSrc]]" sizing="cover" preload fade></iron-image>
 
       <paper-ripple id="ripple"></paper-ripple>
 
@@ -59,24 +59,17 @@
       static get is() { return 'skylee-team-base-album-image-tile'; }
 
       static get properties() { return {
-        src: String,
+        thumbnailSrc: String,
+        imageSrc: String,
 
         _href: {
           type: String,
-          computed: '_computeHref(src)'
+          computed: '_computeHref(imageSrc)'
         },
-        _imgSrc: {
-          type: String,
-          computed: '_computeImgSrc(src)'
-        }
       };}
 
-      _computeHref(src) {
-        return `${Polymer.rootPath}image-viewer/${src}`;
-      }
-
-      _computeImgSrc(src) {
-        return `${src}?w=300&h=300`;
+      _computeHref(imageSrc) {
+        return `${Polymer.rootPath}image-viewer/${encodeURIComponent(imageSrc)}`;
       }
 
     }

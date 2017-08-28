@@ -18,7 +18,7 @@ RewriteEngine on
 
 # RewriteCond %{REQUEST_URI} !\.php$ [OR]
 # RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^.*$ /php/RequestController.php [END]
+RewriteRule ^.*$ /php/main.php [END]
 
 # Secret page to clear cache
 #RewriteCond %{REQUEST_URI} ^/clear-cache_confirm$
