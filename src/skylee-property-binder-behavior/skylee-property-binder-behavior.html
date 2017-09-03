@@ -17,12 +17,13 @@
 
           if (prop in this._bindedPropertyRecord) {
             let record = this._bindedPropertyRecord[prop];
-            if (record.target === propSetting.target && record.name === propSetting.name && record.mode === propSetting.mode) {
+            if (record.target === propSetting.target && record.name === propSetting.name && record.mode === propSetting.mode && record.default === propSetting.default) {
               continue;
 
             } else {
               if (record.mode === 'both' || record.mode === 'down') {
-                this.removeEventListener(this._propertyNameToEventName(prop), record.thisListener);
+                this._removePropertyEffect(prop, this.PROPERTY_EFFECT_TYPES.PROPAGATE, record.propertyEffect);
+                // this.removeEventListener(this._propertyNameToEventName(prop), record.thisListener);
               }
               if (record.mode === 'both' || record.mode === 'up') {
                 record.target.removeEventListener(this._propertyNameToEventName(record.name), record.targetListener);
@@ -34,13 +35,23 @@
           if (propSetting.target) {
             let record = {
               target: propSetting.target,
-              name: propSetting.name
+              name: propSetting.name,
+              mode: propSetting.mode,
+              default: propSetting.default
             };
             if (propSetting.mode === 'both' || propSetting.mode === 'down') {
-              record.thisListener = e => {
-                propSetting.target[propSetting.name] = e.detail.value;
-              };
-              this.addEventListener(this._propertyNameToEventName(prop), record.thisListener);
+              this._addPropertyEffect(prop, this.PROPERTY_EFFECT_TYPES.PROPAGATE, record.propertyEffect = {
+                fn: (inst, path, props, oldProps, info, hasPaths) => {
+                  if (prop in props) {
+                    // console.log(inst, path, props, oldProps, info, hasPaths);
+                    propSetting.target[prop] = props[prop];
+                  }
+                }
+              });
+              // record.thisListener = e => {
+              //   propSetting.target[propSetting.name] = e.detail.value;
+              // };
+              // this.addEventListener(this._propertyNameToEventName(prop), record.thisListener);
             }
             if (propSetting.mode === 'both' || propSetting.mode === 'up') {
               record.targetListener = e => {
@@ -48,25 +59,26 @@
                 p[prop] = e.detail.value;
                 this.setProperties(p, true);
               }
+              // record.targetListener = e => this[prop] = e.detail.value;
               propSetting.target.addEventListener(this._propertyNameToEventName(propSetting.name), record.targetListener);
             }
             this._bindedPropertyRecord[prop] = record;
 
             if (propSetting.mode === 'both') {
               if (this[prop] === undefined) {
-                thisPropsToSet[prop] = propSetting.target[propSetting.name];
+                thisPropsToSet[prop] = propSetting.target[propSetting.name] !== undefined ? propSetting.target[propSetting.name] : propSetting.default;
               } else {
                 propSetting.target[propSetting.name] = this[prop];
               }
             } else if (propSetting.mode === 'down') {
               propSetting.target[propSetting.name] = this[prop];
             } else if (propSetting.mode === 'up') {
-              thisPropsToSet[prop] = propSetting.target[propSetting.name];
+              thisPropsToSet[prop] = propSetting.target[propSetting.name] !== undefined ? propSetting.target[propSetting.name] : propSetting.default;
             }
 
           } else {
             if (propSetting.mode === 'up') {
-              thisPropsToSet[prop] = undefined;
+              thisPropsToSet[prop] = propSetting.default;
             }
           }
         }

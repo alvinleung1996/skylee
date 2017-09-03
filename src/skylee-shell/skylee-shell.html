@@ -1,0 +1,63 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/polymer/lib/elements/dom-if.html">
+
+<link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
+
+<link rel="import" href="../skylee-toolbar/skylee-toolbar.html">
+<link rel="import" href="../skylee-drawer/skylee-drawer.html">
+
+<dom-module id="skylee-shell">
+  <template strip-whitespace>
+    
+    <skylee-toolbar id="toolbar"
+      route-path="[[routePath]]"
+      hide="[[hideToolbar]]"
+      transparent="[[transparentToolbar]]"
+      show-shadow="[[showToolbarShadow]]"
+      narrow-layout="{{_narrowLayout}}">
+    </skylee-toolbar>
+
+    <template is="dom-if" if="[[_narrowLayout]]">
+      <skylee-drawer id="drawer"
+        route-path="[[routePath]]">
+      </skylee-drawer>
+    </template>
+
+  </template>
+  <script>
+    class SkyleeShell extends Polymer.Element {
+
+      static get is() { return 'skylee-shell'; }
+
+      static get properties() { return {
+        routePath: String,
+
+        hideToolbar: Boolean,
+        transparentToolbar: Boolean,
+        showToolbarShadow: Boolean,
+
+        _narrowLayout: {
+          type: Boolean,
+          observer: '_onNarrowLayoutChanged'
+        }
+      };}
+
+      ready() {
+        super.ready();
+        this.$.toolbar.addEventListener('skylee-toolbar-menu-button-tap', e => this._onMenuButtonTap(e));
+      }
+
+      _onMenuButtonTap(evt) {
+        let drawer = this.shadowRoot.querySelector('#drawer');
+        if (drawer) drawer.toggle();
+      }
+
+      _onNarrowLayoutChanged(narrowLayout) {
+        let drawer = this.shadowRoot.querySelector('#drawer');
+        if (drawer) drawer.close();
+      }
+
+    }
+    window.customElements.define(SkyleeShell.is, SkyleeShell);
+  </script>
+</dom-module>

@@ -1,0 +1,121 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../skylee-property-binder-behavior/skylee-property-binder-behavior.html">
+<link rel="import" href="../skylee-dynamic-pages/skylee-dynamic-pages.html">
+<link rel="import" href="../skylee-loading-page/skylee-loading-page.html">
+<link rel="import" href="../skylee-404-page/skylee-404-page.html">
+
+<dom-module id="skylee-pages">
+  <template strip-whitespace>
+    <style>
+      :host {
+        display: block;
+      }
+      #dynamic-pages {
+        width: 100%;
+        height: 100%;
+      }
+      #dynamic-pages > * {
+        transition: top var(--skylee-toolbar_height-transition-duration) var(--skylee-toolbar_height-transition-timing-function);
+        -webkit-transition: top var(--skylee-toolbar_height-transition-duration) var(--skylee-toolbar_height-transition-timing-function); /* for Safari */
+      }
+      #dynamic-pages > :not([snap-to-top]) {
+        top: var(--skylee-toolbar_height);
+      }
+      #dynamic-pages > [snap-to-bottom] {
+        bottom: 0px;
+      }
+    </style>
+
+    <skylee-dynamic-pages
+      id="dynamic-pages"
+      page-map="[[_pageMap]]"
+      selected-path="[[routePath]]"
+      selected-page="{{_selectedPage}}">
+
+      <skylee-loading-page page-type="loading"></skylee-loading-page>
+      <skylee-404-page page-type="404"></skylee-404-page>
+
+    </skylee-dynamic-pages>
+
+  </template>
+  <script>
+    class SkyleePages extends Skylee.SkyleePropertyBinderBehavior(Polymer.Element) {
+
+      static get is() { return 'skylee-pages'; }
+
+      static get properties() { return {
+        routePath: String,
+
+        pageTitle: {
+          readOnly: true,
+          notify: true
+        },
+        addressBarBackgroundColor: {
+          readOnly: true,
+          notify: true
+        },
+
+        toolbarHeight: {
+          type: Number
+        },
+        transparentToolbar: {
+          readOnly: true,
+          notify: true
+        },
+        hideToolbar: {
+          readOnly: true,
+          notify: true
+        },
+        showToolbarShadow: {
+          readOnly: true,
+          notify: true
+        },
+
+        _pageMap: {
+          type: Object,
+          value: () => {
+            let obj = {
+              '/': { tagName: 'skylee-home', src: `${Polymer.rootPath}src/skylee-home/skylee-home.html` },
+              '/event': { tagName: 'skylee-event', src: `${Polymer.rootPath}src/skylee-event/skylee-event.html` },
+              '/team': { tagName: 'skylee-team', src: `${Polymer.rootPath}src/skylee-team/skylee-team.html` },
+              '/about': { tagName: 'skylee-about', src: `${Polymer.rootPath}src/skylee-about/skylee-about.html` },
+              '/image-viewer/*': { tagName: 'skylee-image-viewer', src: `${Polymer.rootPath}src/skylee-image-viewer/skylee-image-viewer.html`},
+            }
+
+            let teams = ['badminton', 'band', 'basketball', 'bridge', 'choir', 'dancing', 'debating', 'drama', 'handball', 'hockey', 'lacrosse', 'soccer', 'softball', 'squash', 'table-tennis', 'volleyball'];
+            teams.forEach(e => {
+              obj[`/team/${e}`] = {
+                tagName: `skylee-team-${e}`,
+                src: `${Polymer.rootPath}src/skylee-team/${e}/skylee-team-${e}.html`
+              };
+            });
+            
+            return obj;
+          }
+        },
+        _selectedPage: {
+          observer: '_onSelectedPageChanged'
+        }
+      };}
+
+      _onSelectedPageChanged(selectedPage) {
+        window.scrollTo(0, 0);
+        this._bindProperties({
+          routePath: { target: selectedPage, name: 'routePath', mode: 'down' },
+          
+          pageTitle: { target: selectedPage, name: 'pageTitle', mode: 'up' },
+          addressBarBackgroundColor: { target: selectedPage, name: 'addressBarBackgroundColor', mode: 'up' },
+
+          toolbarHeight: { target: selectedPage, name: 'toolbarHeight', mode: 'down' },
+          transparentToolbar: { target: selectedPage, name: 'transparentToolbar', mode: 'up' },
+          hideToolbar: { target: selectedPage, name: 'hideToolbar', mode: 'up' },
+          showToolbarShadow: { target: selectedPage, name: 'showToolbarShadow', mode: 'up' },
+
+        });
+      }
+
+    }
+    window.customElements.define(SkyleePages.is, SkyleePages);
+  </script>
+</dom-module>

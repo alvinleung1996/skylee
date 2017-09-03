@@ -42,7 +42,13 @@
       "addServiceWorker": false,
       "addPushManifest": false,
       "insertPrefetchLinks": true,
-      "bundle": true,
+      "bundle": {
+        "inlineCss": true,
+        "inlineScripts": true,
+        "rewriteUrlsInTemplates": false,
+        "sourcemaps": false,
+        "stripComments": true 
+      },
       "html": {
         "minify": true
       },

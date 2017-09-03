@@ -19,7 +19,10 @@
        * Edge presudo element styles seems like conflict with their parent,
        * ShadyCSS solves this.
        */
-      if (navigator.userAgent.match(/Edge/)) {
+      if (navigator.userAgent.indexOf('Edge') >= 0 ||
+          (navigator.userAgent.indexOf('Safari') >= 0 && navigator.userAgent.indexOf('Chrome') < 0)) {
+        window.customElements && (window.customElements.forcePolyfill = true);
+        ShadyDOM = { force: true };
         ShadyCSS = { shimcssproperties: true };
       }
       // window.customElements && (window.customElements.forcePolyfill = true);
@@ -39,8 +42,7 @@
 
     <style>
       /* Full selector path to prevent messing with styles in custom elements when using shadydom */
-      html, body,
-      body > #shell {
+      html, body, skylee-app {
         width: 100%;
         height: 100%;
       }
@@ -50,6 +52,9 @@
     </style>
   </head>
   <body>
-    <skylee-app id="shell"></skylee-app>
+    <skylee-app></skylee-app>
+    <noscript>
+      Please enable JavaScript to view this website.
+    </noscript>
   </body>
 </html>

@@ -7,6 +7,7 @@
 
 <link rel="import" href="../skylee-page-scroll-behavior/skylee-page-scroll-behavior.html">
 <link rel="import" href="../skylee-styles/skylee-styles.html">
+<link rel="import" href="./skylee-teams-block.html">
 <link rel="import" href="./skylee-team-tile.html">
 
 <dom-module id="skylee-team">
@@ -16,36 +17,14 @@
         display: block;
       }
 
-      .teams-block {
-        padding: 20px;
-      }
-      .teams-block__header {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .teams-block__name {
-        margin: 0;
-        @apply --skylee-text--headline_font;
-        color: var(--skylee-text--primary_color);
-      }
-      .teams-block__team-tiles {
-        margin-top: 16px;
-        display: flex;
-        flex-wrap: wrap;
-      }
-      .teams-block__team-tile {
-        flex: 0 0 200px;
-        margin: 0px 10px 30px 0px;
-        min-width: 0px; /* Without this, the team name prevent the tile from shrinking https://css-tricks.com/flexbox-truncated-text/ */
-      }
-      .teams-block__team-tiles[narrow] .teams-block__team-tile {
-        flex-grow: 0;
-        flex-shrink: 0;
-        flex-basis: calc((100% - 10px) / 2); /* IE does not support calc() in shorthand flex property: flex: 0 0 calc(...); */
-      }
-      .teams-block__team-tiles[narrow] .teams-block__team-tile:nth-child(even) {
-        margin-right: 0px;
+      
+      .teams-block__background {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        bottom: 0px;
+        left: 0px;
+        background-position: center;
       }
       @supports (display: -moz-grid) { /* Chrome has bug in calculating height */
         .teams-block__team-tiles {
@@ -74,27 +53,11 @@
     <iron-media-query query="max-width: 480px" query-matches="{{_narrowLayout}}"></iron-media-query>
 
     <template is="dom-repeat" items="[[_teamGroups]]" as="group">
-      <div class="padding-block teams-block" style$="background:[[group.background]];">
-
-        <div class="teams-block__header">
-          <h2 class="teams-block__name">[[group.name]]</h2>
-        </div>
-
-        <div class="teams-block__team-tiles" narrow$="[[_narrowLayout]]">
-
-          <template is="dom-repeat" items="[[group.teams]]" as="team">
-            <skylee-team-tile
-              class="teams-block__team-tile"
-              cover-src="[[team.coverSrc]]"
-              icon-src="[[team.iconSrc]]"
-              name="[[team.name]]"
-              href="[[team.href]]">
-            </skylee-team-tile>
-          </template>
-
-        </div>
-
-      </div>
+      <skylee-teams-block
+        name="[[group.name]]"
+        cover-image-src="[[group.coverImageSrc]]"
+        teams="[[group.teams]]">
+      </skylee-teams-block>
     </template>
 
   </template>
@@ -115,7 +78,8 @@
           value: () => [
             {
               name: 'Sports Teams',
-              background: 'linear-gradient(to bottom, #a1ffce, transparent)',
+              backgroundImage: `url('${Polymer.rootPath}images/team/sports-teams-background.png'), linear-gradient(to right, #00b09b, #96c93d)`,
+              coverImageSrc: 'https://scontent.xx.fbcdn.net/v/t1.0-0/p320x320/12799007_585944504904756_6067227570710367360_n.jpg?oh=0071f52b2d2f66a6556434ead2614039&oe=5A1DF183',
               teams: [
                 {
                   coverSrc: `${Polymer.rootPath}images/team/badminton/badminton-0.jpg`,
@@ -181,7 +145,8 @@
             },
             {
               name: 'Cultural Teams',
-              background: 'linear-gradient(to bottom, #faffd1, transparent)',
+              backgroundImage: `url('${Polymer.rootPath}images/team/cultural-teams-background.png'), linear-gradient(to right, #ff00cc, #333399);`,
+              coverImageSrc: 'https://scontent.xx.fbcdn.net/v/t1.0-0/p320x320/922826_166207390211805_1226434716_n.jpg?oh=50295c5613e30b367a23bc76a214cd98&oe=5A19739B',
               teams: [
                 {
                   coverSrc: `${Polymer.rootPath}images/team/band/band-0.jpg`,

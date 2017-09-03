@@ -22,11 +22,13 @@
         height: 50vh;
         min-height: 250px;
         max-height: 500px;
+        padding-top: var(--skylee-toolbar_height);
         background-image: linear-gradient(to bottom, #2f80ed, #56ccf2);
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        transition: padding-top var(--skylee-toolbar_height-transition-duration) var(--skylee-toolbar_height-transition-timing-function);
       }
       #cover__icon {
         --iron-icon-width: 128px;
@@ -299,14 +301,14 @@
     </style>
 
     <iron-media-query query="not all and (min-width: 850px)" query-matches="{{_narrowLayout}}" full></iron-media-query>
-
+    
     <div id="cover">
       <iron-icon id="cover__icon" icon="skylee:hall-logo"></iron-icon>
       <p id="cover__hall-name">Simon K. Y. Lee Hall</p>
       <p id="cover__slogan">Active and Sincere</p>
     </div>
 
-    <div id="card-background" no-padding$="[[floatingDrawer]]">
+    <div id="card-background" no-padding$="[[_narrowLayout]]">
       <section class="card">
         <div class$="[[_enableIf(_narrowLayout, 'vertical-layout', 'horizontal-2-reverse-layout')]] min-height">
 
@@ -461,18 +463,25 @@
 
       static get is() { return 'skylee-about'; }
 
-      static get properties() {return {
-        floatingDrawer: {
-          type: Boolean,
-          reflectToAttribute: true
-        },
-
+      static get properties() { return {
         pageTitle: {
           type: String,
           value: 'About',
           readOnly: true,
           notify: true
-        }
+        },
+        snapToTop: {
+          type: Boolean,
+          value: true,
+          readOnly: true,
+          notify: true,
+          reflectToAttribute: true
+        },
+
+        _transparentToolbarOnTop: {
+          type: Boolean,
+          value: true
+        },
       };}
 
       _enableIf(cond, value, otherwise) {

@@ -15,10 +15,6 @@
         flex: 1 1 auto;
         display: block;
         overflow: hidden;
-        background-color: rgba(var(--skylee-text--base_color_r),
-                                 var(--skylee-text--base_color_g),
-                                 var(--skylee-text--base_color_b),
-                                 0.1);
         -webkit-tap-highlight-color: transparent; /* for Android Chrome */
         position: relative;
       }
@@ -34,21 +30,29 @@
         right: 0px;
         bottom: 0px;
         left: 0px;
+        background-color: rgba(var(--skylee-text--base_color_r),
+                                 var(--skylee-text--base_color_g),
+                                 var(--skylee-text--base_color_b),
+                                 0.1);
         transition: transform 330ms ease-out 0ms;
       }
       #link:hover #image {
         transform: scale(1.1);
       }
-      #ripple {
-        color: var(--skylee-text--light-theme--base_color);
+      #link:active #image {
+        transform: scale(0.9);
+        transition: transform 100ms ease-out 0ms;
       }
+      /* #ripple {
+        color: var(--skylee-text--light-theme--base_color);
+      } */
     </style>
 
     <a id="link" href$="[[_href]]">
 
       <iron-image id="image" src="[[thumbnailSrc]]" sizing="cover" preload fade></iron-image>
 
-      <paper-ripple id="ripple"></paper-ripple>
+      <!-- <paper-ripple id="ripple"></paper-ripple> -->
 
     </a>
 

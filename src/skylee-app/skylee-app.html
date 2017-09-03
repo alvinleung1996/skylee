@@ -1,170 +1,25 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
 
-<link rel="import" href="../../bower_components/polymer/lib/utils/debounce.html">
-<link rel="import" href="../../bower_components/polymer/lib/elements/dom-repeat.html">
-<link rel="import" href="../../bower_components/shadycss/apply-shim.html">
-<link rel="import" href="../../bower_components/polymer/lib/mixins/gesture-event-listeners.html">
-
 <link rel="import" href="../../bower_components/app-route/app-location.html">
-<link rel="import" href="../../bower_components/app-layout/app-drawer/app-drawer.html">
 <link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
-<link rel="import" href="../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 
 <link rel="import" href="../../bower_components/curium-route/curium-route.html">
 
 <link rel="import" href="../skylee-styles/skylee-styles.html">
-<link rel="import" href="../skylee-dynamic-pages/skylee-dynamic-pages.html">
-<link rel="import" href="../skylee-property-binder-behavior/skylee-property-binder-behavior.html">
-<link rel="import" href="../skylee-icons/skylee-icons.html">
 
-<link rel="import" href="./skylee-drawer-menu-item.html">
-
-<link rel="import" href="../skylee-loading-page/skylee-loading-page.html">
-<link rel="import" href="../skylee-404-page/skylee-404-page.html">
+<link rel="import" href="../skylee-shell/skylee-shell.html">
+<link rel="import" href="../skylee-pages/skylee-pages.html">
 
 <dom-module id="skylee-app">
   <template strip-whitespace>
     <style>
       :host {
         display: block;
-
         --skylee-toolbar_height: var(--skylee-toolbar--normal_height);
-        --skylee-toolbar_height-transition-duration: 330ms;
-        --skylee-toolbar_height-transition-timing-function: ease-out;
-
-        --skylee-toolbar_toggling-transition-duration: 330ms;
-        --skylee-toolbar_toggling-transition-timing-function: ease-out;
-
-        --skylee-drawer_width: 200px;
-        --skylee-drawer_toggling-transition-duration: 200ms; /* app-drawer default */
-        --skylee-drawer_toggling-transition-timing-function: cubic-bezier(0.667, 1, 0.667, 1); /* copy from app-drawer */
       }
       :host([_short-toolbar]) {
         --skylee-toolbar_height: var(--skylee-toolbar--short_height);
-      }
-
-      #toolbar {
-        position: fixed;
-        top: 0px;
-        left: 0px;
-        right: 0px;
-        height: var(--skylee-toolbar_height);
-        z-index: 20;
-        background-color: var(--skylee-background--app-theme--primary_background-color);
-        pointer-events: none;
-        /* Safari bug: var cannot be used in transition and only work after disabling and re-enabling the property.
-         * -webkit-transition seems does not have this bug. */
-        transition: height var(--skylee-toolbar_height-transition-duration) var(--skylee-toolbar_height-transition-timing-function) 0ms,
-                    transform var(--skylee-toolbar_toggling-transition-duration) var(--skylee-toolbar_toggling-transition-timing-function) 0ms,
-                    background-color 330ms ease-out 0ms,
-                    var(--skylee-shadow_transition);
-        -webkit-transition: height var(--skylee-toolbar_height-transition-duration) var(--skylee-toolbar_height-transition-timing-function) 0ms,
-                            transform var(--skylee-toolbar_toggling-transition-duration) var(--skylee-toolbar_toggling-transition-timing-function) 0ms,
-                            background-color 330ms ease-out 0ms,
-                            var(--skylee-shadow_transition);
-      }
-      #toolbar[hide] {
-        transform: translateY(-100%);
-      }
-      #toolbar[transparent] {
-        background-color: transparent;
-      }
-      #toolbar[shadow] {
-        @apply --skylee-shadow--elevation-2;
-      }
-
-      #toolbar__content {
-        position: relative;
-        z-index: 20;
-        width: 100%;
-        height: 100%;
-        transition: opacity var(--skylee-toolbar_toggling-transition-duration) var(--skylee-toolbar_toggling-transition-timing-function) 0ms;
-        display: flex;
-      }
-      #toolbar[hide] #toolbar__content {
-        opacity: 0;
-      }
-
-      #toolbar__icon-button-space {
-        flex: 0 0 var(--skylee-toolbar_height);
-        transition: flex-basis 330ms ease-out 0ms;
-        position: relative;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-
-      #toolbar__menu-button {
-        color: var(--skylee-text--app-theme--primary_color);
-        --paper-icon-button-ink-color: var(--skylee-text--app-theme--primary_color);
-        pointer-events: auto;
-        transition: color 330ms ease-out 0ms;
-      }
-      #toolbar[transparent] #toolbar__menu-button {
-        color: white;
-        --paper-icon-button-ink-color: white;
-      }
-
-      #toolbar__home-button-link {
-        flex: 0 0 auto;
-        display: flex;
-        text-decoration: none;
-        -webkit-tap-highlight-color: transparent; /* for Android Chrome */
-        pointer-events: auto;
-      }
-      #toolbar__home-button {
-        flex: 1 1 auto;
-        margin: 0px;
-        padding-top: 0;
-        padding-bottom: 0;
-        @apply --skylee-text--headline_font;
-        color: var(--skylee-accent_color);
-        text-transform: none;
-        transition: color 330ms ease-out 0ms;
-        outline: none; /* for Safari */
-      }
-      #toolbar[transparent] #toolbar__home-button {
-        color: white;
-      }
-
-      #drawer {
-        z-index: 10;
-        --app-drawer-width: var(--skylee-drawer_width);
-        --app-drawer-content-container: {
-          background-color: transparent;
-        };
-      }
-      #drawer[floating] {
-        z-index: 30;
-      }
-      #drawer__background {
-        height: 100%;
-        box-sizing: border-box;
-        transition: background-color 330ms ease-out 0ms,
-                    padding-top var(--skylee-toolbar_toggling-transition-duration) var(--skylee-toolbar_toggling-transition-timing-function) 0ms;
-        -webkit-transition: background-color 330ms ease-out 0ms,
-                            padding-top var(--skylee-toolbar_toggling-transition-duration) var(--skylee-toolbar_toggling-transition-timing-function) 0ms;
-      }
-      #drawer[floating] #drawer__background {
-        background-color: var(--skylee-background--primary_background-color);
-      }
-      #drawer[toolbar-padding] #drawer__background {
-        padding-top: var(--skylee-toolbar_height);
-      }
-      #drawer__scrollable {
-        height: 100%;
-        box-sizing: border-box;
-        overflow-x: hidden;
-        overflow-y: auto;
-        padding-top: 20px;
-        padding-bottom: 20px;
-      }
-      .drawer__menu-divider {
-        margin-top: 4px;
-        margin-bottom: 4px;
-        border-top: 1px solid var(--skylee-divider_color);
       }
 
       #pages {
@@ -174,88 +29,27 @@
       }
     </style>
 
-    <iron-media-query query="not all and (min-width: 700px)" query-matches="{{_narrowScreen}}" full></iron-media-query>
-    <iron-media-query query="not all and (min-height: 450px)" query-matches="{{_shortScreen}}" full></iron-media-query>
+    <iron-media-query query="not all and (min-height: 450px)" query-matches="{{_shortToolbar}}" full></iron-media-query>
 
     <app-location route="{{_rawRoute}}"></app-location>
 
-    <div id="toolbar"
-      hide$="[[_hideToolbar]]"
-      transparent$="[[_transparentToolbar]]"
-      shadow$="[[_showToolbarShadow]]">
-      <div id="toolbar__content">
+    <skylee-shell id="shell"
+      route-path="[[_routePath]]"
+      transparent-toolbar="[[_transparentToolbar]]"
+      hide-toolbar="[[_hideToolbar]]"
+      show-toolbar-shadow="[[_showToolbarShadow]]">
+    </skylee-shell>
 
-        <div id="toolbar__icon-button-space">
-
-          <paper-icon-button id="toolbar__menu-button" icon="skylee:menu" on-tap="_onToolbarMenuButtonTap"></paper-icon-button>
-
-        </div>
-
-        <a id="toolbar__home-button-link" href$="[[defaultPath]]" tabindex="-1">
-          <paper-button id="toolbar__home-button">Simon K. Y. Lee Hall</paper-button>
-        </a>
-
-      </div>
-
-      <div id="toolbar__scrim"></div>
-    </div>
-
-     <app-drawer id="drawer"
-      floating$="[[_floatingDrawer]]"
-      toolbar-padding$="[[_drawerToolbarPadding]]"
-      opened="{{_drawerOpened}}"
-      swipe-open="[[_floatingDrawer]]"
-      persistent="[[!_floatingDrawer]]">
-      <div id="drawer__background">
-        <div id="drawer__scrollable">
-          <div id="drawer__menu">
-            <template is="dom-repeat" items="[[_drawerMenuItems]]">
-              <skylee-drawer-menu-item
-                name="[[item.name]]"
-                href="[[item.href]]"
-                subitems="[[item.subitems]]"
-                route-path="[[_routePath]]"
-                depth="0">
-              </skylee-drawer-menu-item>
-            </template>
-
-            <div class="drawer__menu-divider"></div>
-
-            <skylee-drawer-menu-item
-              name="Facebook"
-              href="https://www.facebook.com/skylee.hku"
-              target="_blank"
-              depth="0">
-            </skylee-drawer-menu-item>
-            <skylee-drawer-menu-item
-              name="Instagram"
-              href="https://www.instagram.com/skylee.hku/"
-              target="_blank"
-              depth="0">
-            </skylee-drawer-menu-item>
-            <skylee-drawer-menu-item
-              name="Youtube"
-              href="https://www.youtube.com/channel/UC3w7MWF3OkqMs-tV-Np-LKw"
-              target="_blank"
-              depth="0">
-            </skylee-drawer-menu-item>
-          </div>
-        </div>
-      </div>
-    </app-drawer>
-
-    <skylee-dynamic-pages
-      id="pages"
-      page-map="[[_pageMap]]"
-      selected-path="[[_routePath]]"
-      selected-page="{{_selectedPage}}"
-      floating-drawer="[[_floatingDrawer]]"
-      drawer-opened="[[_drawerOpened]]">
-
-      <skylee-loading-page page-type="loading"></skylee-loading-page>
-      <skylee-404-page page-type="404"></skylee-404-page>
-
-    </skylee-dynamic-pages>
+    <skylee-pages id="pages"
+      route-path="[[_routePath]]"
+      toolbar-height="[[_toolbarHeight]]"
+      page-title="{{pageTitle}}"
+      address-bar-background-color="{{addressBarBackgroundColor}}"
+      transparent-toolbar="{{_transparentToolbar}}"
+      hide-toolbar="{{_hideToolbar}}"
+      show-toolbar-shadow="{{_showToolbarShadow}}">
+    </skylee-pages>
+    
   </template>
 
   <script>
@@ -263,25 +57,19 @@
      * @customElement
      * @polymer
      */
-    class SkyleeApp extends Skylee.SkyleePropertyBinderBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.GestureEventListeners(Polymer.Element))) {
+    class SkyleeApp extends Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element) {
 
       static get is() { return 'skylee-app'; }
 
       static get properties() {
         return {
-          defaultPath: {
-            value: Skylee.defaultPath
-          },
-          
           _rawRoute: Object,
           _routePath: {
             type: String,
             computed: '_computeRoutePath(_rawRoute.path)',
-            observer: '_onRoutePathChanged',
-            notify: true /* for dynamic binding */
           },
 
-          _pageTitle: {
+          pageTitle: {
             type: String,
             value: '',
             observer: '_onPageTitleChanged'
@@ -292,134 +80,25 @@
             observer: '_onAddressBarBackgroundColorChanged'
           },
 
-          _narrowScreen: {
-            type: Boolean
-          },
-          _shortScreen: {
-            type: Boolean
-          },
-
           /*
            * Toolbar
            */
           _shortToolbar: {
             type: Boolean,
-            computed: '_computeShortToolbar(_shortScreen)',
             reflectToAttribute: true
           },
-            _toolbarHeight: {
-              type: Number,
-              computed: '_computeToolbarHeight(_shortToolbar)',
-              observer: '_onToolbarHeightChanged',
-              notify: true /* for dynamic binding */
-            },
-          _hideToolbar: {
-            type: Boolean,
-            value: false
-          },
-          _transparentToolbar: {
-            type: Boolean,
-            value: false,
-            observer: '_onTransparentToolbarChanged'
-          },
-          _showToolbarShadow: {
-            type: Boolean,
-            computed: '_computeShowToolbarShadow(_transparentToolbar)'
-          },
-
-          /*
-           * Drawer
-           */
-          _drawerMenuItems: {
-            type: Array,
-            value: () => [
-              {
-                name: 'Home',
-                href: `${Polymer.rootPath}`
-              },
-              {
-                name: 'Event',
-                href: `${Polymer.rootPath}event`
-              },
-              {
-                name: 'Team',
-                href: `${Polymer.rootPath}team`,
-                subitems: (() => {
-                  let teams = ['badminton', 'band', 'basketball', 'bridge', 'choir', 'dancing', 'debating', 'drama', 'handball', 'hockey', 'lacrosse', 'soccer', 'softball', 'squash', 'table-tennis', 'volleyball'];
-                  return teams.map(e => ({
-                    name: e.split('-').map(s => s.charAt(0).toUpperCase() + s.substr(1)).join(' '),
-                    href: `${Polymer.rootPath}team/${e}`
-                  }));
-                })()
-              },
-              {
-                name: 'About',
-                href: `${Polymer.rootPath}about`
-              }
-            ]
-          },
-          _floatingDrawer: {
-            type: Boolean,
-            computed: '_computeFloatingDrawer(_narrowScreen, _transparentToolbar)',
-            observer: '_onFloatingDrawerChanged',
-            notify: true /* for dynamic binding */
-          },
-          _drawerOpenedInPrevNonFloatingDrawerMode: {
-            type: Boolean,
-            value: true
-          },
-          _drawerToolbarPadding: {
-            type: Boolean,
-            computed: '_computeDrawerToolbarPadding(_floatingDrawer, _hideToolbar)'
-          },
-          _drawerOpened: {
-            type: Boolean,
-            notify: true /* for dynamic binding */
-          },
-          
-          /*
-           * Pages
-           */
-          _pageMap: {
-            type: Object,
-            value: () => {
-              let obj = {
-                '/': { tagName: 'skylee-home', src: `${Polymer.rootPath}src/skylee-home/skylee-home.html` },
-                '/event': { tagName: 'skylee-event', src: `${Polymer.rootPath}src/skylee-event/skylee-event.html` },
-                '/team': { tagName: 'skylee-team', src: `${Polymer.rootPath}src/skylee-team/skylee-team.html` },
-                '/about': { tagName: 'skylee-about', src: `${Polymer.rootPath}src/skylee-about/skylee-about.html` },
-                '/image-viewer/*': { tagName: 'skylee-image-viewer', src: `${Polymer.rootPath}src/skylee-image-viewer/skylee-image-viewer.html`}
-              }
-
-              let teams = ['badminton', 'band', 'basketball', 'bridge', 'choir', 'dancing', 'debating', 'drama', 'handball', 'hockey', 'lacrosse', 'soccer', 'softball', 'squash', 'table-tennis', 'volleyball'];
-              teams.forEach(e => {
-                obj[`/team/${e}`] = {
-                  tagName: `skylee-team-${e}`,
-                  src: `${Polymer.rootPath}src/skylee-team/${e}/skylee-team-${e}.html`
-                };
-              });
-              
-              return obj;
-            }
-          },
-          _selectedPage: {
-            observer: '_onSelectedPageChanged'
+          _toolbarHeight: {
+            type: Number,
+            computed: '_computeToolbarHeight(_shortToolbar)',
+            observer: '_onToolbarHeightChanged',
           }
         };
       }
-
-      static get observers() { return [
-        '_onDynamicPagesSizeChanged(_floatingDrawer, _drawerOpened)'
-      ];}
 
 
 
       _computeRoutePath(path) {
         return path;
-      }
-      
-      _onRoutePathChanged(routePath) {
-        if (this._floatingDrawer) this.$.drawer.close();
       }
 
 
@@ -445,10 +124,6 @@
 
       
 
-      _computeShortToolbar(shortScreen) {
-        return shortScreen;
-      }
-
       _computeToolbarHeight(short) {
         let cssProp = short ? '--skylee-toolbar--short_height' : '--skylee-toolbar--normal_height';
         let cssValue = (window.ShadyCSS && !window.ShadyCSS.nativeCss) ? ShadyCSS.getComputedStyleValue(this, cssProp) : getComputedStyle(this).getPropertyValue(cssProp);
@@ -464,101 +139,6 @@
           };
           this.updateStyles(stylesToUpdate);
         }
-      }
-      
-      _onTransparentToolbarChanged(transparent) {
-        /* Fix for ShadyCSS */
-        if (window.ShadyCSS && !window.ShadyCSS.nativeCss) {
-          let button = this.$['toolbar__menu-button'];
-          button.updateStyles({
-            '--paper-icon-button-ink-color': transparent ? 'white' : ShadyCSS.getComputedStyleValue(button, '--skylee-text--app-theme--primary_color')
-          });
-        }
-      }
-
-      _computeShowToolbarShadow(transparentToolbar) {
-        return !transparentToolbar;
-      }
-
-
-
-      _computeFloatingDrawer(narrowScreen, transparentToolbar) {
-        return narrowScreen || transparentToolbar;
-      }
-
-      _onFloatingDrawerChanged(floatingDrawer) {
-        if (floatingDrawer) {
-          this._drawerOpenedInPrevNonFloatingDrawerMode = this._drawerOpened;
-          this.$.drawer.close();
-        } else {
-          if (this._drawerOpenedInPrevNonFloatingDrawerMode) this.$.drawer.open();
-          else this.$.drawer.close();
-        }
-      }
-
-      _computeDrawerToolbarPadding(floatingDrawer, hideToolbar) {
-        return !floatingDrawer && !hideToolbar;
-      }
-
-      _onDynamicPagesSizeChanged(floatingDrawer, drawerOpened) {
-        if (this.__notifyDynamicPagesResizeDebouncer) this.__notifyDynamicPagesResizeDebouncer.cancel();
-        this.__onDynamicPagesSizeChangedDebouncer = Polymer.Debouncer.debounce(this.__onDynamicPagesSizeChangedDebouncer, Polymer.Async.microTask, () => {
-          
-          let notify;
-          if (!this.__prevFloatingDrawer && floatingDrawer) {
-            notify = this.__prevDrawerOpened;
-
-          } else if (this.__prevFloatingDrawer && !floatingDrawer) {
-            notify = drawerOpened;
-
-          } else if (!this.__prevFloatingDrawer && !floatingDrawer) {
-            notify = this.__prevDrawerOpened != drawerOpened;
-
-          } else {
-            notify = false;
-          }
-
-          this.__prevFloatingDrawer = floatingDrawer;
-          this.__prevDrawerOpened = drawerOpened;
-
-          if (notify) {
-            let durationStyle = (window.ShadyCSS && !window.ShadyCSS.nativeCss) ? 
-                                ShadyCSS.getComputedStyleValue(this, '--skylee-drawer_toggling-transition-duration') :
-                                getComputedStyle(this).getPropertyValue('--skylee-drawer_toggling-transition-duration');
-            let matches = durationStyle.trim().match(/^(\d+)/);
-            if (matches !== null) {
-              let duration = Number.parseInt(matches[1]);
-              this.__notifyDynamicPagesResizeDebouncer = Polymer.Debouncer.debounce(this.__notifyDynamicPagesResizeDebouncer, Polymer.Async.timeOut.after(duration), () => {
-                this.$.pages.notifyResize();
-              });
-            }
-          }
-        });
-      }
-
-
-
-      _onSelectedPageChanged(selectedPage) {
-        window.scrollTo(0, 0);
-        this._bindProperties({
-          _routePath: { target: selectedPage, name: 'routePath', mode: 'down' },
-          
-          _pageTitle: { target: selectedPage, name: 'pageTitle', mode: 'up' },
-          addressBarBackgroundColor: { target: selectedPage, name: 'addressBarBackgroundColor', mode: 'up' },
-
-          _toolbarHeight: { target: selectedPage, name: 'toolbarHeight', mode: 'down' },
-          _hideToolbar: { target: selectedPage, name: 'hideToolbar', mode: 'up' },
-          _transparentToolbar: { target: selectedPage, name: 'transparentToolbar', mode: 'up' },
-
-          _floatingDrawer: { target: selectedPage, name: 'floatingDrawer', mode: 'down' },
-          _drawerOpened: { target: selectedPage, name: 'drawerOpened', mode: 'down' }
-        });
-      }
-
-
-
-      _onToolbarMenuButtonTap(evt) {
-        this.$.drawer.toggle();
       }
 
     }

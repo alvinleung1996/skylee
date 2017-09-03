@@ -2,11 +2,8 @@
 <link rel="import" href="../../bower_components/shadycss/apply-shim.html">
 <link rel="import" href="../../bower_components/polymer/lib/mixins/gesture-event-listeners.html">
 
-<link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
-
-<link rel="import" href="../skylee-icons/skylee-icons.html">
 
 <dom-module id="skylee-image-viewer">
   <template strip-whitespace>
@@ -26,10 +23,10 @@
         z-index: 1;
         background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.75), transparent);
         pointer-events: none;
-        transition: height var(--skylee-toolbar_height-transition-duration) var(--skylee-toolbar_height-transition-timing-function) 0ms,
-                    opacity var(--skylee-toolbar_toggling-transition-duration) var(--skylee-toolbar_toggling-transition-timing-function) 0ms;
-        -webkit-transition: height var(--skylee-toolbar_height-transition-duration) var(--skylee-toolbar_height-transition-timing-function) 0ms,
-                            opacity var(--skylee-toolbar_toggling-transition-duration) var(--skylee-toolbar_toggling-transition-timing-function) 0ms;
+        transition: height var(--skylee-toolbar_height-transition-duration) var(--skylee-toolbar_height-transition-timing-function),
+                    opacity var(--skylee-toolbar_hide-toggling-duration) var(--skylee-toolbar_hide-toggling-timing-function);
+        -webkit-transition: height var(--skylee-toolbar_height-transition-duration) var(--skylee-toolbar_height-transition-timing-function),
+                            opacity var(--skylee-toolbar_hide-toggling-duration) var(--skylee-toolbar_hide-toggling-timing-function);
       }
       #toolbar-scrim[hide] {
         opacity: 0;
@@ -126,8 +123,6 @@
       }
     </style>
 
-    <iron-media-query query="not all and (min-height: 500px)" query-matches="{{_shortToolbar}}" full></iron-media-query>
-
     <div id="toolbar-scrim" hide$="[[hideToolbar]]"></div>
 
     <div id="img-wrapper" show$="[[_imageLoaded]]" grabbing$="[[_grabbingImg]]">
@@ -169,10 +164,16 @@
           type: Boolean,
           value: true,
           readOnly: true,
+          notify: true
+        },
+        snapToTop: {
+          type: Boolean,
+          value: true,
+          readOnly: true,
           notify: true,
           reflectToAttribute: true
         },
-        snapBottom: {
+        snapToBottom: {
           type: Boolean,
           value: true,
           readOnly: true,
@@ -185,9 +186,6 @@
           value: false,
           readOnly: true,
           notify: true
-        },
-        _shortToolbar: {
-          type: Boolean
         },
 
         routePath: {

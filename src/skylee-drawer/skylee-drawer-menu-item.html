@@ -1,5 +1,4 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
-
 <link rel="import" href="../../bower_components/polymer/lib/elements/dom-if.html">
 <link rel="import" href="../../bower_components/polymer/lib/elements/dom-repeat.html">
 <link rel="import" href="../../bower_components/shadycss/apply-shim.html">
@@ -8,24 +7,28 @@
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
 
-<link rel="import" href="../skylee-icons/skylee-icons.html">
 <link rel="import" href="../skylee-styles/skylee-styles.html">
+<link rel="import" href="../skylee-icons/skylee-icons.html">
 
 <dom-module id="skylee-drawer-menu-item">
   <template strip-whitespace>
     <style>
       :host {
+        --skylee-drawer-menu-item_selected-toggling-duration: 200ms;
+        --skylee-drawer-menu-item_selected-toggling-timing-function: linear;
+      }
+
+      :host {
         display: block;
       }
 
       #item {
-        height: 40px;
-        display: flex;
-        color: var(--skylee-text--primary_color); /* inherit to #name, #expand and ripple */
-        transition: background-color 330ms ease-out 0ms;
+        height: 48px;
+        position: relative;
+        transition: background-color var(--skylee-drawer-menu-item_selected-toggling-duration) var(--skylee-drawer-menu-item_selected-toggling-timing-function);
+        -webkit-transition: background-color var(--skylee-drawer-menu-item_selected-toggling-duration) var(--skylee-drawer-menu-item_selected-toggling-timing-function);
       }
       #item[selected] {
-        color: var(--skylee-accent_color);
         background-color: rgba(var(--skylee-text--base_color_r),
                                  var(--skylee-text--base_color_g),
                                  var(--skylee-text--base_color_b),
@@ -33,66 +36,86 @@
       }
 
       #link {
-        flex: 1 1 auto;
-        position: relative;
-        display: flex;
-        color: inherit;
+        height: 100%;
         text-decoration: none;
         -webkit-tap-highlight-color: transparent; /* for Android */
-      }
-
-      #name {
-        flex: 1 1 auto;
-        border-left: 4px solid transparent;
         display: flex;
         align-items: center;
         @apply --skylee-text--body1_font;
-        color: inherit;
-        transition: color 330ms ease-out 0ms,
-                    border-left-color 330ms ease-out 0ms;
+        color: var(--skylee-text--primary_color);
+        transition: color var(--skylee-drawer-menu-item_selected-toggling-duration) var(--skylee-drawer-menu-item_selected-toggling-timing-function);
+        -webkit-transition: color var(--skylee-drawer-menu-item_selected-toggling-duration) var(--skylee-drawer-menu-item_selected-toggling-timing-function);
       }
-      #item[selected] #name {
+      #item[selected] #link {
+        color: var(--skylee-accent_color);
+      }
+
+      #item-foreground {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        bottom: 0px;
+        left: 0px;
+        border-left: 4px solid transparent;
+        pointer-events: none;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        transition: border-left-color var(--skylee-drawer-menu-item_selected-toggling-duration) var(--skylee-drawer-menu-item_selected-toggling-timing-function);
+        -webkit-transition: border-left-color var(--skylee-drawer-menu-item_selected-toggling-duration) var(--skylee-drawer-menu-item_selected-toggling-timing-function);
+      }
+      #item[selected] #item-foreground {
         border-left-color: var(--skylee-accent_color);
       }
 
       #expand-button {
-        flex: 0 0 auto;
-        align-self: center;
-        color: inherit;
+        pointer-events: auto;
+        color: var(--skylee-text--primary_color);
         --paper-icon-button-ink-color: var(--skylee-text--primary_color);
-        transition: transform 200ms ease-out 0ms,
-                    color 330ms ease-out 0ms;
+        transition: transform 200ms ease-out,
+                    color var(--skylee-drawer-menu-item_selected-toggling-duration) var(--skylee-drawer-menu-item_selected-toggling-timing-function);
+        -webkit-transition: transform 200ms ease-out,
+                            color var(--skylee-drawer-menu-item_selected-toggling-duration) var(--skylee-drawer-menu-item_selected-toggling-timing-function);
+      }
+      #item[selected] #expand-button {
+        color: var(--skylee-accent_color);
+        --paper-icon-button-ink-color: var(--skylee-accent_color);
       }
       #expand-button[expanded] {
         transform: rotate(180deg);
       }
-      #item[selected] #expand-button {
-        --paper-icon-button-ink-color: var(--skylee-accent_color);
-      }
     </style>
+
     <div id="item" selected$="[[_isSelected]]">
-      <a id="link" href$="[[href]]" target$="[[target]]">
-        <div id="name" style$="padding-left:[[_itemIndentation]];">[[name]]</div>
+
+      <a id="link" style$="padding-left:[[_itemIndentation]]px;" href$="[[href]]" target$="[[target]]">
+        [[name]]
         <paper-ripple></paper-ripple>
       </a>
-      <template is="dom-if" if="[[_hasSubmenu]]" id="expand-button-renderer">
-        <paper-icon-button id="expand-button" icon="skylee:expand-more" expanded$=[[_submenuExpanded]] on-tap="_onExpandButtonTap"></paper-icon-button>
-      </template>
+
+      <div id="item-foreground">
+        <template is="dom-if" if="[[_hasSubmenu]]" id="expand-button-renderer">
+          <paper-icon-button id="expand-button" icon="skylee:expand-more" expanded$=[[_submenuExpanded]] on-tap="_onExpandButtonTap"></paper-icon-button>
+        </template>
+      </div>
+
     </div>
+
     <template is="dom-if" if="[[_hasSubmenu]]">
       <iron-collapse id="submenu" opened="[[_submenuExpanded]]">
         <template is="dom-repeat" items="[[subitems]]">
           <skylee-drawer-menu-item
+            route-path="[[routePath]]"
+            depth="[[_submenuItemDepth]]"
             name="[[item.name]]"
             href="[[item.href]]"
             target="[[item.target]]"
-            subitems="[[item.subitems]]"
-            depth="[[_submenuItemDepth]]"
-            route-path="[[routePath]]">
+            subitems="[[item.subitems]]">
           </skylee-drawer-menu-item>
         </template>
       </iron-collapse>
     </template>
+
   </template>
   <script>
     class SkyleeDrawerMenuItem extends Polymer.Element {
@@ -100,15 +123,15 @@
       static get is() { return 'skylee-drawer-menu-item'; }
 
       static get properties() { return {
+        routePath: String,
+        depth: Number,
         name: String,
         href: String,
         target: String,
         subitems: Array,
-        depth: Number,
-        routePath: String,
 
         _itemIndentation: {
-          type: String,
+          type: Number,
           computed: '_computeItemIndentation(depth)'
         },
         _isSelected: {
@@ -134,7 +157,7 @@
       ];}
 
       _computeItemIndentation(depth) {
-        return (16 * depth + 16) + 'px';
+        return 16 * depth + 16;
       }
 
       _computeIsSelected(href, routePath) {

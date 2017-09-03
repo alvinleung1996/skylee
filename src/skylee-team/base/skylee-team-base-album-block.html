@@ -180,7 +180,7 @@
       }
 
       _onIronResize(evt) {
-        this._imageTilesColumn = Math.max(Math.ceil(this.$['image-tiles'].clientWidth / 150), 3);
+        this._imageTilesColumn = Math.max(Math.ceil(this.$['image-tiles'].clientWidth / (150 + 5)), 3);
         /* Cannot detect clientWidth changes after
          * the scroll bar become visible/invisible or
          * the padding of #image-tiles changed.

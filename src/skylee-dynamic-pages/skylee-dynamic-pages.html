@@ -2,6 +2,8 @@
 
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
+<link rel="import" href="../../bower_components/web-animations-js/web-animations-next-lite.min.html">
+
 <dom-module id="skylee-dynamic-pages">
   <template strip-whitespace>
     <style>
@@ -14,26 +16,13 @@
         top: 0px;
         left: 0px;
         right: 0px;
-        transition: top var(--skylee-toolbar_toggling-transition-duration) var(--skylee-toolbar_toggling-transition-timing-function) 0ms,
-                    left var(--skylee-drawer_toggling-transition-duration) var(--skylee-drawer_toggling-transition-timing-function) 0ms;
-        -webkit-transition: top var(--skylee-toolbar_toggling-transition-duration) var(--skylee-toolbar_toggling-transition-timing-function) 0ms,
-                            left var(--skylee-drawer_toggling-transition-duration) var(--skylee-drawer_toggling-transition-timing-function) 0ms; /* for Safari */
-      }
-      :host > ::slotted(:not([transparent-toolbar])) {
-        top: var(--skylee-toolbar_height);
-      }
-      :host(:not([floating-drawer])[drawer-opened]) > ::slotted(:not([transparent-toolbar])) {
-        left: var(--skylee-drawer_width);
-      }
-      :host > ::slotted([snap-bottom]) {
-        bottom: 0px;
+        z-index: 0; /* force create new stacking context */
       }
       :host > ::slotted([page-visibility="hidden"]) {
-        display: none; 
+        display: none;
       }
-      :host > ::slotted([page-visibility="showing"]),
-      :host > ::slotted([page-visibility="hiding"]) {
-        will-change: transform, opacity;
+      :host > ::slotted(:not([page-visibility="shown"])) {
+        pointer-events: none;
       }
     </style>
     <slot></slot>
@@ -44,16 +33,6 @@
       static get is() { return 'skylee-dynamic-pages'; }
 
       static get properties() { return {
-        floatingDrawer: {
-          type: Boolean,
-          value: false,
-          reflectToAttribute: true
-        },
-        drawerOpened: {
-          type: Boolean,
-          value: false,
-          reflectToAttribute: true
-        },
 
         pageMap: {
           type: Object,
@@ -125,7 +104,7 @@
                   this._newPageVisibilityController(el);
                   this.appendChild(el);
                   if (this.selectedPath === selectedPath) {
-                    this._selectingPage = el;
+                    setTimeout(() => this._selectingPage = el, 200);
                   }
 
                 }, () => {
@@ -174,48 +153,43 @@
 
 
       _onSelectingPageChanged(selectingPage) {
-        if (this.__visiblePage === selectingPage) {
-          this._showPage(selectingPage);
-        } else {
-          this._hidePage(this.__visiblePage, selectingPage);
-        }
+        this._showPage(selectingPage).catch(e => {
+          if (e !== undefined) console.error(e);
+        });
       }
 
-      _hidePage(pageToHide, pageToShow) {
-        if (pageToHide) {
-          this.__visiblePage = pageToHide;
-          this._getPageVisibilityController(pageToHide).hide(s => this._onPageHidden(s, pageToShow));
+      _hidePage() {
+        if (this.__visiblePage) {
+          return this._getPageVisibilityController(this.__visiblePage).show(false).then(() => {
+            delete this.__visiblePage;
+          });
         } else {
-          delete this.__visiblePage;
-          this._showPage(pageToShow);
+          return Promise.resolve();
         }
-      }
-
-      _onPageHidden(state, pageToShow) {
-        delete this.__visiblePage;
-        this._showPage(pageToShow);
       }
 
       _showPage(pageToShow) {
-        if (pageToShow) {
-          this.__visiblePage = pageToShow;
-          this.resizerShouldNotify = e => e === pageToShow;
-          this._setSelectedPage(pageToShow);
-          this._getPageVisibilityController(pageToShow).show(s => this._onPageShown(s));
+        let hideFinishPromise;
+        if (this.__visiblePage === pageToShow) {
+          hideFinishPromise = Promise.resolve();
         } else {
-          delete this.__visiblePage;
-          this.resizerShouldNotify = e => false;
-          this._setSelectedPage(undefined);
-          this._afterPageSwitching();
+          hideFinishPromise = this._hidePage();
         }
-      }
-
-      _onPageShown(state) {
-        this._afterPageSwitching();
-      }
-
-      _afterPageSwitching() {
-        this.notifyResize();
+        return hideFinishPromise.then(() => {
+          if (pageToShow) {
+            this.__visiblePage = pageToShow;
+            this.resizerShouldNotify = e => e === pageToShow;
+            this._setSelectedPage(pageToShow);
+            return this._getPageVisibilityController(pageToShow).show(true);
+          } else {
+            delete this.__visiblePage;
+            this.resizerShouldNotify = e => false;
+            this._setSelectedPage(undefined);
+            return Promise.resolve();
+          }
+        }).then(() => {
+          this.notifyResize();
+        });
       }
 
     }
@@ -229,29 +203,20 @@
         this._animation = element.hasAttribute('page-type') ? new SkyleePageFadeAnimation(element) : new SkyleePageSlideAnimation(element);
       }
 
-      hide(finishCallback) {
-        this._do('hide', finishCallback);
-      }
-
-      show(finishCallback) {
-        this._do('show', finishCallback);
-      }
-
-      _do(action, finishCallback) {
+      show(show = true) {
         let element = this.element;
         let visibility = this.visibility;
         let animation = this._animation;
 
-        if ((action === 'hide' && (visibility === 'hidden')) ||
-            (action === 'show' && visibility === 'shown'))
+        if ((!show && (visibility === 'hidden')) ||
+            (show && visibility === 'shown'))
         {
-          if (finishCallback) finishCallback(this);
+          return Promise.resolve();
 
         } else {
-          this._setVisibility(action === 'show' ? 'showing' : 'hiding');
-          animation.play(action === 'show' ? 1 : -1, () => {
-            this._setVisibility(action === 'show' ? 'shown' : 'hidden');
-            if (finishCallback) finishCallback(this);
+          this._setVisibility(show ? 'showing' : 'hiding');
+          return animation.play(show).then(() => {
+            this._setVisibility(show ? 'shown' : 'hidden');
           });
         }
       }
@@ -265,73 +230,126 @@
 
     class SkyleePageAnimation {
 
-      constructor(element, duration) {
-        this.element = element;
-        this.duration = duration;
-
-        this.__bindedOnAnimationFrame = n => this._onAnimationFrame(n);
-
-        this.currentTime = 0;
-        this.rate = -1;
-
-        this.play(-1);
-      }
-
-      play(rate, finishCallback) {
-        this.rate = rate;
-        this.finishCallback = finishCallback;
-        if (typeof this.__requestId !== 'number') {
-          this.__requestId = requestAnimationFrame(this.__bindedOnAnimationFrame);
+      constructor(element, keyframeSet, keyframeOptions) {
+        this._animation = new Animation(new KeyframeEffect(element, keyframeSet, keyframeOptions), document.timeline);
+        this._duration = keyframeOptions.duration || 0;
+        for (let prop in keyframeSet[0]) {
+          element.style[prop] = keyframeSet[0][prop];
         }
       }
 
-      _onAnimationFrame(now) {
-        delete this.__requestId;
+      play(forwards = true) {
+        return new Promise((resolve, reject) => {
 
-        let delta = typeof this.__pass === 'number' ? (now - this.__pass) : 0;
-        this.__pass = now;
-
-        let currentTime = this.currentTime + delta * this.rate;
-        currentTime = Math.min(Math.max(currentTime, 0), this.duration);
-        this.currentTime = currentTime;
-
-        this._onCurrentTimeChanged(currentTime);
-
-        if ((currentTime === 0 && this.rate < 0) ||
-            (currentTime === this.duration && this.rate > 0))
-        {
-          delete this.__pass;
-          if (this.finishCallback) {
-            setTimeout(this.finishCallback, 0);
+          if (this.__prevPromise) {
+            this.__prevPromise.reject();
           }
-        } else {
-          this.__requestId = requestAnimationFrame(this.__bindedOnAnimationFrame);
-        }
-      }
+          
+          let outer = this;
+          let promise = this.__prevPromise = {
+            called: false,
+            resolve: function() {
+              if (!this.called) {
+                this.called = true;
+                if (outer.__prevPromise === this) delete outer.__prevPromise;
+                // console.log('promise resolved! ' + outer._animation.effect.target.tagName);
+                resolve();
+              }
+            },
+            reject: function() {
+              if (!this.called) {
+                this.called = true;
+                if (outer.__prevPromise === this) delete outer.__prevPromise;
+                // console.log('promise rejected! ' + outer._animation.effect.target.tagName);
+                reject();
+              }
+            }
+          };
 
-      _onCurrentTimeChanged(currentTime) {
-        let progress = currentTime / this.duration;
-        progress = this._interpolateProgress(progress);
-        this._onProgressChanged(progress);
-      }
+          let animation = this._animation;
+          let duration = this._duration;
 
-      _interpolateProgress(progress) {
-        return progress;
-      }
+          let currentTime = animation.currentTime || 0;
+          let playState = animation.playState;
+          let playbackRate = animation.playbackRate;
 
-      _onProgressChanged(progress) {}
+          // console.log(animation.effect.target, playState);
+          if (playState === 'idle') {
+            if (forwards) {
+              // console.log('idle play!');
+              animation.playbackRate = 1;
+              animation.play();
+              animation.onfinish = e => promise.resolve();
+            } else {
+              animation.onfinish = null;
+              promise.resolve();
+            }
 
-    }
+          } else if (playState === 'pending') {
+            if (forwards) {
+              if (currentTime === duration) {
+                animation.pause();
+                animation.onfinish = null;
+                promise.resolve();
+              } else {
+                animation.playbackRate = 1;
+                animation.play();
+                animation.onfinish = e => promise.resolve();
+              }
+            } else {
+              if (currentTime === 0) {
+                animation.pause();
+                animation.onfinish = null;
+                promise.resolve();
+              } else {
+                animation.playbackRate = -1;
+                animation.play();
+                animation.onfinish = e => promise.resolve();
+              }
+            }
 
-    class SkyleePageFadeAnimation extends SkyleePageAnimation {
+          } else if (playState === 'running') {
+            if (forwards) {
+              animation.playbackRate = 1;
+              animation.onfinish = e => promise.resolve();
+            } else {
+              animation.playbackRate = -1;
+              animation.onfinish = e => promise.resolve();
+            }
+            
+          } else if (playState === 'paused') {
+            if (forwards && currentTime !== duration) {
+              animation.playbackRate = 1;
+              animation.play();
+              animation.onfinish = e => promise.resolve();
+            } else if (!forwards && currentTime !== 0) {
+              animation.playbackRate = -1;
+              animation.play();
+              animation.onfinish = e => promise.resolve();
+            } else {
+              animation.onfinish = null;
+              promise.resolve();
+            }
 
-      constructor(element) {
-        super(element, 200);
-      }
+          } else if (playState === 'finished') {
+            if (forwards && currentTime !== duration) {
+              animation.playbackRate = 1;
+              animation.play();
+              animation.onfinish = e => promise.resolve();
+            } else if (!forwards && currentTime !== 0) {
+              animation.playbackRate = -1;
+              animation.play();
+              animation.onfinish = e => promise.resolve();
+            } else {
+              animation.onfinish = null;
+              promise.resolve();
+            }
 
-      _onProgressChanged(progress) {
-        let opacity = progress;
-        this.element.style.opacity = `${opacity}`;
+          } else {
+            animation.onfinish = null;
+            promise.reject();
+          }
+        });
       }
 
     }
@@ -339,20 +357,29 @@
     class SkyleePageSlideAnimation extends SkyleePageAnimation {
 
       constructor(element) {
-        super(element, 500);
+        super(element, [
+          { transform: 'translateY(30vh)', opacity: 0 },
+          { transform: 'none', opacity: 1 }
+        ], {
+          duration: 500,
+          easing: 'cubic-bezier(0.215, 0.61, 0.355, 1)', // ease-out-cubic
+          fill: 'both'
+        });
       }
+    }
 
-      _interpolateProgress(progress) {
-        return Math.sqrt(1 - (progress - 1) * (progress - 1));
+    class SkyleePageFadeAnimation extends SkyleePageAnimation {
+
+      constructor(element) {
+        super(element, [
+          { opacity: 0 },
+          { opacity: 1 }
+        ], {
+          duration: 200,
+          easing: 'linear',
+          fill: 'both'
+        });
       }
-
-      _onProgressChanged(progress) {
-        let opacity = progress;
-        let translateY = (1 - progress) * 100 / 3;
-        this.element.style.opacity = `${opacity}`;
-        this.element.style.transform = `translateY(${translateY}vh)`;
-      }
-
     }
   </script>
 </dom-module>
