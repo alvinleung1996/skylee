@@ -3,6 +3,8 @@
 <link rel="import" href="../../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
 
+<link rel="import" href="../../skylee-styles/skylee-styles.html">
+
 <dom-module id="skylee-team-base-album-image-tile">
   <template strip-whitespace>
     <style>
@@ -12,19 +14,13 @@
       #link {
         flex: 1 1 auto;
         display: block;
-        border-radius: 2px;
         overflow: hidden;
-        @apply --skylee-shadow--elevation-2;
-        transition: var(--skylee-shadow_transition);
-        -webkit-transition: var(--skylee-shadow_transition); /* Fix for Safari */
         -webkit-tap-highlight-color: transparent; /* for Android Chrome */
         position: relative;
       }
-      #link:hover {
-        @apply --skylee-shadow--elevation-6;
-        z-index: 10;
-      }
-      #filling {
+      #link::before {
+        display: block;
+        content: '';
         width: 100%;
         padding-bottom: 100%;
       }
@@ -34,37 +30,29 @@
         right: 0px;
         bottom: 0px;
         left: 0px;
+        background-color: rgba(var(--skylee-text--base_color_r),
+                                 var(--skylee-text--base_color_g),
+                                 var(--skylee-text--base_color_b),
+                                 0.1);
+        transition: transform 330ms ease-out 0ms;
       }
-      #bannar {
-        position: absolute;
-        left: 0px;
-        bottom: 0px;
-        right: 0px;
-        background-color: var(--skylee-background--primary_background-color);
-        padding: 16px;
-        @apply --skylee-text--subheading_font;
-        color: var(--skylee-text--primary_color);
+      #link:hover #image {
+        transform: scale(1.1);
       }
-      #bannar:not([show]) {
-        display: none;
+      #link:active #image {
+        transform: scale(0.9);
+        transition: transform 100ms ease-out 0ms;
       }
-      #ripple {
-        color: var(--skylee-text--base_color);
-      }
-      #ripple:not([show]) {
-        display: none;
-      }
+      /* #ripple {
+        color: var(--skylee-text--light-theme--base_color);
+      } */
     </style>
 
     <a id="link" href$="[[_href]]">
 
-      <div id="filling"></div>
+      <iron-image id="image" src="[[thumbnailSrc]]" sizing="cover" preload fade></iron-image>
 
-      <iron-image id="image" src="[[_imgSrc]]" sizing="cover" preload fade></iron-image>
-
-      <div id="bannar" show$="[[_isTruthy(name)]]">[[name]]</div>
-
-      <paper-ripple id="ripple" show$="[[_isTruthy(_href)]]"></paper-ripple>
+      <!-- <paper-ripple id="ripple"></paper-ripple> -->
 
     </a>
 
@@ -75,37 +63,17 @@
       static get is() { return 'skylee-team-base-album-image-tile'; }
 
       static get properties() { return {
-        src: String,
-        name: String,
+        thumbnailSrc: String,
+        imageSrc: String,
 
         _href: {
           type: String,
-          computed: '_computeHref(src)'
+          computed: '_computeHref(imageSrc)'
         },
-        _imgSrc: {
-          type: String,
-          computed: '_computeImgSrc(src)'
-        }
       };}
 
-      _computeHref(src) {
-        if (/^[\w\.\-\/]+\.\w+$/.test(src)) {
-          return '/image-viewer' + src;
-        } else {
-          return null;
-        }
-      }
-
-      _computeImgSrc(src) {
-        if (/^[\w\.\-\/]+\.\w+$/.test(src)) {
-          return src + '?w=300&h=300';
-        } else {
-          return null;
-        }
-      }
-
-      _isTruthy(value) {
-        return Boolean(value);
+      _computeHref(imageSrc) {
+        return `${Polymer.rootPath}image-viewer/${encodeURIComponent(imageSrc)}`;
       }
 
     }

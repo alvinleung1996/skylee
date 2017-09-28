@@ -1,0 +1,34 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner-lite.html">
+
+<dom-module id="skylee-loading-page">
+  <template strip-whitespace>
+    <style>
+      :host {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    </style>
+    <paper-spinner-lite active></paper-spinner-lite>
+  </template>
+  <script>
+    class SkyleeLoadingPage extends Polymer.Element {
+
+      static get is() { return 'skylee-loading-page'; }
+
+      static get properties() { return {
+        snapToBottom: {
+          type: Boolean,
+          value: true,
+          readOnly: true,
+          notify: true,
+          reflectToAttribute: true
+        }
+      };}
+
+    }
+    window.customElements.define(SkyleeLoadingPage.is, SkyleeLoadingPage);
+  </script>
+</dom-module>

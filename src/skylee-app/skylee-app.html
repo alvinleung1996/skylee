@@ -1,54 +1,55 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
-<link rel="import" href="../../bower_components/polymer/lib/utils/debounce.html">
 
 <link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
-<link rel="import" href="../../bower_components/curium-animated-pages/curium-animated-pages.html">
-<link rel="import" href="../../bower_components/curium-animated-pages/animations/curium-scene-animation-manager.html">
 <link rel="import" href="../../bower_components/curium-route/curium-route.html">
 
-<link rel="import" href="../skylee-property-binder-behavior/skylee-property-binder-behavior.html">
 <link rel="import" href="../skylee-styles/skylee-styles.html">
 
-<link rel="import" href="../skylee-tab-pages/skylee-tab-pages.html">
+<link rel="import" href="../skylee-shell/skylee-shell.html">
+<link rel="import" href="../skylee-pages/skylee-pages.html">
 
 <dom-module id="skylee-app">
   <template strip-whitespace>
     <style>
       :host {
         display: block;
+        --skylee-toolbar_height: var(--skylee-toolbar--normal_height);
       }
-      #scenes {
+      :host([_short-toolbar]) {
+        --skylee-toolbar_height: var(--skylee-toolbar--short_height);
+      }
+
+      #pages {
         width: 100%;
         height: 100%;
+        z-index: 0;
       }
     </style>
 
-    <app-location route="{{_route}}"></app-location>
-    <curium-route
-      route="{{_route}}"
-      data-pattern="/sceneId"
-      data="{{_routeData}}">
-    </curium-route>
+    <iron-media-query query="not all and (min-height: 450px)" query-matches="{{_shortToolbar}}" full></iron-media-query>
 
-    <curium-scene-animation-manager id="scene-animation-manager" duration="330"></curium-scene-animation-manager>
-    <curium-animated-pages
-      id="scenes"
-      attr-for-selected="scene-id"
-      selected="[[_selectedSceneId]]"
-      selected-attribute="visible-scene"
-      animation-manager="#scene-animation-manager">
+    <app-location route="{{_rawRoute}}"></app-location>
 
-      <skylee-tab-pages
-        scene-id="tab-pages"
-        route="[[_route]]"></skylee-tab-pages> <!-- element already imported -->
+    <skylee-shell id="shell"
+      route-path="[[_routePath]]"
+      transparent-toolbar="[[_transparentToolbar]]"
+      hide-toolbar="[[_hideToolbar]]"
+      show-toolbar-shadow="[[_showToolbarShadow]]">
+    </skylee-shell>
 
-      <skylee-image-viewer level="1"
-        scene-id="image-viewer" element-path$="[[rootPath]]src/skylee-image-viewer/skylee-image-viewer.html"
-        route="[[_route]]"></skylee-image-viewer>
-
-    </curium-animated-pages>
+    <skylee-pages id="pages"
+      route-path="[[_routePath]]"
+      toolbar-height="[[_toolbarHeight]]"
+      page-title="{{pageTitle}}"
+      address-bar-background-color="{{addressBarBackgroundColor}}"
+      transparent-toolbar="{{_transparentToolbar}}"
+      hide-toolbar="{{_hideToolbar}}"
+      show-toolbar-shadow="{{_showToolbarShadow}}">
+    </skylee-pages>
+    
   </template>
 
   <script>
@@ -56,84 +57,88 @@
      * @customElement
      * @polymer
      */
-    class SkyleeApp extends Skylee.SkyleePropertyBinderBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
+    class SkyleeApp extends Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element) {
 
       static get is() { return 'skylee-app'; }
 
       static get properties() {
         return {
-          appTitle: {
+          _rawRoute: Object,
+          _routePath: {
             type: String,
-            computed: '_computeAppTitle(_sceneTitle)',
-            observer: '_onAppTitleChanged'
-          },
-          _sceneTitle: {
-            type: String,
-            value: ''
+            computed: '_computeRoutePath(_rawRoute.path)',
           },
 
-          _selectedSceneId: {
+          pageTitle: {
             type: String,
-            computed: '_computeSelectedSceneId(_routeData.sceneId)'
+            value: '',
+            observer: '_onPageTitleChanged'
           },
-          _tabPagesRoute: {
-            type: Object
+          addressBarBackgroundColor: {
+            type: String,
+            value: '',
+            observer: '_onAddressBarBackgroundColorChanged'
+          },
+
+          /*
+           * Toolbar
+           */
+          _shortToolbar: {
+            type: Boolean,
+            reflectToAttribute: true
+          },
+          _toolbarHeight: {
+            type: Number,
+            computed: '_computeToolbarHeight(_shortToolbar)',
+            observer: '_onToolbarHeightChanged',
           }
         };
       }
 
-      ready() {
-        super.ready();
-        this.$.scenes.addEventListener('iron-select', e => {
-          if (e.target === this.$.scenes) this._onSceneSelectionChanged()
-        });
-        this.$.scenes.addEventListener('iron-deselect', e => {
-          if (e.target === this.$.scenes) this._onSceneSelectionChanged()
-        });
+
+
+      _computeRoutePath(path) {
+        return path;
       }
 
-      _computeAppTitle(sceneTitle) {
-        return (sceneTitle ? (sceneTitle + ' - ') : '') + 'Simon K. Y. Lee Hall';
+
+
+      _onPageTitleChanged(pageTitle) {
+        document.title = (pageTitle ? (pageTitle + ' - ') : '') + 'Simon K. Y. Lee Hall';
       }
 
-      _onAppTitleChanged(appTitle) {
-        document.title = appTitle;
-      }
-
-      _computeSelectedSceneId(id) {
-        return id === 'image-viewer' ? 'image-viewer' : 'tab-pages';
-      }
-
-      _onSceneSelectionChanged() {
-        this._sceneSelectionDebouncer = Polymer.Debouncer.debounce(this._sceneSelectionDebouncer, Polymer.Async.microTask, () => {
-
-          let selectedScene = this.$.scenes.selectedItem;
-          let deselectedScene = this._prevSelectedScene;
-
-          this._prevSelectedScene = selectedScene;
-
-          this._loadScene(selectedScene);
-          this._bindSceneProperties(selectedScene);
-        });
-      }
-
-      _loadScene(selectedScene) {
-        if (selectedScene) {
-          if (selectedScene.hasAttribute('element-path') && !selectedScene.hasAttribute('element-loading') && !selectedScene.hasAttribute('element-loaded')) {
-            let path = selectedScene.getAttribute('element-path');
-            selectedScene.setAttribute('element-loading', '');
-            Polymer.importHref(this.resolveUrl(path), () => {
-              selectedScene.removeAttribute('element-loading');
-              selectedScene.setAttribute('element-loaded', '');
-            }, null, true);
+      _onAddressBarBackgroundColorChanged(color) {
+        let meta = document.head.querySelector('meta[name="theme-color"]');
+        if (meta) {
+          if (!color) {
+            if (window.ShadyCSS && !window.ShadyCSS.nativeCss) {
+              color = ShadyCSS.getComputedStyleValue(this, '--skylee-background--app-theme--primary_background-color');
+            } else {
+              color = getComputedStyle(this).getPropertyValue('--skylee-background--app-theme--primary_background-color');
+            }
           }
+          color = color.trim();
+          meta.setAttribute('content', color);
         }
       }
 
-      _bindSceneProperties(selectedScene) {
-        this._bindProperties({
-          _sceneTitle: 'sceneTitle'
-        }, selectedScene);
+      
+
+      _computeToolbarHeight(short) {
+        let cssProp = short ? '--skylee-toolbar--short_height' : '--skylee-toolbar--normal_height';
+        let cssValue = (window.ShadyCSS && !window.ShadyCSS.nativeCss) ? ShadyCSS.getComputedStyleValue(this, cssProp) : getComputedStyle(this).getPropertyValue(cssProp);
+        let match = cssValue.trim().match(/^(\d+)px$/);
+        return match !== null ? Number.parseInt(match[1]) : 0;
+      }
+
+      _onToolbarHeightChanged(height) {
+        /* Fix for ShadyCSS */
+        if (window.ShadyCSS && !window.ShadyCSS.nativeCss) {
+          let stylesToUpdate = {
+            '--skylee-toolbar_height': height + 'px'
+          };
+          this.updateStyles(stylesToUpdate);
+        }
       }
 
     }

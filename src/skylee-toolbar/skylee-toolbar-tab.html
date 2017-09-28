@@ -1,0 +1,95 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<!-- <link rel="import" href="../../bower_components/iron-icon/iron-icon.html"> -->
+
+<link rel="import" href="../skylee-styles/skylee-styles.html">
+<!-- <link rel="import" href="../skylee-icons/skylee-icons.html"> -->
+
+<dom-module id="skylee-toolbar-tab">
+  <template strip-whitespace>
+    <style>
+      :host {
+        display: flex;
+      }
+
+      #link {
+        flex: 1 1 auto;
+        padding-left: 20px;
+        padding-right: 20px;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        @apply --skylee-text--subheading_font;
+        color: var(--skylee-text--app-theme--primary_color);
+        text-decoration: none;
+        transition: color var(--skylee-toolbar_transparent-toggling-duration) var(--skylee-toolbar_transparent-toggling-timing-function);
+      }
+      :host([transparent]) #link {
+        color: white;
+      }
+
+      #link::before {
+        position: absolute;
+        left: 0px;
+        bottom: 0px;
+        right: 0px;
+        height: 4px;
+        content: '';
+        transition: background-color 200ms linear;
+      }
+      :host([selected]) #link::before {
+        background-color: var(--skylee-accent_color);
+      }
+      :host([transparent][selected]) #link::before {
+        background-color: white;
+      }
+
+      #drop-down-arrow {
+        align-self: center;
+        color: var(--skylee-text--app-theme--primary_color);
+        transition: color var(--skylee-toolbar_transparent-toggling-duration) var(--skylee-toolbar_transparent-toggling-timing-function);
+      }
+      :host([transparent]) #drop-down-arrow {
+        color: white;
+      }
+    </style>
+
+    <a id="link" href$="[[href]]" rel="noreferrer noopener">[[name]]
+      <!-- <iron-icon id="drop-down-arrow" icon="skylee:arrow-drop-down"></iron-icon> -->
+    </a>
+
+
+  </template>
+  <script>
+    class SkyleeToolbarTab extends Polymer.Element {
+
+      static get is() { return 'skylee-toolbar-tab'; }
+
+      static get properties() { return {
+        routePath: String,
+
+        name: String,
+        href: String,
+        transparent: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
+
+        selected: {
+          type: Boolean,
+          computed: '_computeSelected(routePath, href)',
+          reflectToAttribute: true
+        }
+      };}
+
+      _computeSelected(routePath, href) {
+        return routePath === href;
+        // return Boolean(routePath && routePath.startsWith(href));
+      }
+
+    }
+    window.customElements.define(SkyleeToolbarTab.is, SkyleeToolbarTab);
+  </script>
+</dom-module>

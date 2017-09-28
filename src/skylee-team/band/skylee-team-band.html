@@ -9,7 +9,7 @@
 
     static get properties() {
       return {
-        teamPageTitle: {
+        pageTitle: {
           type: String,
           value: 'Band Team',
           readOnly: true,
@@ -25,7 +25,11 @@
         description: {
           value: 'men\'s and women\'s team'
         },
-        albumList: {
+        keywords: {
+          type: Array,
+          value: () => ['band', 'jam']
+        },
+        /*albumList: {
           value: () => { return [
             {
               name: 'Photos',
@@ -42,7 +46,7 @@
               ]
             }
           ];}
-        }
+        }*/
       };
     }
 

@@ -12,7 +12,7 @@
         --skylee-event-timeline-block_padding-left: 20px;
           --skylee-event-timeline-block--narrow_padding-left: 5px;
         
-        --skylee-event-timeline-block__timeline_width: 5px;
+        --skylee-event-timeline-block__timeline_width: 2px;
         --skylee-event-timeline-block__timeline_color: rgba(var(--skylee-text--base_color_r),
                                                               var(--skylee-text--base_color_g),
                                                               var(--skylee-text--base_color_b),
@@ -20,15 +20,14 @@
 
         --skylee-event-timeline-block__card_margin: var(--skylee-event-timeline-block_padding-left);
         --skylee-event-timeline-block__card_padding: 20px;
-        --skylee-event-timeline-block__card_border-radius: 5px;
+        --skylee-event-timeline-block__card_border-radius: 2px;
         --skylee-event-timeline-block__card_box-shadow: var(--skylee-shadow--elevation-2_box-shadow);
         --skylee-event-timeline-block__card--hover_box-shadow: var(--skylee-shadow--elevation-6_box-shadow);
         --skylee-event-timeline-block__card_background-color: var(--skylee-background--primary_background-color);
 
-        --skylee-event-timeline-block__icon_size: 48px;
+        --skylee-event-timeline-block__icon_size: 24px;
         --skylee-event-timeline-block__icon_background-color: var(--skylee-background--primary_background-color);
         --skylee-event-timeline-block__icon_box-shadow: var(--skylee-shadow--elevation-2_box-shadow);
-        --skylee-event-timeline-block__icon_background-color: var(--skylee-background--primary_background-color);
 
         --skylee-event-timeline-block__arrow_size: 20px;
 
@@ -197,15 +196,17 @@
       #header[theme="dark"] #name {
         color: var(--skylee-text--dark-theme--primary_color);
       }
+      @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {
+        #name {
+          align-self: stretch;
+        }
+      }
 
       #content {
         border-bottom-left-radius: var(--skylee-event-timeline-block__card_border-radius);
         border-bottom-right-radius: var(--skylee-event-timeline-block__card_border-radius);
         overflow: hidden;
         padding: var(--skylee-event-timeline-block__card_padding);
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
       }
       #content[hide] {
         display: none;
@@ -218,23 +219,24 @@
         text-align: justify;
       }
       #content > ::slotted(iframe) {
-        align-self: stretch;
+        display: block;
         border: 0px;
-        overflow: hidden;
+        overflow: auto;
+      }
+      #content > ::slotted(iframe[type="facebook"]) {
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      #content > ::slotted(iframe[type="youtube"]) {
+        width: 100%;
+        margin-bottom: 20px;
       }
       /* IE11 can wrap p only if p is set to stretch */
       /* IE11 and Edge cannot stretch iframe */
       @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {
         #content > ::slotted(p) {
           align-self: stretch;
-        }
-        #content > ::slotted(iframe) {
-          width: 100%;
-        }
-      }
-      @supports (-ms-ime-align: auto) {
-        #content > ::slotted(iframe) {
-          width: 100%;
         }
       }
     </style>

@@ -2,57 +2,34 @@
 <link rel="import" href="../../bower_components/shadycss/apply-shim.html">
 <link rel="import" href="../../bower_components/polymer/lib/mixins/gesture-event-listeners.html">
 
-<link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
-
-<link rel="import" href="../skylee-icons/skylee-icons.html">
 
 <dom-module id="skylee-image-viewer">
   <template strip-whitespace>
     <style>
       :host {
         display: block;
-        overflow: hidden;
         background-color: black;
-        position: relative;
+        /* position already absolute */
       }
 
-      #toolbar {
-        z-index: 10;
+      #toolbar-scrim {
         position: absolute;
-        width: 100%;
-        height: 64px;
-        background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
-        display: flex;
-        align-items: center;
+        top: 0px;
+        right: 0px;
+        left: 0px;
+        height: calc(var(--skylee-toolbar_height) * 2);
+        z-index: 1;
+        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.75), transparent);
         pointer-events: none;
-        transition: opacity 330ms ease-out 0ms,
-                    height 330ms ease-out 0ms;
+        transition: height var(--skylee-toolbar_height-transition-duration) var(--skylee-toolbar_height-transition-timing-function),
+                    opacity var(--skylee-toolbar_hide-toggling-duration) var(--skylee-toolbar_hide-toggling-timing-function);
+        -webkit-transition: height var(--skylee-toolbar_height-transition-duration) var(--skylee-toolbar_height-transition-timing-function),
+                            opacity var(--skylee-toolbar_hide-toggling-duration) var(--skylee-toolbar_hide-toggling-timing-function);
       }
-      #toolbar[hide] {
+      #toolbar-scrim[hide] {
         opacity: 0;
-      }
-      #toolbar[short] {
-        height: 48px;
-      }
-      #toolbar__back-button-link {
-        margin: 12px;
-        pointer-events: auto;
-        -webkit-tap-highlight-color: transparent; /* for Android Chrome */
-        transition: margin 330ms ease-out 0ms;
-      }
-      #toolbar[short] #toolbar__back-button-link {
-        margin: 4px;
-      }
-      #toolbar__back-button {
-        color: white;
-        --paper-icon-button-ink-color: white;
-      }
-      #toolbar__title {
-        margin: 0px;
-        @apply --skylee-text--subheading_font;
-        color: white;
       }
 
       #img-wrapper {
@@ -85,6 +62,7 @@
         top: 0px;
         left: 0px;
         transform-origin: 0% 0%;
+        will-change: transform;
         pointer-events: none; /* Prevent cross browser image dragging and ghost image */
       }
       #img[smooth] {
@@ -145,14 +123,7 @@
       }
     </style>
 
-    <iron-media-query query="not all and (min-height: 500px)" query-matches="{{_shortToolbar}}" full></iron-media-query>
-
-    <div id="toolbar" hide$="[[_hideToolbar]]" short$="[[_shortToolbar]]">
-      <a id="toolbar__back-button-link" href="javascript:window.history.back();" tabindex="-1">
-        <paper-icon-button id="toolbar__back-button" icon="skylee:arrow-back"></paper-icon-button>
-      </a>
-      <p id="toolbar__title">[[_imageFilename]]</p>
-    </div>
+    <div id="toolbar-scrim" hide$="[[hideToolbar]]"></div>
 
     <div id="img-wrapper" show$="[[_imageLoaded]]" grabbing$="[[_grabbingImg]]">
       <img id="img"></img> <!-- src set by js, smooth set by js -->
@@ -174,16 +145,53 @@
       static get is() { return 'skylee-image-viewer'; }
 
       static get properties() { return {
-        route: Object,
-
-        _hideToolbar: {
+        pageVisibility: {
+          type: String
+        },
+        _visiblePage: {
           type: Boolean,
-          value: false
-        },
-        _shortToolbar: {
-          type: Boolean
+          computed: '_computeVisiblePage(pageVisibility)',
+          observer: '_onVisiblePageChanged'
         },
 
+        addressBarBackgroundColor: {
+          type: String,
+          value: '#000',
+          readOnly: true,
+          notify: true
+        },
+        transparentToolbar: {
+          type: Boolean,
+          value: true,
+          readOnly: true,
+          notify: true
+        },
+        snapToTop: {
+          type: Boolean,
+          value: true,
+          readOnly: true,
+          notify: true,
+          reflectToAttribute: true
+        },
+        snapToBottom: {
+          type: Boolean,
+          value: true,
+          readOnly: true,
+          notify: true,
+          reflectToAttribute: true
+        },
+
+        hideToolbar: {
+          type: Boolean,
+          value: false,
+          readOnly: true,
+          notify: true
+        },
+
+        routePath: {
+          type: String,
+          observer: '_onRoutePathChanged'
+        },
         _imageSrc: {
           type: String,
           observer: '_onImageSrcChanged'
@@ -192,9 +200,9 @@
           type: String,
           computed: '_computeImageFilename(_imageSrc)'
         },
-        sceneTitle: {
+        pageTitle: {
           type: String,
-          computed: '_computeTabPageTitle(_imageFilename)',
+          computed: '_computePageTitle(_imageFilename)',
           notify: true
         },
         _imageLoading: {
@@ -244,8 +252,7 @@
       };}
 
       static get observers() { return [
-        '_onRoutePathChanged(route.path)',
-
+        '_onVisiblePageOrImageLoadedChanged(_visiblePage, _imageLoaded)',
         '_onImgDisplayParamChanged(_imgX, _imgY, _imgScale, _smoothImgTransform)'
       ];}
 
@@ -290,32 +297,45 @@
 
 
 
+      _computeVisiblePage(visibility) {
+        return visibility === 'showing' || visibility === 'shown';
+      }
+
+      _onVisiblePageChanged(visiblePage) {
+        if (visiblePage) {
+          this._setHideToolbar(false);
+        }
+      }
+
+
+
       _onTap(evt) {
-        this._hideToolbar = !this._hideToolbar;
+        this._setHideToolbar(!this.hideToolbar);
       }
 
 
 
       _onRoutePathChanged(routePath) {
-        let matches = routePath.match(/^\/image-viewer(.*)$/);
-        if (matches !== null) {
-          // console.log('Load image: ' + matches[1]);
-          this._imageSrc = matches[1];
-        } else {
-          this._imageSrc = '';
+        let match = routePath.match(/^\/image\-viewer\/(.*)$/);
+        if (match !== null) {
+          this._imageSrc = decodeURIComponent(match[1]);
         }
       }
 
       _computeImageFilename(src) {
-        let matches = src.match(/\/([\w\-]+\.\w+)(?:\?.*)?$/);
-        if (matches !== null) {
-          return matches[1];
+        if (src) {
+          let matches = src.match(/\/([\w\-]+\.\w+)(?:\?.*)?$/);
+          if (matches !== null) {
+            return matches[1];
+          } else {
+            return src;
+          }
         } else {
           return '';
         }
       }
 
-      _computeTabPageTitle(filename) {
+      _computePageTitle(filename) {
         return filename;
       }
 
@@ -324,13 +344,11 @@
           _imageLoading: Boolean(src),
           _imageLoaded: false,
           _imageError: false
-        });
+        }, true);
         
         // Ensure load/error event will only be triggered after we have set the above property value
         if (src) this.$.img.setAttribute('src', src);
         else this.$.img.removeAttribute('src');
-
-        this._hideToolbar = false;
       }
 
 
@@ -386,27 +404,40 @@
           _imageWidth: evt.target.naturalWidth,
           _imageHeight: evt.target.naturalHeight
         });
-
-        let newImgScale = this._getImgMinScale(this._imgWrapperWidth, this._imgWrapperHeight, this._imageWidth, this._imageHeight);
-
-        let newImgX = (this._imgWrapperWidth - (this._imageWidth * newImgScale)) / 2;
-        let newImgY = (this._imgWrapperHeight - (this._imageHeight * newImgScale)) / 2;
-
-        this.setProperties({
-          _imgX: newImgX,
-          _imgY: newImgY,
-          _imgScale: newImgScale,
-          _smoothImgTransform: false
-        });
       }
 
-      _onImageError(evt) {
-        console.log('image loading error');
+      _onImageError(img) {
+        console.warn('image loading error');
         this.setProperties({
           _imageLoading: false,
           _imageLoaded: false,
           _imageError: true
         });
+      }
+
+      _onVisiblePageOrImageLoadedChanged(visiblePage, imageLoaded) {
+        let imgWrapperWidth = this._imgWrapperWidth;
+        let imgWrapperHeight = this._imgWrapperHeight;
+        let imageWidth = this._imageWidth;
+        let imageHeight = this._imageHeight;
+
+        if (visiblePage && imageLoaded &&
+            typeof visiblePage === 'boolean' && typeof imageLoaded === 'boolean' &&
+            typeof imgWrapperWidth === 'number' && typeof imgWrapperHeight === 'number' &&
+            typeof imageWidth === 'number' && typeof imageHeight === 'number')
+        {
+          let newImgScale = this._getImgMinScale(imgWrapperWidth, imgWrapperHeight, imageWidth, imageHeight);
+
+          let newImgX = (imgWrapperWidth - (imageWidth * newImgScale)) / 2;
+          let newImgY = (imgWrapperHeight - (imageHeight * newImgScale)) / 2;
+
+          this.setProperties({
+            _imgX: newImgX,
+            _imgY: newImgY,
+            _imgScale: newImgScale,
+            _smoothImgTransform: false
+          });
+        }
       }
 
 
@@ -455,6 +486,8 @@
 
 
       _toGestureEvent(evt, state) {
+        evt.preventDefault(); // TODO: work ???
+        
         let trackEvent = {};
         trackEvent.state = state;
 
@@ -572,13 +605,13 @@
         if (now) {
           if (typeof this.__scheduled_handleGesture === 'number') {
             clearInterval(this.__scheduled_handleGesture);
-            this.__scheduled_handleGesture = undefined;
+            delete this.__scheduled_handleGesture;
           }
           this._handleGesture(gestureType, state, pointerDataList);
         } else {
           if (typeof this.__scheduled_handleGesture !== 'number') {
             this.__scheduled_handleGesture = setTimeout(() => {
-              this.__scheduled_handleGesture = undefined;
+              delete this.__scheduled_handleGesture;
               this._handleGesture(gestureType, state, pointerDataList);
             }, 20);
           }
@@ -636,7 +669,8 @@
         }
 
         if (state === 'end') {
-          this.__panPointerImageAnchorX = this.__panPointerImageAnchorY = undefined;
+          delete this.__panPointerImageAnchorX;
+          delete this.__panPointerImageAnchorY;
           propsToSet._grabbingImg = false;
         }
 
@@ -705,10 +739,10 @@
         }
 
         if (state === 'end') {
-          this.__zoomPointer0ImageAnchorX = undefined;
-          this.__zoomPointer0ImageAnchorY = undefined;
-          this.__zoomPointer1ImageAnchorX = undefined;
-          this.__zoomPointer1ImageAnchorY = undefined;
+          delete this.__zoomPointer0ImageAnchorX;
+          delete this.__zoomPointer0ImageAnchorY;
+          delete this.__zoomPointer1ImageAnchorX;
+          delete this.__zoomPointer1ImageAnchorY;
         }
 
         this.setProperties(propsToSet);

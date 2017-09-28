@@ -2,6 +2,7 @@
   "entrypoint": "index.html",
   "shell": "src/skylee-app/skylee-app.html",
   "fragments": [
+    "src/skylee-home/skylee-home.html",
     "src/skylee-event/skylee-event.html",
     "src/skylee-team/skylee-team.html",
       "src/skylee-team/badminton/skylee-team-badminton.html",
@@ -21,19 +22,19 @@
       "src/skylee-team/debating/skylee-team-debating.html",
       "src/skylee-team/drama/skylee-team-drama.html",
     "src/skylee-about/skylee-about.html",
-    "src/skylee-404/skylee-404.html",
 
     "src/skylee-image-viewer/skylee-image-viewer.html"
   ],
   "sources": [
     "data/**/*",
     "images/**/*",
+    "js/**/*",
     "php/**/*",
     "src/**/*",
     ".htaccess",
     "index.html",
     "manifest.json",
-    "polyfill.js"
+    "vendor/**/*"
   ],
   "builds": [
     {
@@ -41,7 +42,13 @@
       "addServiceWorker": false,
       "addPushManifest": false,
       "insertPrefetchLinks": true,
-      "bundle": true,
+      "bundle": {
+        "inlineCss": true,
+        "inlineScripts": true,
+        "rewriteUrlsInTemplates": false,
+        "sourcemaps": false,
+        "stripComments": true 
+      },
       "html": {
         "minify": true
       },

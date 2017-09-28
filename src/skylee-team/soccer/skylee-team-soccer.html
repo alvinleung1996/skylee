@@ -9,7 +9,7 @@
 
     static get properties() {
       return {
-        teamPageTitle: {
+        pageTitle: {
           type: String,
           value: 'Soccer Team',
           readOnly: true,
@@ -25,7 +25,11 @@
         description: {
           value: 'men\'s team'
         },
-        albumList: {
+        keywords: {
+          type: Array,
+          value: () => ['soccer']
+        },
+        /*albumList: {
           value: () => { return [
             {
               name: 'Photos',
@@ -46,7 +50,7 @@
               ]
             }
           ];}
-        }
+        }*/
       };
     }
 

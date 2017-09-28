@@ -1,6 +1,0 @@
- src="[[rootPath]]images/team/bridge/bridge-0.jpg"
- src="[[rootPath]]images/team/bridge/bridge-1.jpg"
- src="[[rootPath]]images/team/bridge/bridge-2.jpg"
-{ src: `${Polymer.rootPath}images/team/bridge/bridge-0.jpg` },
-{ src: `${Polymer.rootPath}images/team/bridge/bridge-1.jpg` },
-{ src: `${Polymer.rootPath}images/team/bridge/bridge-2.jpg` },

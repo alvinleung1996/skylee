@@ -1,0 +1,287 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/polymer/lib/elements/dom-if.html">
+<link rel="import" href="../../bower_components/polymer/lib/elements/dom-repeat.html">
+<link rel="import" href="../../bower_components/polymer/lib/mixins/gesture-event-listeners.html">
+<link rel="import" href="../../bower_components/shadycss/apply-shim.html">
+
+<link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+
+<link rel="import" href="../skylee-styles/skylee-styles.html">
+<link rel="import" href="../skylee-icons/skylee-icons.html">
+
+<link rel="import" href="./skylee-toolbar-tab.html">
+
+<dom-module id="skylee-toolbar">
+  <template strip-whitespace>
+    <style>
+      :host {
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        height: var(--skylee-toolbar_height);
+        z-index: 10;
+        pointer-events: none;
+        background-color: var(--skylee-background--app-theme--primary_background-color);
+        outline: 0px solid var(--skylee-divider_color);
+        display: flex;
+        justify-content: center;
+        transition: height var(--skylee-toolbar_height-transition-duration) var(--skylee-toolbar_height-transition-timing-function),
+                    transform var(--skylee-toolbar_hide-toggling-duration) var(--skylee-toolbar_hide-toggling-timing-function),
+                    background-color var(--skylee-toolbar_transparent-toggling-duration) var(--skylee-toolbar_transparent-toggling-timing-function),
+                    outline-width var(--skylee-shadow_transition-duration) var(--skylee-shadow_transition-timing-function),
+                    var(--skylee-shadow_transition);
+        -webkit-transition: height var(--skylee-toolbar_height-transition-duration) var(--skylee-toolbar_height-transition-timing-function),
+                            transform var(--skylee-toolbar_hide-toggling-duration) var(--skylee-toolbar_hide-toggling-timing-function),
+                            background-color var(--skylee-toolbar_transparent-toggling-duration) var(--skylee-toolbar_transparent-toggling-timing-function),
+                            outline-width var(--skylee-shadow_transition-duration) var(--skylee-shadow_transition-timing-function),
+                            var(--skylee-shadow_transition);
+      }
+      :host([hide]) {
+        transform: translateY(-100%);
+      }
+      :host([transparent]) {
+        background-color: transparent;
+      }
+      :host(:not([transparent]):not([show-shadow])) {
+        outline-width: 1px;
+      }
+      :host(:not([transparent])[show-shadow]) {
+        @apply --skylee-shadow--elevation-2;
+      }
+
+      #tabs {
+        display: flex;
+      }
+      :host([narrow-layout]) #tabs {
+        display: none;
+      }
+      .tab {
+        pointer-events: auto;
+      }
+
+      #left {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        bottom: 0px;
+        display: flex;
+      }
+
+      #menu-button-padding {
+        flex: 0 0 var(--skylee-toolbar_height);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: flex-basis var(--skylee-toolbar_height-transition-duration) var(--skylee-toolbar_height-transition-timing-function);
+        -webkit-transition: flex-basis var(--skylee-toolbar_height-transition-duration) var(--skylee-toolbar_height-transition-timing-function);
+      }
+      :host(:not([narrow-layout])) #menu-button-padding {
+        display: none;
+      }
+      #menu-button {
+        color: var(--skylee-text--app-theme--primary_color);
+        --paper-icon-button-ink-color: var(--skylee-text--app-theme--primary_color);
+        pointer-events: auto;
+        transition: color var(--skylee-toolbar_transparent-toggling-duration) var(--skylee-toolbar_transparent-toggling-timing-function);
+        -webkit-transition: color var(--skylee-toolbar_transparent-toggling-duration) var(--skylee-toolbar_transparent-toggling-timing-function);
+      }
+      :host([transparent]) #menu-button {
+        color: white;
+        --paper-icon-button-ink-color: white;
+      }
+
+      #home-button-link {
+        flex: 0 0 auto;
+        display: flex;
+        text-decoration: none;
+        -webkit-tap-highlight-color: transparent; /* for Android Chrome */
+        pointer-events: auto;
+      }
+      :host([narrow-layout]) #home-button-link {
+        transform: translateX(-12px);
+      }
+      #home-button {
+        flex: 1 1 auto;
+        margin: 0px;
+        padding: 0px 12px 0px 12px;
+        @apply --skylee-text--title_font;
+        color: var(--skylee-accent_color);
+        text-transform: none;
+        outline: none; /* for Safari */
+        transition: color var(--skylee-toolbar_transparent-toggling-duration) var(--skylee-toolbar_transparent-toggling-timing-function);
+        -webkit-transition: color var(--skylee-toolbar_transparent-toggling-duration) var(--skylee-toolbar_transparent-toggling-timing-function);
+      }
+      :host([transparent]) #home-button {
+        color: white;
+      }
+
+      #external-buttons {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        bottom: 0px;
+        padding: calc((var(--skylee-toolbar_height) - 40px) / 2);
+        display: flex;
+        align-items: center;
+        transition: padding var(--skylee-toolbar_height-transition-duration) var(--skylee-toolbar_height-transition-timing-function);
+        -webkit-transition: padding var(--skylee-toolbar_height-transition-duration) var(--skylee-toolbar_height-transition-timing-function);
+      }
+      :host([narrow-layout]) #external-buttons {
+        display: none;
+      }
+      .external-button-link {
+        pointer-events: auto;
+      }
+      .external-button {
+        transition: color var(--skylee-toolbar_transparent-toggling-duration) var(--skylee-toolbar_transparent-toggling-timing-function);
+        -webkit-transition: color var(--skylee-toolbar_transparent-toggling-duration) var(--skylee-toolbar_transparent-toggling-timing-function);
+      }
+      #facebook-button_x { /* Prevent style interfered by facebook sdk */
+        color: #3c5a99;
+        --paper-icon-button-ink-color: #3c5a99;
+      }
+      #instagram-button {
+        color: #000000;
+        --paper-icon-button-ink-color: #000000;
+      }
+      #youtube-button {
+        color: #ff0000;
+        --paper-icon-button-ink-color: #ff0000;
+      }
+      :host([transparent]) .external-button {
+        color: white !important;
+        --paper-icon-button-ink-color: white !important;
+      }
+    </style>
+
+    <iron-media-query query="not all and (min-width: 700px)" query-matches="{{narrowLayout}}" full></iron-media-query>
+
+    <template is="dom-if" if="[[!narrowLayout]]">
+      <nav id="tabs">
+        <template is="dom-repeat" items="[[tabs]]" as="tab">
+          <skylee-toolbar-tab class="tab"
+            route-path="[[routePath]]"
+            name="[[tab.name]]"
+            href="[[tab.href]]"
+            transparent="[[transparent]]">
+          </skylee-toolbar-tab>
+        </template>
+      </nav>
+    </template>
+
+    <div id="left">
+      <div id="menu-button-padding">
+        <paper-icon-button id="menu-button" icon="skylee:menu" on-tap="_onMenuButtonTap"></paper-icon-button>
+      </div>
+      <a id="home-button-link" href$="[[_homeButtonHref]]" tabindex="-1" rel="noreferrer noopener">
+        <paper-button id="home-button">Simon K. Y. Lee Hall</paper-button>
+      </a>
+    </div>
+
+    <div id="external-buttons">
+      <a class="external-button-link" href="https://www.facebook.com/skylee.hku" target="_blank" tabindex="-1" rel="noreferrer noopener">
+        <paper-icon-button id="facebook-button_x" class="external-button" icon="skylee:facebook"></paper-icon-button>
+      </a>
+      <a class="external-button-link" href="https://www.instagram.com/skylee.hku/" target="_blank" tabindex="-1" rel="noreferrer noopener">
+        <paper-icon-button id="instagram-button" class="external-button" icon="skylee:instagram"></paper-icon-button>
+      </a>
+      <a class="external-button-link" href="https://www.youtube.com/channel/UC3w7MWF3OkqMs-tV-Np-LKw" target="_blank" tabindex="-1" rel="noreferrer noopener">
+        <paper-icon-button id="youtube-button" class="external-button" icon="skylee:youtube"></paper-icon-button>
+      </a>
+    </div>
+
+  </template>
+  <script>
+    class SkyleeToolbar extends Polymer.GestureEventListeners(Polymer.Element) {
+
+      static get is() { return 'skylee-toolbar'; }
+
+      static get properties() { return {
+        routePath: String,
+
+        hide: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
+        transparent: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true,
+          observer: '_onTransparentChanged'
+        },
+        showShadow: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
+        tabs: {
+          type: Array,
+          value: () => [
+            {
+              name: 'Event',
+              href: `${Polymer.rootPath}event`
+            },
+            {
+              name: 'Team',
+              href: `${Polymer.rootPath}team`
+            },
+            {
+              name: 'About',
+              href: `${Polymer.rootPath}about`
+            }
+          ]
+        },
+
+        narrowLayout: {
+          type: Boolean,
+          notify: true,
+          reflectToAttribute: true
+        },
+
+        _homeButtonHref: {
+          type: String,
+          value: Skylee.defaultPath
+        }
+      };}
+
+      _onTransparentChanged(transparent) {
+        if (window.ShadyCSS && !window.ShadyCSS.nativeCss) {
+          let menuButton = this.shadowRoot.querySelector('#menu-button');
+          menuButton.updateStyles({
+            '--paper-icon-button-ink-color': transparent ? 'white' :
+                                             ShadyCSS.getComputedStyleValue(menuButton, '--skylee-text--app-theme--primary_color')
+          });
+          let facebookButton = this.shadowRoot.querySelector('#facebook-button_x');
+          facebookButton.updateStyles({
+            '--paper-icon-button-ink-color': transparent ? 'white' :
+                                             ShadyCSS.getComputedStyleValue(facebookButton, '#3c5a99')
+          });
+          let instagramButton = this.shadowRoot.querySelector('#instagram-button');
+          instagramButton.updateStyles({
+            '--paper-icon-button-ink-color': transparent ? 'white' :
+                                             ShadyCSS.getComputedStyleValue(instagramButton, '#000000')
+          });
+          let youtubeButton = this.shadowRoot.querySelector('#youtube-button');
+          youtubeButton.updateStyles({
+            '--paper-icon-button-ink-color': transparent ? 'white' :
+                                             ShadyCSS.getComputedStyleValue(youtubeButton, '#ff0000')
+          });
+        }
+      }
+
+      _onMenuButtonTap(evt) {
+        this.dispatchEvent(new CustomEvent('skylee-toolbar-menu-button-tap', {
+          bubbles: false,
+          cancelable: false,
+          composed: false
+        }));
+      }
+
+    }
+    window.customElements.define(SkyleeToolbar.is, SkyleeToolbar);
+  </script>
+</dom-module>

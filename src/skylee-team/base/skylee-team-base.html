@@ -1,184 +1,440 @@
 <link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/polymer/lib/utils/render-status.html">
+<link rel="import" href="../../../bower_components/polymer/lib/utils/debounce.html">
 <link rel="import" href="../../../bower_components/polymer/lib/elements/dom-repeat.html">
 <link rel="import" href="../../../bower_components/shadycss/apply-shim.html">
 
 <link rel="import" href="../../../bower_components/iron-image/iron-image.html">
-<link rel="import" href="../../../bower_components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../../../bower_components/iron-scroll-threshold/iron-scroll-threshold.html">
+<link rel="import" href="../../../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner-lite.html">
 
-<link rel="imoprt" href="../../../bower_components/curium-animated-pages/curium-animated-pages.html">
-<link rel="import" href="../../../bower_components/curium-route/curium-route.html">
-
-<link rel="import" href="../../skylee-tab-pages/skylee-tab-page-auto-hide-toolbar-behavior.html">
-<link rel="import" href="skylee-team-base-album-image-tile.html">
+<link rel="import" href="../../skylee-facebook-sdk/skylee-facebook-sdk.html">
+<link rel="import" href="../../skylee-page-scroll-behavior/skylee-page-scroll-behavior.html">
+<link rel="import" href="../../skylee-styles/skylee-styles.html">
+<link rel="import" href="./skylee-team-base-album-block.html">
 
 <dom-module id="skylee-team-base">
   <template strip-whitespace>
     <style>
       :host {
         display: block;
-        overflow-x: hidden;
-        overflow-y: auto;
-        padding-top: var(--skylee-toolbar_height);
-        transition: var(--skylee-toolbar_transition_padding-top);
-        /* Safari Bug: transition cannot use var */
-        -webkit-transition: var(--skylee-toolbar_transition_padding-top);
-        background-color: var(--skylee-background--secondary_background-color);
-        -webkit-overflow-scrolling: touch;
       }
 
-      section {
+      .header-block {
         border-bottom: 1px solid var(--skylee-divider_color);
-        display: flex;
-        justify-content: center;
-      }
-      section > * {
-        flex: 0 1 var(--skylee-content_max-width);
-        box-sizing: border-box;
-      }
-
-      .background--primary {
-        background-color: var(--skylee-background--primary_background-color);
-      }
-
-      .padding-block {
         padding: 20px;
-      }
-
-      .team-block {
         display: flex;
         align-items: center;
       }
-      .team-block__icon {
+      .header-block__icon {
+        flex: 0 0 auto;
+        margin-right: 16px;
         width: 48px;
         height: 48px;
         --iron-image-width: 100%;
       }
-      .team-block__text {
-        margin-left: 16px;
+      .header-block__icon:not([show]) {
+        display: none;
+      }
+      .header-block__text {
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: flex-start;
       }
       @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {  
-        .team-block__text {
+        .header-block__text {
           /* IE11 Bug: items not wrap when no enough space */
           align-items: stretch;
         }
       }
-      .team-block__name {
+      .header-block__name {
         margin: 0;
         @apply --skylee-text--headline_font;
         color: var(--skylee-text--primary_color);
       }
-      .team-block__description {
+      .header-block__description {
         margin: 0;
         @apply --skylee-text--body1_font;
         color: var(--skylee-text--secondary_color);
-        text-align: justify;
       }
 
       .album-block {
+        border-bottom: 1px solid var(--skylee-divider_color);
+      }
 
+      #panel {
+        display: block;
+        position: relative;
       }
-      .album-block__header {
-        padding: 20px;
-      }
-      .album-block__name {
-        margin: 0;
-        @apply --skylee-text--headline_font;
-        color: var(--skylee-text--primary_color);
-      }
-      .album-block__image-tiles {
+      #panel > * {
+        position: absolute;
+        box-sizing: border-box;
+        width: 100%;
+        height: 100%;
         padding: 20px;
         display: flex;
-        flex-wrap: wrap;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        @apply --skylee-text--body1_font;
+        color: var(--skylee-text--secondary_color);
+        transition: opacity 100ms linear 0ms;
       }
-      .album-block__image-tile {
-        flex: 0 1 300px;
-        margin: 5px; 
+      #panel > :not(.iron-selected) {
+        opacity: 0;
+        pointer-events: none;
       }
-       @supports (display: grid) {
-        .album-block__image-tiles {
-          flex-wrap: initial;
-
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(300px, auto));
-          grid-auto-rows: auto;
-          grid-gap: 10px;
-        }
-        .album-block__image-tile {
-          flex: initial;
-          margin: initial; 
-        }
-      } 
     </style>
 
-    <iron-media-query query="not all and (min-width: 300px)" query-matches="{{_narrowLayout}}" full></iron-media-query>
+    <iron-scroll-threshold id="scroll-checker" scroll-target="[[_scrollTarget]]" lower-threshold="[[_panelHeight]]"></iron-scroll-threshold>
 
-    <section class="background--primary">
+    <header class="header-block">
+      <iron-image class="header-block__icon" src="[[iconSrc]]" preload fade show$="[[_showIcon]]"></iron-image>
+      <div class="header-block__text">
+        <h2 class="header-block__name">[[name]]</h2>
+        <p class="header-block__description">[[description]]</p>
+      </div>
+    </header>
 
-      <header class="padding-block team-block">
-        <iron-image class="team-block__icon" src="[[iconSrc]]" preload fade></iron-image>
-        <div class="team-block__text">
-          <h2 class="team-block__name">[[name]]</h2>
-          <p class="team-block__description">[[description]]</p>
-        </div>
-      </header>
-
-    </section>
-
-    <template is="dom-repeat" items="[[albumList]]" as="album">
-      <section>
-        <div class="album-block">
-
-          <header class="album-block__header">
-            <h2 class="album-block__name">[[album.name]]</h2>
-          </header>
-
-          <div class="album-block__image-tiles">
-
-            <template is="dom-repeat" items="[[album.imageList]]" as="image">
-              <skylee-team-base-album-image-tile
-                class="album-block__image-tile"
-                src="[[image.src]]"
-                src-width="[[image.srcWidth]]"
-                src-height="[[image.srcHeight]]"
-                name="[[image.name]]">
-              </skylee-team-base-album-image-tile>
-            </template>
-
-          </div>
-
-        </div>
-      </section>
+    <template is="dom-repeat" items="[[_albums]]" as="album">
+      <skylee-team-base-album-block
+        class="album-block"
+        name="[[album.name]]"
+        description="[[album.description]]"
+        link="[[album.link]]"
+        photos="[[album.photos]]"
+        snap-header-to-top="[[hideToolbar]]">
+      </skylee-team-base-album-block>
     </template>
+
+    <iron-selector
+      id="panel"
+      style$="height:[[_panelHeight]]px;"
+      activate-event=""
+      selected="[[_selectedPanel]]"
+      attr-for-selected="panel">
+      <div id="panel__normal" panel="normal">
+        <input type="button" value="Load more" on-click="_onLoadMoreButtonTap">
+      </div>
+      <div id="panel__loading" panel="loading">
+        <paper-spinner-lite active="[[_requesting]]"></paper-spinner-lite>
+        loading...
+      </div>
+      <div id="panel__end" panel="end">
+        No more photo!
+      </div>
+      <div id="panel__error" panel="error">
+        Error while loading!<br>
+        <input type="button" value="Retry" on-click="_onRetryButtonTap">
+      </div>
+    </iron-selector>
+
 
   </template>
   <script>
-    class SkyleeTeamBase extends Skylee.SkyleeTabPageAutoHideToolbarBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
+    class SkyleeTeamBase extends Skylee.SkyleePageScrollBehavior(Polymer.mixinBehaviors(Polymer.IronResizableBehavior, Polymer.Element)) {
     
       static get is() { return 'skylee-team-base'; }
 
-      static get properties() {
-        return {
-          toolbarHeight: Number,
-          
-          teamPageId: String,
+      static get properties() { return {
+          pageTitle: String,
           iconSrc: String,
           name: String,
           description: String,
-          albumList: Array,
-          
-          toolbarBackButtonUrl: {
-            type: String,
-            value: `${Polymer.rootPath}${Skylee.routePrefix}team`,
-            readOnly: true,
-            notify: true
+          keywords: Array,
+
+          _showIcon: {
+            type: Boolean,
+            computed: '_computeShowIcon(iconSrc)'
           },
 
+          pageVisibility: String,
+          _autoRequest: {
+            type: Boolean,
+            value: true
+          },
+          _scrollTarget: {
+            computed: '_computeScrollTarget(pageVisibility, _autoRequest)',
+            observer: '_onScrollTargetChanged'
+          },
+          _panelHeight: {
+            type: Number,
+            value: 200
+          },
+          _requesting: {
+            type: Boolean,
+            value: false
+          },
+          _requestError: {
+            type: Boolean,
+            value: false
+          },
+          _noMorePhotos: {
+            type: Boolean,
+            value: false
+          },
+          _cachedAlbums: {
+            type: Array,
+            value: () => ({
+              items: [],
+              paging: {
+                cursor: undefined,
+                hasNext: true
+              }
+            })
+          },
+          _albums: {
+            type: Array,
+            value: () => []
+          },
+          _selectedPanel: {
+            type: Boolean,
+            computed: '_computeSelectedPanel(_requesting, _requestError, _noMorePhotos)'
+          }
+      };}
+
+      ready() {
+        super.ready();
+        this.addEventListener('iron-resize', e => this._onIronResize(e));
+        this.$['scroll-checker'].addEventListener('lower-threshold', e => this._onLowerThresholdTriggered(e));
+      }
+
+      _computeShowIcon(iconSrc) {
+        return Boolean(iconSrc);
+      }
+
+
+
+      _onIronResize(evt) {
+        if (!this._requesting && !this._noMorePhotos) {
+          this.__onIronResizeDebouncer = Polymer.Debouncer.debounce(this.__onIronResizeDebouncer, Polymer.Async.timeOut.after(500), () => {
+            this.$['scroll-checker'].checkScrollThresholds();
+          });
+        }
+      }
+
+      _onLoadMoreButtonTap(evt) {
+        if (!this._requesting && !this._noMorePhotos) {
+          this._checkForMorePhotos();
+        }
+      }
+
+      _onRetryButtonTap(evt) {
+        this._autoRequest = true; // it will auto check threshold
+      }
+
+      _computeScrollTarget(pageVisibility, autoRequest) {
+        return (autoRequest && (pageVisibility === 'showing' || pageVisibility === 'shown')) ? document.documentElement : null;
+      }
+
+      _onScrollTargetChanged(scrollTarget) {
+        if (scrollTarget) this.$['scroll-checker'].checkScrollThresholds();
+      }
+
+      _onLowerThresholdTriggered(evt) {
+        evt.target.clearTriggers();
+        if (!this._requesting && !this._noMorePhotos) {
+          this._checkForMorePhotos();
+        }
+      }
+
+      _checkForMorePhotos(requestNow = true) {
+        let requestCallback;
+
+        if (this._albums.length > 0 && this._albums[this._albums.length - 1].photos.paging.hasNext) {
+          let album = this._albums[this._albums.length - 1];
+          requestCallback = () => this._requestShownAlbumPhotos(album.id, album.photos.paging.cursor);
+
+        } else if (this._cachedAlbums.items.length > 0) {
+          requestCallback = () => this._requestCachedAlbumPhotos(this._cachedAlbums.items[0].id);
+
+        } else if (this._cachedAlbums.paging.hasNext && Array.isArray(this.keywords)) {
+          requestCallback = () => this._requestPageAlbumsWithKeywords('skylee.hku', this._cachedAlbums.paging.cursor, this.keywords);
+        }
+
+        if (requestCallback) { // more photos
+          if (requestNow) {
+            this.setProperties({
+              _requesting: true,
+              _requestError: false,
+              _noMorePhotos: false
+            });
+            requestCallback()
+            .then(
+              v => this._checkForMorePhotos(v), // success
+              response => { // error
+                this.setProperties({
+                  _autoRequest: false,
+                  _requesting: false,
+                  _requestError: true,
+                  _noMorePhotos: false
+                });
+                console.warn('Request error: ' + (response ? response.error.message : 'Unknown error'));
+              }
+            );
+
+          } else {
+            this.setProperties({
+              _requesting: false,
+              _requestError: false,
+              _noMorePhotos: false
+            });
+            Polymer.RenderStatus.afterNextRender(this, () => this.$['scroll-checker'].checkScrollThresholds());
+          }
+          
+        } else { // no more photo
+          this.setProperties({
+            _autoRequest: false,
+            _requesting: false,
+            _requestError: false,
+            _noMorePhotos: true
+          });
+          
+        }
+      }
+
+      _requestShownAlbumPhotos(albumId, pageCursor) {
+        return this._requestAlbumPhotos(albumId, pageCursor)
+        .then(response => {
+
+          let albumPath = `_albums.${this._albums.length - 1}`;
+          let album = this.get(albumPath);
+          if (album) {
+            this.set(`${albumPath}.photos.paging.cursor`, response.paging && response.paging.cursors && response.paging.cursors.after);
+            this.set(`${albumPath}.photos.paging.hasNext`, Boolean(response.paging && response.paging.next));
+
+            let photos = response.data.map(n => this._nodeToPhoto(n));
+            if (photos.length > 0) {
+              this.push.apply(this, [`${albumPath}.photos.items`].concat(photos));
+
+              return Promise.resolve(false); // check later
+            }
+
+          } else {
+            console.warn(`Cannot find album from path: ${albumPath}`);
+          }
+
+          // Default action
+          return Promise.resolve(true) // check now
+        });
+      }
+
+      _requestCachedAlbumPhotos(albumId) {
+        return this._requestAlbumPhotos(albumId)
+        .then(response => {
+
+          let albumPath = `_cachedAlbums.items.0`;
+          let album = this.get(albumPath);
+          if (album) {
+            this.set(`${albumPath}.photos.paging.cursor`, response.paging && response.paging.cursors && response.paging.cursors.after);
+            this.set(`${albumPath}.photos.paging.hasNext`, Boolean(response.paging && response.paging.next));
+
+            let photos = response.data.map(n => this._nodeToPhoto(n));
+            if (photos.length > 0) {
+              this.push.apply(this, [`${albumPath}.photos.items`].concat(photos));
+            }
+
+            this.push('_albums', this.shift('_cachedAlbums.items'));
+
+            if (photos.length > 0) {
+              return Promise.resolve(false); // check later
+            }
+
+          } else {
+            console.warn(`Cannot find album from path: ${albumPath}`);
+          }
+
+          // Default action
+          return Promise.resolve(true) // check now
+        });
+      }
+
+      _nodeToPhoto(node) {
+        node.images.sort((a, b) => (a.width - b.width));
+
+        return {
+          id: node.id,
+          name: node.name,
+          description: node.description,
+          link: node.link,
+          thumbnail: node.images[0].source,
+          image: node.images[node.images.length - 1].source
         };
+      }
+
+      _requestPageAlbumsWithKeywords(pageId, pageCursor, keywords) {
+        return this._requestPageAlbums(pageId, pageCursor)
+        .then(response => {
+
+          this.set(`_cachedAlbums.paging.cursor`, response.paging && response.paging.cursors && response.paging.cursors.after);
+          this.set(`_cachedAlbums.paging.hasNext`, Boolean(response.paging && response.paging.next));
+
+          let matchingAlbums = response.data.filter(albumNode => {
+            let name = albumNode.name.toLowerCase();
+            for (let i = 0, keyword; keyword = keywords[i]; ++i) {
+              if (name.includes(keyword)) return true;
+            }
+            return false;
+          }).map(n => this._nodeToAlbum(n));
+
+          if (matchingAlbums.length > 0) {
+            this.push.apply(this, [`_cachedAlbums.items`].concat(matchingAlbums));
+          }
+
+          return Promise.resolve(true); // check again now
+        });
+      }
+
+      _nodeToAlbum(node) {
+        return {
+          id: node.id,
+          name: node.name,
+          description: node.description,
+          link: node.link,
+          photos: {
+            items: [],
+            paging: {
+              cursor: undefined,
+              hasNext: true
+            }
+          }
+        };
+      }
+
+      _requestAlbumPhotos(albumId, pageCursor) {
+        let params = { fields: 'id,name,description,link,images' };
+        if (pageCursor) params.after = pageCursor;
+        return this._request(`${albumId}/photos`, params);
+      }
+
+      _requestPageAlbums(pageId, pageCursor) {
+        let params = { fields: 'id,name,description,link' };
+        if (pageCursor) params.after = pageCursor;
+        return this._request(`${pageId}/albums`, params);
+      }
+
+      _request(endpoint, params = []) {
+        params.access_token = SkyleeFacebookSDK.ACCESS_TOKEN;
+
+        return new Promise((resolve, reject) => {
+          FB.api(endpoint, 'get', params, response => {
+            if (response && !response.error) {
+              resolve(response);
+            } else {
+              reject(response);
+            }
+          });
+        });
+      }
+
+      _computeSelectedPanel(requesting, requestError, noMorePhotos) {
+        if (requesting) return 'loading';
+        else if (noMorePhotos) return 'end';
+        else if (requestError) return 'error';
+        else return 'normal';
       }
 
     }

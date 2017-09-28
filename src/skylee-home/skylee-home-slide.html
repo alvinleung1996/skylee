@@ -4,8 +4,6 @@
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
-<link rel="import" href="../../bower_components/curium-responsive-image/curium-responsive-image.html">
-
 <dom-module id="skylee-home-slide">
   <template strip-whitespace>
     <style>
@@ -14,7 +12,7 @@
         /* position already absolute */
         overflow: hidden;
       }
-      #responsive-image {
+      #image {
         width: 100%;
         height: 100%;
       }
@@ -40,10 +38,9 @@
         height: 200px;
         background-image: linear-gradient(to top, rgba(0, 0, 0, 0.75), transparent);
         display: flex;
-        justify-content: center;
       }
       #caption {
-        flex: 0 1 var(--skylee-content_max-width);
+        flex: 1 1 auto;
         padding: 20px;
         box-sizing: border-box;
         display: flex;
@@ -53,15 +50,14 @@
       }
     </style>
 
-    <curium-responsive-image
-      id="responsive-image"
-      width="[[width]]"
-      height="[[height]]"
-      src-map="[[srcMap]]"
+    <iron-image
+      id="image"
+      src="[[src]]"
       sizing="cover"
-      prevent-load="[[preventLoad]]">
-      <iron-image id="image" sizing="cover" preload fade></iron-image>
-    </curium-responsive-image>
+      prevent-load="[[!load]]"
+      preload fade>
+    </iron-image>
+
     <div id="overlay">
       <div id="caption">[[caption]]</div>
     </div>
@@ -74,12 +70,10 @@
 
       static get properties() { return {
         
-        width: Number,
-        height: Number,
-        srcMap: String,
-        preventLoad: {
+        src: String,
+        load: {
           type: Boolean,
-          value: true
+          value: false
         },
         caption: String
 

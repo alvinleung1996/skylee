@@ -1,0 +1,192 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/polymer/lib/elements/dom-if.html">
+<link rel="import" href="../../bower_components/polymer/lib/elements/dom-repeat.html">
+<link rel="import" href="../../bower_components/shadycss/apply-shim.html">
+
+<link rel="import" href="../../bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
+
+<link rel="import" href="../skylee-styles/skylee-styles.html">
+<link rel="import" href="../skylee-icons/skylee-icons.html">
+
+<dom-module id="skylee-drawer-menu-item">
+  <template strip-whitespace>
+    <style>
+      :host {
+        --skylee-drawer-menu-item_selected-toggling-duration: 200ms;
+        --skylee-drawer-menu-item_selected-toggling-timing-function: linear;
+      }
+
+      :host {
+        display: block;
+      }
+
+      #item {
+        height: 48px;
+        position: relative;
+        transition: background-color var(--skylee-drawer-menu-item_selected-toggling-duration) var(--skylee-drawer-menu-item_selected-toggling-timing-function);
+        -webkit-transition: background-color var(--skylee-drawer-menu-item_selected-toggling-duration) var(--skylee-drawer-menu-item_selected-toggling-timing-function);
+      }
+      #item[selected] {
+        background-color: rgba(var(--skylee-text--base_color_r),
+                                 var(--skylee-text--base_color_g),
+                                 var(--skylee-text--base_color_b),
+                                 0.1);
+      }
+
+      #link {
+        height: 100%;
+        text-decoration: none;
+        -webkit-tap-highlight-color: transparent; /* for Android */
+        display: flex;
+        align-items: center;
+        @apply --skylee-text--body1_font;
+        color: var(--skylee-text--primary_color);
+        transition: color var(--skylee-drawer-menu-item_selected-toggling-duration) var(--skylee-drawer-menu-item_selected-toggling-timing-function);
+        -webkit-transition: color var(--skylee-drawer-menu-item_selected-toggling-duration) var(--skylee-drawer-menu-item_selected-toggling-timing-function);
+      }
+      #item[selected] #link {
+        color: var(--skylee-accent_color);
+      }
+
+      #item-foreground {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        bottom: 0px;
+        left: 0px;
+        border-left: 4px solid transparent;
+        pointer-events: none;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        transition: border-left-color var(--skylee-drawer-menu-item_selected-toggling-duration) var(--skylee-drawer-menu-item_selected-toggling-timing-function);
+        -webkit-transition: border-left-color var(--skylee-drawer-menu-item_selected-toggling-duration) var(--skylee-drawer-menu-item_selected-toggling-timing-function);
+      }
+      #item[selected] #item-foreground {
+        border-left-color: var(--skylee-accent_color);
+      }
+
+      #expand-button {
+        pointer-events: auto;
+        color: var(--skylee-text--primary_color);
+        --paper-icon-button-ink-color: var(--skylee-text--primary_color);
+        transition: transform 200ms ease-out,
+                    color var(--skylee-drawer-menu-item_selected-toggling-duration) var(--skylee-drawer-menu-item_selected-toggling-timing-function);
+        -webkit-transition: transform 200ms ease-out,
+                            color var(--skylee-drawer-menu-item_selected-toggling-duration) var(--skylee-drawer-menu-item_selected-toggling-timing-function);
+      }
+      #item[selected] #expand-button {
+        color: var(--skylee-accent_color);
+        --paper-icon-button-ink-color: var(--skylee-accent_color);
+      }
+      #expand-button[expanded] {
+        transform: rotate(180deg);
+      }
+    </style>
+
+    <div id="item" selected$="[[_isSelected]]">
+
+      <a id="link" style$="padding-left:[[_itemIndentation]]px;" href$="[[href]]" target$="[[target]]" rel="noreferrer noopener">
+        [[name]]
+        <paper-ripple></paper-ripple>
+      </a>
+
+      <div id="item-foreground">
+        <template is="dom-if" if="[[_hasSubmenu]]" id="expand-button-renderer">
+          <paper-icon-button id="expand-button" icon="skylee:expand-more" expanded$=[[_submenuExpanded]] on-tap="_onExpandButtonTap"></paper-icon-button>
+        </template>
+      </div>
+
+    </div>
+
+    <template is="dom-if" if="[[_hasSubmenu]]">
+      <iron-collapse id="submenu" opened="[[_submenuExpanded]]">
+        <template is="dom-repeat" items="[[subitems]]">
+          <skylee-drawer-menu-item
+            route-path="[[routePath]]"
+            depth="[[_submenuItemDepth]]"
+            name="[[item.name]]"
+            href="[[item.href]]"
+            target="[[item.target]]"
+            subitems="[[item.subitems]]">
+          </skylee-drawer-menu-item>
+        </template>
+      </iron-collapse>
+    </template>
+
+  </template>
+  <script>
+    class SkyleeDrawerMenuItem extends Polymer.Element {
+
+      static get is() { return 'skylee-drawer-menu-item'; }
+
+      static get properties() { return {
+        routePath: String,
+        depth: Number,
+        name: String,
+        href: String,
+        target: String,
+        subitems: Array,
+
+        _itemIndentation: {
+          type: Number,
+          computed: '_computeItemIndentation(depth)'
+        },
+        _isSelected: {
+          type: Boolean,
+          computed: '_computeIsSelected(href, routePath)'
+        },
+        _hasSubmenu: {
+          type: Boolean,
+          computed: '_computeHasSubmenu(subitems)'
+        },
+        _submenuExpanded: {
+          type: Boolean,
+          value: false
+        },
+        _submenuItemDepth: {
+          type: Boolean,
+          computed: '_computeSubmenuItemDepth(depth)'
+        }
+      };}
+
+      static get observers() { return [
+        '_onSelectedChanged(_isSelected, _hasSubmenu)'
+      ];}
+
+      _computeItemIndentation(depth) {
+        return 16 * depth + 16;
+      }
+
+      _computeIsSelected(href, routePath) {
+        return href === routePath;
+      }
+      
+      _computeHasSubmenu(subitems) {
+        return Boolean(subitems);
+      }
+
+      _computeSubmenuItemDepth(depth) {
+        return depth + 1;
+      }
+
+      _onExpandButtonTap(evt) {
+        this._submenuExpanded = !this._submenuExpanded;
+      }
+
+      _onSelectedChanged(isSelected, hasSubmenu) {
+        if (window.ShadyCSS && !window.ShadyCSS.nativeCss && hasSubmenu) {
+          this.$['expand-button-renderer'].render();
+          let button = this.shadowRoot.querySelector('#expand-button');
+          button.updateStyles({
+            '--paper-icon-button-ink-color': ShadyCSS.getComputedStyleValue(button, isSelected ? '--skylee-accent_color' : '--skylee-text--primary_color')
+          });
+        }
+      }
+
+    }
+    window.customElements.define(SkyleeDrawerMenuItem.is, SkyleeDrawerMenuItem);
+  </script>
+</dom-module>

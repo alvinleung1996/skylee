@@ -1,0 +1,135 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/shadycss/apply-shim.html">
+
+<link rel="import" href="../../bower_components/app-layout/app-drawer/app-drawer.html">
+
+<link rel="import" href="./skylee-drawer-menu-item.html">
+
+<dom-module id="skylee-drawer">
+  <template strip-whitespace>
+    <style>
+      #drawer {
+        z-index: 20;
+      }
+
+      #scroll-container {
+        height: 100%;
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch; /* for iOS Safari */
+      }
+
+      #bannar {
+        height: var(--skylee-toolbar--normal_height);
+        padding-left: 16px;
+        display: flex;
+        align-items: center;
+        @apply --skylee-text--title_font;
+        color: var(--skylee-accent_color);
+      }
+      .menu-divider {
+        margin-top: 4px;
+        margin-bottom: 4px;
+        border-top: 1px solid var(--skylee-divider_color);
+      }
+    </style>
+
+    <app-drawer id="drawer" swipe-open>
+      <div id="scroll-container">
+
+        <div id="bannar">
+          Simon K. Y. Lee Hall
+        </div>
+
+        <div id="menu">
+          <template is="dom-repeat" items="[[menuItems]]">
+            <skylee-drawer-menu-item
+              route-path="[[routePath]]"
+              depth="0"
+              name="[[item.name]]"
+              href="[[item.href]]"
+              subitems="[[item.subitems]]">
+            </skylee-drawer-menu-item>
+          </template>
+
+          <div class="menu-divider"></div>
+
+          <skylee-drawer-menu-item
+            depth="0"
+            name="Facebook"
+            href="https://www.facebook.com/skylee.hku"
+            target="_blank">
+          </skylee-drawer-menu-item>
+          <skylee-drawer-menu-item
+            depth="0"
+            name="Instagram"
+            href="https://www.instagram.com/skylee.hku/"
+            target="_blank">
+          </skylee-drawer-menu-item>
+          <skylee-drawer-menu-item
+            depth="0"
+            name="Youtube"
+            href="https://www.youtube.com/channel/UC3w7MWF3OkqMs-tV-Np-LKw"
+            target="_blank">
+          </skylee-drawer-menu-item>
+        </div>
+      </div>
+    </app-drawer>
+    
+  </template>
+  <script>
+    class SkyleeDrawer extends Polymer.Element {
+
+      static get is() { return 'skylee-drawer'; }
+
+      static get properties() { return {
+        routePath: {
+          type: String,
+          observer: '_onRoutePathChanged'
+        },
+
+        menuItems: {
+          type: Array,
+          value: () => [
+            {
+              name: 'Home',
+              href: `${Polymer.rootPath}`
+            },
+            {
+              name: 'Event',
+              href: `${Polymer.rootPath}event`
+            },
+            {
+              name: 'Team',
+              href: `${Polymer.rootPath}team`,
+              subitems: (() => {
+                let teams = ['badminton', 'band', 'basketball', 'bridge', 'choir', 'dancing', 'debating', 'drama', 'handball', 'hockey', 'lacrosse', 'soccer', 'softball', 'squash', 'table-tennis', 'volleyball'];
+                return teams.map(e => ({
+                  name: e.split('-').map(s => s.charAt(0).toUpperCase() + s.substr(1)).join(' '),
+                  href: `${Polymer.rootPath}team/${e}`
+                }));
+              })()
+            },
+            {
+              name: 'About',
+              href: `${Polymer.rootPath}about`
+            }
+          ]
+        }
+      };}
+
+      _onRoutePathChanged(routePath) {
+        this.close();
+      }
+
+      toggle() {
+        this.$.drawer.toggle();
+      }
+      close() {
+        this.$.drawer.close();
+      }
+
+    }
+    window.customElements.define(SkyleeDrawer.is, SkyleeDrawer);
+  </script>
+</dom-module>

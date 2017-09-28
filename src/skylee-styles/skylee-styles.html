@@ -16,72 +16,86 @@
        */
       --skylee-text_font-family: 'Noto Sans TC', sans-serif;
 
+      --skylee-text--common_font: {
+        font-family: var(--skylee-text_font-family);
+      };
+
       --skylee-text--display4_font: {
         @apply --paper-font-display4;
-        font-family: var(--skylee-text_font-family);
+        @apply --skylee-text--common_font;
       };
 
       --skylee-text--display3_font: {
         @apply --paper-font-display3;
-        font-family: var(--skylee-text_font-family);
+        @apply --skylee-text--common_font;
       };
 
       --skylee-text--display2_font: {
         @apply --paper-font-display2;
-        font-family: var(--skylee-text_font-family);
+        @apply --skylee-text--common_font;
       };
 
       --skylee-text--display1_font: {
         @apply --paper-font-display1;
-        font-family: var(--skylee-text_font-family);
+        @apply --skylee-text--common_font;
       };
 
       --skylee-text--headline_font: {
         @apply --paper-font-headline;
-        font-family: var(--skylee-text_font-family);
+        @apply --skylee-text--common_font;
       };
 
       --skylee-text--title_font: {
         @apply --paper-font-title;
-        font-family: var(--skylee-text_font-family);
+        @apply --skylee-text--common_font;
       };
 
       --skylee-text--subheading_font: {
         @apply --paper-font-subhead;
-        font-family: var(--skylee-text_font-family);
+        @apply --skylee-text--common_font;
       };
 
       --skylee-text--body2_font: {
         @apply --paper-font-body2;
-        font-family: var(--skylee-text_font-family);
+        @apply --skylee-text--common_font;
       };
 
       --skylee-text--body1_font: {
         @apply --paper-font-body1;
-        font-family: var(--skylee-text_font-family);
+        @apply --skylee-text--common_font;
       };
 
       --skylee-text--caption_font: {
         @apply --paper-font-caption;
-        font-family: var(--skylee-text_font-family);
+        @apply --skylee-text--common_font;
       };
 
       --skylee-text--menu_font: {
         @apply --paper-font-menu;
-        font-family: var(--skylee-text_font-family);
+        @apply --skylee-text--common_font;
       };
 
       --skylee-text--button_font: {
         @apply --paper-font-button;
-        font-family: var(--skylee-text_font-family);
+        @apply --skylee-text--common_font;
       };
 
       /*
        * Theme & Color
        */
       /* Light theme */
-      --skylee-background--light-theme--primary_background-color: white;
-      --skylee-background--light-theme--secondary_background-color: var(--paper-grey-50);
+      --skylee-background--light-theme--primary_background-color_r: 255; /* white */
+      --skylee-background--light-theme--primary_background-color_g: 255;
+      --skylee-background--light-theme--primary_background-color_b: 255;
+      --skylee-background--light-theme--primary_background-color: rgb(var(--skylee-background--light-theme--primary_background-color_r),
+                                                                        var(--skylee-background--light-theme--primary_background-color_g),
+                                                                        var(--skylee-background--light-theme--primary_background-color_b));
+      --skylee-background--light-theme--secondary_background-color_r: 250; /* --paper-grey-50 */
+      --skylee-background--light-theme--secondary_background-color_g: 250;
+      --skylee-background--light-theme--secondary_background-color_b: 250;
+      --skylee-background--light-theme--secondary_background-color: rgb(var(--skylee-background--light-theme--secondary_background-color_r),
+                                                                          var(--skylee-background--light-theme--secondary_background-color_g),
+                                                                          var(--skylee-background--light-theme--secondary_background-color_b));
 
       --skylee-text--light-theme--base_color_r: 0;
       --skylee-text--light-theme--base_color_g: 0;
@@ -115,8 +129,19 @@
                                                   var(--skylee-divider--light-theme_opacity));
 
       /* Dark theme */
-      --skylee-background--dark-theme--primary_background-color: var(--paper-grey-900);
-      --skylee-background--dark-theme--secondary_background-color: var(--paper-grey-800);
+      
+      --skylee-background--dark-theme--primary_background-color_r: 66; /* --paper-grep-800 */
+      --skylee-background--dark-theme--primary_background-color_g: 66;
+      --skylee-background--dark-theme--primary_background-color_b: 66;
+      --skylee-background--dark-theme--primary_background-color: rgb(var(--skylee-background--dark-theme--primary_background-color_r),
+                                                                        var(--skylee-background--dark-theme--primary_background-color_g),
+                                                                        var(--skylee-background--dark-theme--primary_background-color_b));
+      --skylee-background--dark-theme--secondary_background-color_r: 48; /* #303030 */
+      --skylee-background--dark-theme--secondary_background-color_g: 48;
+      --skylee-background--dark-theme--secondary_background-color_b: 48;
+      --skylee-background--dark-theme--secondary_background-color: rgb(var(--skylee-background--dark-theme--secondary_background-color_r),
+                                                                          var(--skylee-background--dark-theme--secondary_background-color_g),
+                                                                          var(--skylee-background--dark-theme--secondary_background-color_b));
       
       --skylee-text--dark-theme--base_color_r: 255;
       --skylee-text--dark-theme--base_color_g: 255;
@@ -151,8 +176,14 @@
 
       /* Current theme */
       /*--skylee-theme--light: {*/
-        --skylee-background--primary_background-color: var(--skylee-background--light-theme--primary_background-color);
-        --skylee-background--secondary_background-color: var(--skylee-background--light-theme--secondary_background-color);
+        --skylee-background--primary_background-color_r: var(--skylee-background--light-theme--primary_background-color_r);
+        --skylee-background--primary_background-color_g: var(--skylee-background--light-theme--primary_background-color_g);
+        --skylee-background--primary_background-color_b: var(--skylee-background--light-theme--primary_background-color_b);
+          --skylee-background--primary_background-color: var(--skylee-background--light-theme--primary_background-color);
+        --skylee-background--secondary_background-color_r: var(--skylee-background--light-theme--secondary_background-color_r);
+        --skylee-background--secondary_background-color_g: var(--skylee-background--light-theme--secondary_background-color_g);
+        --skylee-background--secondary_background-color_b: var(--skylee-background--light-theme--secondary_background-color_b);
+          --skylee-background--secondary_background-color: var(--skylee-background--light-theme--secondary_background-color);
 
         --skylee-text--base_color_r: var(--skylee-text--light-theme--base_color_r);
         --skylee-text--base_color_g: var(--skylee-text--light-theme--base_color_g);
@@ -171,9 +202,15 @@
         --skylee-divider_opacity: var(--skylee-divider--light-theme_opacity);
         --skylee-divider_color: var(--skylee-divider--light-theme_color);
       /*};*/
-      --skylee-theme--dark: {
-        --skylee-background--primary_background-color: var(--skylee-background--dark-theme--primary_background-color);
-        --skylee-background--secondary_background-color: var(--skylee-background--dark-theme--secondary_background-color);
+      /* --skylee-theme--dark: {
+        --skylee-background--primary_background-color_r: var(--skylee-background--dark-theme--primary_background-color_r);
+        --skylee-background--primary_background-color_g: var(--skylee-background--dark-theme--primary_background-color_g);
+        --skylee-background--primary_background-color_b: var(--skylee-background--dark-theme--primary_background-color_b);
+          --skylee-background--primary_background-color: var(--skylee-background--dark-theme--primary_background-color);
+        --skylee-background--secondary_background-color_r: var(--skylee-background--dark-theme--secondary_background-color_r);
+        --skylee-background--secondary_background-color_g: var(--skylee-background--dark-theme--secondary_background-color_g);
+        --skylee-background--secondary_background-color_b: var(--skylee-background--dark-theme--secondary_background-color_b);
+          --skylee-background--secondary_background-color: var(--skylee-background--dark-theme--secondary_background-color);
 
         --skylee-text--base_color_r: var(--skylee-text--dark-theme--base_color_r);
         --skylee-text--base_color_g: var(--skylee-text--dark-theme--base_color_g);
@@ -192,17 +229,22 @@
         --skylee-divider_opacity: var(--skylee-divider--dark-theme_opacity);
         --skylee-divider_color: var(--skylee-divider--light-theme_color);
       };
-      /*@apply --skylee-theme--dark;*/
+      @apply --skylee-theme--dark; */
 
-      /* primary-color background color */
-      --skylee-background--app-theme--primary_background-color: rgb(0, 71, 187);
+      /* app-theme */
+      --skylee-background--app-theme--primary_background-color: var(--skylee-background--primary_background-color);
 
-      --skylee-text--app-theme--primary_color: white;
+      --skylee-text--app-theme--primary_color: var(--skylee-text--primary_color);
+
+      --skylee-accent_color: rgb(0, 71, 187);
 
       /*
        * Shadow
        */
-      --skylee-shadow_transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1); /* extract from --shadow-transition */
+      --skylee-shadow_transition-duration: 0.28s;
+      --skylee-shadow_transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      --skylee-shadow_transition: box-shadow var(--skylee-shadow_transition-duration) var(--skylee-shadow_transition-timing-function); /* extract from --shadow-transition */
+
       --skylee-shadow--elevation-0_box-shadow: none;
       --skylee-shadow--elevation-1_box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
                                                0 1px 5px 0 rgba(0, 0, 0, 0.12),
@@ -262,12 +304,21 @@
        */
       /* Toolbar */
       --skylee-toolbar--normal_height: 64px;
-      --skylee-toolbar--narrow_height: 96px;
       --skylee-toolbar--short_height: 48px;
 
-      /* Content */
-      --skylee-content_max-width: 1200px;
+      --skylee-toolbar_height-transition-duration: 200ms;
+      --skylee-toolbar_height-transition-timing-function: ease-out;
 
+      --skylee-toolbar_hide-toggling-duration: 200ms;
+      --skylee-toolbar_hide-toggling-timing-function: ease-out;
+
+      --skylee-toolbar_transparent-toggling-duration: 200ms;
+      --skylee-toolbar_transparent-toggling-timing-function: ease-out;
+
+
+    }
+    body {
+      background-color: var(--skylee-background--secondary_background-color);
     }
   </style>
 </custom-style>
