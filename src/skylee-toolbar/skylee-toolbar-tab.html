@@ -1,9 +1,9 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
 
-<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<!-- <link rel="import" href="../../bower_components/iron-icon/iron-icon.html"> -->
 
 <link rel="import" href="../skylee-styles/skylee-styles.html">
-<link rel="import" href="../skylee-icons/skylee-icons.html">
+<!-- <link rel="import" href="../skylee-icons/skylee-icons.html"> -->
 
 <dom-module id="skylee-toolbar-tab">
   <template strip-whitespace>
@@ -55,7 +55,7 @@
       }
     </style>
 
-    <a id="link" href$="[[href]]">[[name]]
+    <a id="link" href$="[[href]]" rel="noreferrer noopener">[[name]]
       <!-- <iron-icon id="drop-down-arrow" icon="skylee:arrow-drop-down"></iron-icon> -->
     </a>
 
@@ -85,7 +85,8 @@
       };}
 
       _computeSelected(routePath, href) {
-        return Boolean(routePath && routePath.startsWith(href));
+        return routePath === href;
+        // return Boolean(routePath && routePath.startsWith(href));
       }
 
     }

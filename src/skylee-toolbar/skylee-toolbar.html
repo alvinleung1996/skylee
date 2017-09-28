@@ -100,11 +100,13 @@
         -webkit-tap-highlight-color: transparent; /* for Android Chrome */
         pointer-events: auto;
       }
+      :host([narrow-layout]) #home-button-link {
+        transform: translateX(-12px);
+      }
       #home-button {
         flex: 1 1 auto;
         margin: 0px;
-        padding-top: 0;
-        padding-bottom: 0;
+        padding: 0px 12px 0px 12px;
         @apply --skylee-text--title_font;
         color: var(--skylee-accent_color);
         text-transform: none;
@@ -174,19 +176,19 @@
       <div id="menu-button-padding">
         <paper-icon-button id="menu-button" icon="skylee:menu" on-tap="_onMenuButtonTap"></paper-icon-button>
       </div>
-      <a id="home-button-link" href$="[[_homeButtonHref]]" tabindex="-1">
+      <a id="home-button-link" href$="[[_homeButtonHref]]" tabindex="-1" rel="noreferrer noopener">
         <paper-button id="home-button">Simon K. Y. Lee Hall</paper-button>
       </a>
     </div>
 
     <div id="external-buttons">
-      <a class="external-button-link" href="https://www.facebook.com/skylee.hku" target="_blank" tabindex="-1">
+      <a class="external-button-link" href="https://www.facebook.com/skylee.hku" target="_blank" tabindex="-1" rel="noreferrer noopener">
         <paper-icon-button id="facebook-button_x" class="external-button" icon="skylee:facebook"></paper-icon-button>
       </a>
-      <a class="external-button-link" href="https://www.instagram.com/skylee.hku/" target="_blank" tabindex="-1">
+      <a class="external-button-link" href="https://www.instagram.com/skylee.hku/" target="_blank" tabindex="-1" rel="noreferrer noopener">
         <paper-icon-button id="instagram-button" class="external-button" icon="skylee:instagram"></paper-icon-button>
       </a>
-      <a class="external-button-link" href="https://www.youtube.com/channel/UC3w7MWF3OkqMs-tV-Np-LKw" target="_blank" tabindex="-1">
+      <a class="external-button-link" href="https://www.youtube.com/channel/UC3w7MWF3OkqMs-tV-Np-LKw" target="_blank" tabindex="-1" rel="noreferrer noopener">
         <paper-icon-button id="youtube-button" class="external-button" icon="skylee:youtube"></paper-icon-button>
       </a>
     </div>
