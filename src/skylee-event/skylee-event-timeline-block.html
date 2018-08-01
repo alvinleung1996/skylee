@@ -213,10 +213,15 @@
       }
 
       #content > ::slotted(p) {
-        margin: 0px;
         @apply --skylee-text--body1_font;
         color: var(--skylee-text--secondary_color);
         text-align: justify;
+      }
+      #content > ::slotted(p:first-child) {
+        margin-top: 0px;
+      }
+      #content > ::slotted(p:last-child) {
+        margin-bottom: 0px;
       }
       #content > ::slotted(iframe) {
         display: block;
